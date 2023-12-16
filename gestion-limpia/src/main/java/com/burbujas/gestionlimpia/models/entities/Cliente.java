@@ -1,8 +1,11 @@
 package com.burbujas.gestionlimpia.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "clientes")
@@ -27,6 +30,33 @@ public class Cliente implements Serializable {
     // Referencia: https://www.regextester.com/107303
     @Pattern(regexp="(^(?:(?:00)?549?)?0?(?:11|[2368]\\\\d)(?:(?=\\\\d{0,2}15)\\\\d{2})??\\\\d{8}$)", message = "El número de teléfono debe seguir el formato (Código de área)(Número)")
     private String telefono;
+
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Pedido> pedidos;
+
+    public Cliente(){
+        this.pedidos = new ArrayList<Pedido>();
+    }
+
+    public void addPedido(Pedido pedido){
+        this.pedidos.add(pedido);
+    }
+
+    public void setPedidos(List<Pedido> pedidos){
+        this.pedidos = pedidos;
+    }
+
+    public List<Pedido> getPedidos(){
+        return pedidos;
+    }
+
+    public Long getId() {
+        return Id;
+    }
+
+    public void setId(Long id) {
+        Id = id;
+    }
 
     public String getDni() {
         return dni;
