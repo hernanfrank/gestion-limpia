@@ -1,6 +1,5 @@
 package com.burbujas.gestionlimpia.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -21,7 +20,7 @@ public class Cliente implements Serializable {
 
     @NotEmpty(message = "El nombre y apellido del cliente no pueden estar vacíos")
     @Size(min = 1, max = 250)
-    private String nombre_apellido;
+    private String nombreApellido;
 
     @Size(min = 1, max = 250)
     private String direccion;
@@ -66,12 +65,12 @@ public class Cliente implements Serializable {
         this.dni = dni;
     }
 
-    public String getNombre_apellido() {
-        return nombre_apellido;
+    public String getNombreApellido() {
+        return nombreApellido;
     }
 
-    public void setNombre_apellido(String nombre_apellido) {
-        this.nombre_apellido = nombre_apellido;
+    public void setNombreApellido(String nombre_apellido) {
+        this.nombreApellido = nombre_apellido;
     }
 
     public String getDireccion() {

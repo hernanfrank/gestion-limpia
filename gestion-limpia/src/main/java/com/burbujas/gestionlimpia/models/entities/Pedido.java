@@ -1,6 +1,5 @@
 package com.burbujas.gestionlimpia.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,7 +7,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 @Entity
 @Table(name = "pedidos")
@@ -19,18 +20,30 @@ public class Pedido implements Serializable {
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha_hora_ingreso;
-
-    @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotEmpty
-    private Date fecha_entrega_estimada;
+    @Column(name = "fecha_hora_ingreso")
+    private Timestamp fechaHoraIngreso;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "fecha_hora_entrega_estimada")
+    private Timestamp fechaHoraEntregaEstimada;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotEmpty(message = "El cliente asociado al pedido no puede estar vacío")
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotEmpty(message = "El tipo de pedido no puede estar vacío")
     private TipoPedido tipo;
+
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<HistorialEstadoPedido> historialEstados;
+
+    public Pedido() {
+        this.historialEstados = new ArrayList<HistorialEstadoPedido>();
+    }
 
     public Long getId() {
         return id;
@@ -42,23 +55,30 @@ public class Pedido implements Serializable {
 
     @PrePersist
     public void prePersist() {
-        this.fecha_hora_ingreso = new Timestamp(System.currentTimeMillis());
+        // asigno la fecha de ingreso
+        this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
+
+        //asigno la fecha de entrega calculada según el tipo de pedido (fecha ingreso + duracion del pedido en dias)
+        Calendar fechaEntregaCalculada = Calendar.getInstance();
+        fechaEntregaCalculada.setTime(this.fechaHoraIngreso);
+        fechaEntregaCalculada.add(Calendar.DAY_OF_MONTH, this.tipo.getDuracionEstimada().getDays());
+        this.fechaHoraEntregaEstimada = new Timestamp(fechaEntregaCalculada.getTimeInMillis());
     }
 
-    public Date getFecha_hora_ingreso() {
-        return fecha_hora_ingreso;
+    public Timestamp getFechaHoraIngreso() {
+        return fechaHoraIngreso;
     }
 
-    public void setFecha_hora_ingreso(Date fecha_hora_ingreso) {
-        this.fecha_hora_ingreso = fecha_hora_ingreso;
+    public void setFechaHoraIngreso(Timestamp fecha_hora_ingreso) {
+        this.fechaHoraIngreso = fecha_hora_ingreso;
     }
 
-    public Date getFecha_entrega_estimada() {
-        return fecha_entrega_estimada;
+    public Timestamp getFechaHoraEntregaEstimada() {
+        return fechaHoraEntregaEstimada;
     }
 
-    public void setFecha_entrega_estimada(Date fecha_entrega_estimada) {
-        this.fecha_entrega_estimada = fecha_entrega_estimada;
+    public void setFechaHoraEntregaEstimada(Timestamp fecha_entrega_estimada) {
+        this.fechaHoraEntregaEstimada = fecha_entrega_estimada;
     }
 
     @XmlTransient
@@ -77,4 +97,13 @@ public class Pedido implements Serializable {
     public void setTipo(TipoPedido tipo) {
         this.tipo = tipo;
     }
+
+    public List<HistorialEstadoPedido> getHistorialEstados() {
+        return historialEstados;
+    }
+
+    public void setHistorialEstados(List<HistorialEstadoPedido> historialEstados) {
+        this.historialEstados = historialEstados;
+    }
+
 }
