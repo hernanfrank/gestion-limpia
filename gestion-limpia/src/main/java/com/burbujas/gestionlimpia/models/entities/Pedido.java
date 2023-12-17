@@ -39,10 +39,18 @@ public class Pedido implements Serializable {
     private TipoPedido tipo;
 
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<HistorialEstadoPedido> historialEstados;
+    private List<HistorialEstadoPedido> historialEstadoPedido;
+
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<HistorialMaquinaPedido> historialMaquinaPedido;
+
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<HistorialProductoPedido> historialProductoPedido;
 
     public Pedido() {
-        this.historialEstados = new ArrayList<HistorialEstadoPedido>();
+        this.historialEstadoPedido = new ArrayList<HistorialEstadoPedido>();
+        this.historialMaquinaPedido = new ArrayList<HistorialMaquinaPedido>();
+        this.historialProductoPedido = new ArrayList<HistorialProductoPedido>();
     }
 
     public Long getId() {
@@ -98,12 +106,27 @@ public class Pedido implements Serializable {
         this.tipo = tipo;
     }
 
-    public List<HistorialEstadoPedido> getHistorialEstados() {
-        return historialEstados;
+    public List<HistorialEstadoPedido> getHistorialEstadoPedido() {
+        return historialEstadoPedido;
     }
 
-    public void setHistorialEstados(List<HistorialEstadoPedido> historialEstados) {
-        this.historialEstados = historialEstados;
+    public void setHistorialEstadoPedido(List<HistorialEstadoPedido> historialEstados) {
+        this.historialEstadoPedido = historialEstados;
     }
 
+    public List<HistorialMaquinaPedido> getHistorialMaquinaPedido() {
+        return historialMaquinaPedido;
+    }
+
+    public void setHistorialMaquinaPedido(List<HistorialMaquinaPedido> historialMaquinas) {
+        this.historialMaquinaPedido = historialMaquinas;
+    }
+
+    public List<HistorialProductoPedido> getHistorialProductoPedido() {
+        return historialProductoPedido;
+    }
+
+    public void setHistorialProductoPedido(List<HistorialProductoPedido> historialProductoPedido) {
+        this.historialProductoPedido = historialProductoPedido;
+    }
 }

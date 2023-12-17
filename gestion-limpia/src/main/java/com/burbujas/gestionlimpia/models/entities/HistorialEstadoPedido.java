@@ -6,7 +6,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Calendar;
 
 @Entity
 @Table(name = "historial_estado_pedido")
