@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -16,11 +17,11 @@ public class HistorialEstadoPedido implements Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty
+    @NotNull
     private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty
+    @NotNull
     private EstadoPedido estado;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -33,7 +34,18 @@ public class HistorialEstadoPedido implements Serializable {
     @PrePersist
     public void prePersist() {
         // asigno la fecha y hora del cambio de estado
-        this.fechaHoraCambioEstado = new Timestamp(System.currentTimeMillis());
+        if(this.fechaHoraCambioEstado == null) {
+            this.fechaHoraCambioEstado = new Timestamp(System.currentTimeMillis());
+        }
+    }
+
+    public HistorialEstadoPedido() {
+    }
+
+    public HistorialEstadoPedido(Pedido pedido, EstadoPedido estado, Timestamp fechaHoraCambioEstado) {
+        this.pedido = pedido;
+        this.estado = estado;
+        this.fechaHoraCambioEstado = fechaHoraCambioEstado;
     }
 
     public Long getId() {

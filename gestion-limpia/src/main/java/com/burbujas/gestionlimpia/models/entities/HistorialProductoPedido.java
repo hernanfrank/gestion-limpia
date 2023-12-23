@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -13,14 +14,14 @@ public class HistorialProductoPedido implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty
+    @NotNull
     private Producto producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty
+    @NotNull
     private Pedido pedido;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -31,15 +32,25 @@ public class HistorialProductoPedido implements Serializable {
 
     @PrePersist
     public void prePersist(){
-        this.fechaHoraUso = new Timestamp(System.currentTimeMillis());
+        if(this.fechaHoraUso == null) {
+            this.fechaHoraUso = new Timestamp(System.currentTimeMillis());
+        }
+    }
+
+    public HistorialProductoPedido(){}
+
+    public HistorialProductoPedido(Producto producto, Pedido pedido, Timestamp fechaHoraUso) {
+        this.producto = producto;
+        this.pedido = pedido;
+        this.fechaHoraUso = fechaHoraUso;
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Producto getProducto() {

@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -13,10 +14,10 @@ public class HistorialMaquinaPedido implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty
+    @NotNull
     private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,12 +35,22 @@ public class HistorialMaquinaPedido implements Serializable {
     @Column(name = "fecha_hora_fin")
     private Timestamp fechaHoraFin;
 
+    public HistorialMaquinaPedido() {
+    }
+
+    public HistorialMaquinaPedido(Pedido pedido, Maquina maquina, Timestamp fechaHoraInicio, Timestamp fechaHoraFin) {
+        this.pedido = pedido;
+        this.maquina = maquina;
+        this.fechaHoraInicio = fechaHoraInicio;
+        this.fechaHoraFin = fechaHoraFin;
+    }
+
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Pedido getPedido() {

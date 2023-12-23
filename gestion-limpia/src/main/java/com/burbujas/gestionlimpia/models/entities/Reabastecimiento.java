@@ -13,7 +13,7 @@ public class Reabastecimiento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Producto producto;
@@ -28,4 +28,54 @@ public class Reabastecimiento implements Serializable {
     private Integer cantidad;
 
     private String proveedor;
+
+    public Reabastecimiento() {
+    }
+
+    public Reabastecimiento(Producto producto, Timestamp fechaHora, Integer cantidad, String proveedor) {
+        this.producto = producto;
+        this.fechaHora = fechaHora;
+        this.cantidad = cantidad;
+        this.proveedor = proveedor;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    public Timestamp getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(Timestamp fechaHora) {
+        this.fechaHora = fechaHora;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public String getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
 }

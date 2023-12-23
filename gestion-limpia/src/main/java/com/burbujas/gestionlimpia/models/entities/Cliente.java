@@ -12,7 +12,7 @@ public class Cliente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotEmpty(message = "El DNI del cliente no puede estar vacío")
     @Size(min = 8, max = 8)
@@ -37,6 +37,14 @@ public class Cliente implements Serializable {
         this.pedidos = new ArrayList<Pedido>();
     }
 
+    public Cliente(String dni, String nombreApellido, String direccion, String telefono) {
+        this.dni = dni;
+        this.nombreApellido = nombreApellido;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.pedidos = new ArrayList<Pedido>();
+    }
+
     public void addPedido(Pedido pedido){
         this.pedidos.add(pedido);
     }
@@ -50,11 +58,11 @@ public class Cliente implements Serializable {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getDni() {

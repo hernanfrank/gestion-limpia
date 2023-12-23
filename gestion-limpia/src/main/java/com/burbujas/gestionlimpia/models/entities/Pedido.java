@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -31,11 +32,11 @@ public class Pedido implements Serializable {
     private Timestamp fechaHoraEntregaEstimada;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty(message = "El cliente asociado al pedido no puede estar vacío")
+    @NotNull(message = "El cliente asociado al pedido no puede estar vacío")
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotEmpty(message = "El tipo de pedido no puede estar vacío")
+    @NotNull(message = "El tipo de pedido no puede estar vacío")
     private TipoPedido tipo;
 
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -53,6 +54,16 @@ public class Pedido implements Serializable {
         this.historialProductoPedido = new ArrayList<HistorialProductoPedido>();
     }
 
+    public Pedido(Timestamp fechaHoraIngreso, Timestamp fechaHoraEntregaEstimada, Cliente cliente, TipoPedido tipo, List<HistorialEstadoPedido> historialEstadoPedido, List<HistorialMaquinaPedido> historialMaquinaPedido, List<HistorialProductoPedido> historialProductoPedido) {
+        this.fechaHoraIngreso = fechaHoraIngreso;
+        this.fechaHoraEntregaEstimada = fechaHoraEntregaEstimada;
+        this.cliente = cliente;
+        this.tipo = tipo;
+        this.historialEstadoPedido = historialEstadoPedido;
+        this.historialMaquinaPedido = historialMaquinaPedido;
+        this.historialProductoPedido = historialProductoPedido;
+    }
+
     public Long getId() {
         return id;
     }
@@ -64,13 +75,17 @@ public class Pedido implements Serializable {
     @PrePersist
     public void prePersist() {
         // asigno la fecha de ingreso
-        this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
+        if (this.fechaHoraIngreso == null) {
+            this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
+        }
 
         //asigno la fecha de entrega calculada según el tipo de pedido (fecha ingreso + duracion del pedido en dias)
-        Calendar fechaEntregaCalculada = Calendar.getInstance();
-        fechaEntregaCalculada.setTime(this.fechaHoraIngreso);
-        fechaEntregaCalculada.add(Calendar.DAY_OF_MONTH, this.tipo.getDuracionEstimada().getDays());
-        this.fechaHoraEntregaEstimada = new Timestamp(fechaEntregaCalculada.getTimeInMillis());
+        if(this.fechaHoraEntregaEstimada == null) {
+            Calendar fechaEntregaCalculada = Calendar.getInstance();
+            fechaEntregaCalculada.setTime(this.fechaHoraIngreso);
+            fechaEntregaCalculada.add(Calendar.DAY_OF_MONTH, this.tipo.getDuracionEstimada());
+            this.fechaHoraEntregaEstimada = new Timestamp(fechaEntregaCalculada.getTimeInMillis());
+        }
     }
 
     public Timestamp getFechaHoraIngreso() {

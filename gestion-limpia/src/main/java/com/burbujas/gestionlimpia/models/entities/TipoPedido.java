@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.time.Period;
@@ -21,11 +22,20 @@ public class TipoPedido implements Serializable {
     @NotEmpty(message = "El precio del tipo de pedido no puede estar vacía")
     private Double precio;
 
-    @NotEmpty(message = "El duración estimada del tipo de pedido no puede estar vacía")
-    private Period duracionEstimada;
+    @NotEmpty(message = "La duración estimada del tipo de pedido no puede estar vacía")
+    private Integer duracionEstimada; // en dias
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tipo", fetch = FetchType.LAZY)
     private List<Pedido> pedidos;
+
+    public TipoPedido() {
+    }
+
+    public TipoPedido(String descripcion, Double precio, Integer duracionEstimada) {
+        this.descripcion = descripcion;
+        this.precio = precio;
+        this.duracionEstimada = duracionEstimada;
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -51,11 +61,10 @@ public class TipoPedido implements Serializable {
         this.precio = precio;
     }
 
-    public Period getDuracionEstimada() {
-        return duracionEstimada;
-    }
+    public Integer getDuracionEstimada() {
+        return this.duracionEstimada;    }
 
-    public void setDuracionEstimada(Period duracion) {
+    public void setDuracionEstimada(Integer duracion) {
         this.duracionEstimada = duracion;
     }
 

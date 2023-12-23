@@ -25,6 +25,11 @@ public class EstadoPedido implements Serializable {
         this.historialEstados = new ArrayList<HistorialEstadoPedido>();
     }
 
+    public EstadoPedido(String descripcion) {
+        this.descripcion = descripcion;
+        this.historialEstados = new ArrayList<HistorialEstadoPedido>();
+    }
+
     public Long getId() {
         return id;
     }

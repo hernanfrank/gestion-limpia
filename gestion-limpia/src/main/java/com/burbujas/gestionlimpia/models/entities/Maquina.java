@@ -12,7 +12,7 @@ import java.util.List;
 public class Maquina implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotEmpty(message = "El tipo de máquina no puede ser vacío")
     private String tipo;
@@ -24,15 +24,20 @@ public class Maquina implements Serializable {
     private List<HistorialMaquinaPedido> historialMaquinaPedido;
 
     public Maquina() {
+    }
+
+    public Maquina(String tipo, Integer numero) {
+        this.tipo = tipo;
+        this.numero = numero;
         this.historialMaquinaPedido = new ArrayList<HistorialMaquinaPedido>();
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getTipo() {

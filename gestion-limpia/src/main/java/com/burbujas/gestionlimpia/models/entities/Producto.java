@@ -13,7 +13,7 @@ public class Producto implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotEmpty(message = "El tipo de producto no puede estar vacío")
     private String tipo;
@@ -29,12 +29,18 @@ public class Producto implements Serializable {
         this.historialProductoPedidos = new ArrayList<HistorialProductoPedido>();
     }
 
+    public Producto(String tipo, List<Reabastecimiento> reabastecimientos, List<HistorialProductoPedido> historialProductoPedidos) {
+        this.tipo = tipo;
+        this.reabastecimientos = reabastecimientos;
+        this.historialProductoPedidos = historialProductoPedidos;
+    }
+
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getTipo() {
