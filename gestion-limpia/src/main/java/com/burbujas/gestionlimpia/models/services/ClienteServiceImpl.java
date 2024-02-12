@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service("ClienteService")
+@Service("ClienteServiceImpl")
 public class ClienteServiceImpl implements IClienteService{
 
     private final IClienteRepository clienteRepository;
-    
+
     @Autowired
     public ClienteServiceImpl(IClienteRepository clienteRepository) {
         this.clienteRepository = clienteRepository;

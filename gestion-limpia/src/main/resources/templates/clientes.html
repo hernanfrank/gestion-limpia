@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/imports :: styles}"></div>
+<div class="container">
+    <div class="row mb-2">
+        <div class="col">
+            <div th:replace="~{components/topmenu :: messages}"></div>
+        </div>
+    </div>
+   <div class="row mb-2">
+        <div class="col">
+            <a class="float-end" th:href="@{/clientes/nuevo}">
+                <button class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Nuevo
+                </button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col border rounded-3 p-2">
+        <table id="clientes_table" class="table table-striped border mt-2">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cliente: ${clientes}">
+                <td th:text="${cliente.id}"></td>
+                <td th:text="${cliente.nombreApellido}"></td>
+                <td th:text="${cliente.direccion}"></td>
+                <td th:text="${cliente.telefono}"></td>
+                <td>
+                    <a class="d-inline nav-link" th:href="@{/clientes/{id}(id=${cliente.id})}">
+                        <button class="btn btn-warning">
+                            Editar
+                        </button>
+                    </a>
+                    <a class="d-inline nav-link" onclick="return confirm('Eliminar el cliente?')"
+                       th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}">
+                        <button class="btn btn-danger">
+                            Eliminar
+                        </button>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script>
+    createTable('clientes_table');
+</script>
+</html>

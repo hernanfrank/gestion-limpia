@@ -14,15 +14,15 @@ public class Cliente implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "El DNI del cliente no puede estar vacío")
-    @Size(min = 8, max = 8)
+    @NotEmpty(message = "El DNI no puede estar vacío")
+    @Size(min = 8, max = 8, message = "El DNI debe tener 8 caracteres")
     private String dni;
 
     @NotEmpty(message = "El nombre y apellido del cliente no pueden estar vacíos")
-    @Size(min = 1, max = 250)
+    @Size(min = 1, max = 250, message = "El nombre y apellido no puede ser mayor a 250 caracteres")
     private String nombreApellido;
 
-    @Size(min = 1, max = 250)
+    @Size(min = 1, max = 250, message = "La dirección no puede ser mayor a 250 caracteres")
     private String direccion;
 
     // REGEX que evalúa teléfonos argentinos

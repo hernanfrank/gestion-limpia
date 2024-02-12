@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/topmenu :: messages}"></div>
+<div class="container">
+  <div class="row mb-2">
+    <div class="col">
+      <a class="float-start" th:href="@{/clientes}">
+        <button class="btn btn-secondary">
+          Volver
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    <!-- con th:object mapeamos la clase cliente al formulario -->
+    <form enctype="multipart/form-data" method="post" th:action="@{/clientes/guardar}" th:object="${cliente}">
+      <input type="hidden" th:field="*{id}">
+      <table class="table table-bordered">
+        <tr>
+          <td>DNI</td>
+          <td>
+            <input class="form-control" th:errorclass="'border border-danger'" th:field="*{dni}"
+                   type="text"/>
+            <small class="text-danger" th:errors="*{dni}"
+                   th:if="${#fields.hasErrors('dni')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Nombre y Apellido</td>
+          <td>
+            <input class="form-control" th:errorclass="'border border-danger'" th:field="*{nombreApellido}"
+                   type="text"/>
+            <small class="text-danger" th:errors="*{nombreApellido}"
+                   th:if="${#fields.hasErrors('nombreApellido')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Dirección</td>
+          <td>
+            <input class="form-control" th:errorclass="'border border-danger'" th:field="*{direccion}"
+                   type="text"/>
+            <small class="text-danger" th:errors="*{direccion}"
+                   th:if="${#fields.hasErrors('direccion')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Teléfono:</td>
+          <td>
+          <input class="form-control" th:errorclass="'border border-danger'" th:field="*{telefono}"
+                 type="text"/>
+          <small class="text-danger" th:errors="*{telefono}"
+                 th:if="${#fields.hasErrors('telefono')}"></small>
+          </td>
+        </tr>
+      </table>
+      <div class="d-flex justify-content-center">
+        <input class="btn btn-primary" type="submit" value="Guardar"/>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+</html>
