@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/topmenu :: messages}"></div>
+<div class="container">
+  <div class="row mb-2">
+    <div class="col">
+      <a class="float-start" th:href="@{/productos/inventario}">
+        <button class="btn btn-secondary">
+          Volver
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <form enctype="multipart/form-data" method="post" th:action="@{/productos/reabastecimientos/guardar}" th:object="${reabastecimiento}">
+        <input type="hidden" th:field="*{id}">
+        <table class="table table-bordered">
+          <tr>
+            <td>Producto</td>
+            <td>
+              <select class="form-select" th:if="${productos != null && productos.size > 0}" th:field="*{producto}">
+                <option th:each="productoSelect : ${productos}" th:value="${productoSelect.id}" th:text="${productoSelect.tipo}" th:selected="${reabastecimiento.producto != null && productoSelect.id == reabastecimiento.producto.id}"></option>
+              </select>
+              <span class="text-danger" th:if="${productos == null || productos.size() <= 0}">Aún no existen productos</span>
+              <small class="text-danger" th:errors="*{producto}"
+                     th:if="${#fields.hasErrors('producto')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Proveedor</td>
+            <td>
+              <select class="form-select" th:if="${proveedores != null && proveedores.size > 0}" th:field="*{proveedor}">
+                <option th:each="proveedorSelect : ${proveedores}" th:value="${proveedorSelect.id}" th:text="${proveedorSelect.nombre}" th:selected="${reabastecimiento.proveedor != null && proveedorSelect.id == reabastecimiento.proveedor.id}"></option>
+              </select>
+              <span class="text-danger" th:if="${proveedores == null || proveedores.size() <= 0}">Aún no existen proveedores</span>
+              <small class="text-danger" th:errors="*{proveedor}"
+                     th:if="${#fields.hasErrors('proveedor')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Cantidad a reabastecer</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidad}"
+                     type="number" max="100" min="0"/>
+              <small class="text-danger" th:errors="*{cantidad}"
+                     th:if="${#fields.hasErrors('cantidad')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Fecha</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{fecha}"
+                     type="date" th:max="${#dates.format(fechaActual,'yyyy-MM-dd')}" />
+              <small class="text-danger" th:errors="*{fecha}"
+                     th:if="${#fields.hasErrors('fecha')}"></small>
+            </td>
+          </tr>
+        </table>
+        <div class="d-flex justify-content-center">
+          <input class="btn btn-primary" type="submit" value="Guardar"/>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+</html>

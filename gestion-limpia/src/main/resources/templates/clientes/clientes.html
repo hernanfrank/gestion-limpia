@@ -1,21 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{components/imports :: head}"></head>
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div th:replace="~{components/imports :: styles}"></div>
 <div class="container">
-    <div class="row mb-2">
-        <div class="col">
-            <div th:replace="~{components/topmenu :: messages}"></div>
-        </div>
-    </div>
+   <div th:replace="~{components/topmenu :: messages}"></div>
    <div class="row mb-2">
         <div class="col">
             <a class="float-end" th:href="@{/clientes/nuevo}">
                 <button class="btn btn-primary">
                     <i class="bi bi-person-plus-fill"></i>
-                    Nuevo
+                    Nuevo Cliente
                 </button>
             </a>
         </div>
@@ -44,7 +40,7 @@
                             Editar
                         </button>
                     </a>
-                    <a class="d-inline nav-link" onclick="return confirm('Eliminar el cliente?')"
+                    <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el cliente?')"
                        th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}">
                         <button class="btn btn-danger">
                             Eliminar

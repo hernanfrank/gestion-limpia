@@ -1,7 +1,10 @@
 package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,6 +21,10 @@ public class Producto implements Serializable {
     @NotEmpty(message = "El tipo de producto no puede estar vacío")
     private String tipo;
 
+    @Max(value = 100, message = "El nivel debe ser un número entre 0 y 100")
+    @Min(value = 0, message = "El nivel debe ser un número entre 0 y 100")
+    private Integer nivel;
+
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
 
@@ -33,6 +40,7 @@ public class Producto implements Serializable {
         this.tipo = tipo;
         this.reabastecimientos = reabastecimientos;
         this.historialProductoPedidos = historialProductoPedidos;
+        this.nivel = 100;
     }
 
     public Long getId() {
@@ -45,6 +53,14 @@ public class Producto implements Serializable {
 
     public String getTipo() {
         return tipo;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 
     public void setTipo(String tipo) {

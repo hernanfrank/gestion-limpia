@@ -83,14 +83,14 @@
 
 		<dependency>
 			<groupId>org.webjars</groupId>
-			<artifactId>font-awesome</artifactId>
-			<version>6.4.2</version>
+			<artifactId>datatables</artifactId>
+			<version>1.13.5</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>datatables</artifactId>
-			<version>1.13.5</version>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>bootstrap-icons</artifactId>
+			<version>1.11.0</version>
 		</dependency>
 
 

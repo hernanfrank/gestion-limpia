@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IClienteRepository extends JpaRepository<Cliente, Long> {
-    @Query("select cliente from Cliente cliente WHERE cliente.nombreApellido LIKE %?1% ")
+    @Query("SELECT cliente FROM Cliente cliente WHERE cliente.nombreApellido LIKE %?1% ")
     List<Cliente> findByNombreApellidoLike(String nombreApellido);
 
     List<Cliente> findByDni(String dni);

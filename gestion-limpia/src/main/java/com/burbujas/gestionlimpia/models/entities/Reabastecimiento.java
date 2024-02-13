@@ -1,11 +1,12 @@
 package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "reabastecimiento")
@@ -19,22 +20,25 @@ public class Reabastecimiento implements Serializable {
     private Producto producto;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
-    @Column(name = "fecha_hora")
-    private Timestamp fechaHora;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull
+    @Column(name = "fecha")
+    private Date fecha;
 
-    @NotEmpty(message = "La cantidad de reabastecimiento no puede estar vacía")
+    @Min(value = 0, message = "La cantidad de reabastecimiento no puede ser 0")
     private Integer cantidad;
 
-    private String proveedor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Proveedor proveedor;
 
     public Reabastecimiento() {
+        this.fecha = new Date();
+        this.cantidad = 100;
     }
 
-    public Reabastecimiento(Producto producto, Timestamp fechaHora, Integer cantidad, String proveedor) {
+    public Reabastecimiento(Producto producto, Date fecha, Integer cantidad, Proveedor proveedor) {
         this.producto = producto;
-        this.fechaHora = fechaHora;
+        this.fecha = fecha;
         this.cantidad = cantidad;
         this.proveedor = proveedor;
     }
@@ -55,12 +59,12 @@ public class Reabastecimiento implements Serializable {
         this.producto = producto;
     }
 
-    public Timestamp getFechaHora() {
-        return fechaHora;
+    public Date getFecha() {
+        return fecha;
     }
 
-    public void setFechaHora(Timestamp fechaHora) {
-        this.fechaHora = fechaHora;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 
     public Integer getCantidad() {
@@ -71,11 +75,11 @@ public class Reabastecimiento implements Serializable {
         this.cantidad = cantidad;
     }
 
-    public String getProveedor() {
+    public Proveedor getProveedor() {
         return proveedor;
     }
 
-    public void setProveedor(String proveedor) {
+    public void setProveedor(Proveedor proveedor) {
         this.proveedor = proveedor;
     }
 }

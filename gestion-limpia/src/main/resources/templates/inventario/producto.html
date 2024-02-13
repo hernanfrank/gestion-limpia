@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/topmenu :: messages}"></div>
+<div class="container">
+  <div class="row mb-2">
+    <div class="col">
+      <a class="float-start" th:href="@{/productos/inventario}">
+        <button class="btn btn-secondary">
+          Volver
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <form enctype="multipart/form-data" method="post" th:action="@{/productos/guardar}" th:object="${producto}">
+        <input type="hidden" th:field="*{id}">
+        <table class="table table-bordered">
+          <tr>
+            <td>Tipo</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{tipo}"
+                     type="text"/>
+              <small class="text-danger" th:errors="*{tipo}"
+                     th:if="${#fields.hasErrors('tipo')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Nivel restante</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{nivel}"
+                     type="number" max="100" min="0"/>
+              <small class="text-danger" th:errors="*{tipo}"
+                     th:if="${#fields.hasErrors('nivel')}"></small>
+            </td>
+          </tr>
+        </table>
+        <div class="d-flex justify-content-center">
+          <input class="btn btn-primary" type="submit" value="Guardar"/>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+</html>

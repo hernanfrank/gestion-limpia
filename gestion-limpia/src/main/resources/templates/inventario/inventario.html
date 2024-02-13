@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/imports :: styles}"></div>
+<div class="container">
+    <div th:replace="~{components/topmenu :: messages}"></div>
+    <div class="row mb-2">
+        <div class="col">
+            <a class="float-end" th:href="@{/productos/nuevo}">
+                <button class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>
+                    Nuevo Producto
+                </button>
+            </a>
+            <a class="float-end me-3" th:href="@{/productos/reabastecimientos/listar}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-diagram-2"></i>
+                    Ver Reabastecimientos
+                </button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col border rounded-3 p-2">
+            <table id="productos_table" class="table table-striped border mt-2">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Disponible</th>
+                    <th>Último reabastecimiento</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="producto: ${productos}">
+                    <td th:text="${producto.id}"></td>
+                    <td th:text="${producto.tipo}"></td>
+                    <td th:class="${producto.nivel <= 20 ? 'text-danger fw-bold' : ''}" th:text="${producto.nivel}"></td>
+                    <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}"></td>
+                    <td>
+                        <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
+                            <button class="btn btn-secondary">
+                                <i class="bi bi-node-plus"></i>
+                                Cargar Reabastecimiento
+                            </button>
+                        </a>
+                        <a class="d-inline nav-link" th:href="@{/productos/{id}(id=${producto.id})}">
+                            <button class="btn btn-warning">
+                                Editar
+                            </button>
+                        </a>
+                        <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el producto?')"
+                           th:href="@{/productos/eliminar/{id}(id=${producto.id})}">
+                            <button class="btn btn-danger">
+                                Eliminar
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script>
+    createTable('productos_table');
+</script>
+</html>
