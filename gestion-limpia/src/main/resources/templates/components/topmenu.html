@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+<!--suppress RequiredAttributes -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
     <div th:fragment="navbar">
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
             <a class="navbar-brand" th:href="@{/}">
                 <img th:src="@{/images/logo.png}" width="30" height="30" class="d-inline-block align-top ms-3" alt="🫧">
-                <span th:text="${@environment.getProperty('sistema.nombreLavanderia')}"></span>
+                <span th:text="${@environment.getProperty('enviroment.nombreLavanderia')}"></span>
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

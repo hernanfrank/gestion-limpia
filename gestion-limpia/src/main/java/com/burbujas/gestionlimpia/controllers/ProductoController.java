@@ -1,7 +1,6 @@
 package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.Producto;
-import com.burbujas.gestionlimpia.models.entities.Proveedor;
 import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import jakarta.validation.Valid;
@@ -12,8 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Controller
