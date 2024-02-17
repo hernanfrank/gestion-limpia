@@ -3,6 +3,10 @@ package com.burbujas.gestionlimpia.models.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -14,6 +18,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "pedidos")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Pedido implements Serializable {
 
     @Id
@@ -48,30 +53,6 @@ public class Pedido implements Serializable {
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialProductoPedido> historialProductoPedido;
 
-    public Pedido() {
-        this.historialEstadoPedido = new ArrayList<HistorialEstadoPedido>();
-        this.historialMaquinaPedido = new ArrayList<HistorialMaquinaPedido>();
-        this.historialProductoPedido = new ArrayList<HistorialProductoPedido>();
-    }
-
-    public Pedido(Timestamp fechaHoraIngreso, Timestamp fechaHoraEntregaEstimada, Cliente cliente, TipoPedido tipo, List<HistorialEstadoPedido> historialEstadoPedido, List<HistorialMaquinaPedido> historialMaquinaPedido, List<HistorialProductoPedido> historialProductoPedido) {
-        this.fechaHoraIngreso = fechaHoraIngreso;
-        this.fechaHoraEntregaEstimada = fechaHoraEntregaEstimada;
-        this.cliente = cliente;
-        this.tipo = tipo;
-        this.historialEstadoPedido = historialEstadoPedido;
-        this.historialMaquinaPedido = historialMaquinaPedido;
-        this.historialProductoPedido = historialProductoPedido;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @PrePersist
     public void prePersist() {
         // asigno la fecha de ingreso
@@ -88,60 +69,4 @@ public class Pedido implements Serializable {
         }
     }
 
-    public Timestamp getFechaHoraIngreso() {
-        return fechaHoraIngreso;
-    }
-
-    public void setFechaHoraIngreso(Timestamp fecha_hora_ingreso) {
-        this.fechaHoraIngreso = fecha_hora_ingreso;
-    }
-
-    public Timestamp getFechaHoraEntregaEstimada() {
-        return fechaHoraEntregaEstimada;
-    }
-
-    public void setFechaHoraEntregaEstimada(Timestamp fecha_entrega_estimada) {
-        this.fechaHoraEntregaEstimada = fecha_entrega_estimada;
-    }
-
-    @XmlTransient
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public TipoPedido getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoPedido tipo) {
-        this.tipo = tipo;
-    }
-
-    public List<HistorialEstadoPedido> getHistorialEstadoPedido() {
-        return historialEstadoPedido;
-    }
-
-    public void setHistorialEstadoPedido(List<HistorialEstadoPedido> historialEstados) {
-        this.historialEstadoPedido = historialEstados;
-    }
-
-    public List<HistorialMaquinaPedido> getHistorialMaquinaPedido() {
-        return historialMaquinaPedido;
-    }
-
-    public void setHistorialMaquinaPedido(List<HistorialMaquinaPedido> historialMaquinas) {
-        this.historialMaquinaPedido = historialMaquinas;
-    }
-
-    public List<HistorialProductoPedido> getHistorialProductoPedido() {
-        return historialProductoPedido;
-    }
-
-    public void setHistorialProductoPedido(List<HistorialProductoPedido> historialProductoPedido) {
-        this.historialProductoPedido = historialProductoPedido;
-    }
 }

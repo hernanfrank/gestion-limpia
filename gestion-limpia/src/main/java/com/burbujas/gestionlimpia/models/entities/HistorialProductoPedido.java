@@ -3,6 +3,10 @@ package com.burbujas.gestionlimpia.models.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -10,6 +14,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "historial_producto_pedido")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialProductoPedido implements Serializable {
 
     @Id
@@ -37,43 +42,4 @@ public class HistorialProductoPedido implements Serializable {
         }
     }
 
-    public HistorialProductoPedido(){}
-
-    public HistorialProductoPedido(Producto producto, Pedido pedido, Timestamp fechaHoraUso) {
-        this.producto = producto;
-        this.pedido = pedido;
-        this.fechaHoraUso = fechaHoraUso;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Producto getProducto() {
-        return producto;
-    }
-
-    public void setProducto(Producto producto) {
-        this.producto = producto;
-    }
-
-    public Pedido getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
-    }
-
-    public Timestamp getFechaHoraUso() {
-        return fechaHoraUso;
-    }
-
-    public void setFechaHoraUso(Timestamp fechaHoraUso) {
-        this.fechaHoraUso = fechaHoraUso;
-    }
 }

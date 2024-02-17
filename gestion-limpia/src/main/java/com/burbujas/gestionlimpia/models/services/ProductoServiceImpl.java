@@ -73,6 +73,19 @@ public class ProductoServiceImpl implements IProductoService{
     }
 
     @Override
+    public void updateCantidadActual(Producto producto) {
+        final Double[] cantidad = {0.d};
+        if(producto.getReabastecimientos() != null) {
+            producto.getReabastecimientos().forEach(reabastecimiento -> cantidad[0] += reabastecimiento.getCantidadProducto());
+        }
+        if(producto.getHistorialProductoPedidos() != null) {
+            cantidad[0] -= producto.getCantidadUsadaPorPedido() * producto.getHistorialProductoPedidos().size();
+        }
+        producto.setCantidadActual(cantidad[0]);
+        this.productoRepository.save(producto);
+    }
+
+    @Override
     public void save(Producto producto) {
         this.productoRepository.save(producto);
     }
@@ -85,12 +98,6 @@ public class ProductoServiceImpl implements IProductoService{
     @Override
     public void saveProveedor(Proveedor proveedor) {
         this.proveedorRepository.save(proveedor);
-    }
-
-    @Override
-    public void addReabastecimiento(Producto producto, Reabastecimiento reabastecimiento){
-        producto.getReabastecimientos().add(reabastecimiento);
-        this.productoRepository.save(producto);
     }
 
     @Override

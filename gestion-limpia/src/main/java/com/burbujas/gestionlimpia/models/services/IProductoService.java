@@ -24,14 +24,13 @@ public interface IProductoService {
 
     public List<HistorialProductoPedido> getHistorialProductoPedidoByProductoId(Long id);
 
+    public void updateCantidadActual(Producto producto);
 
     public void save(Producto producto);
 
     public void saveReabastecimiento(Reabastecimiento reabastecimiento);
 
     public void saveProveedor(Proveedor proveedor);
-
-    public void addReabastecimiento(Producto producto, Reabastecimiento reabastecimiento);
 
     public void delete(Long id);
 

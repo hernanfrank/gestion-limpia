@@ -3,6 +3,10 @@ package com.burbujas.gestionlimpia.models.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -10,6 +14,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "historial_estado_pedido")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialEstadoPedido implements Serializable {
 
     @Id
@@ -39,44 +44,4 @@ public class HistorialEstadoPedido implements Serializable {
         }
     }
 
-    public HistorialEstadoPedido() {
-    }
-
-    public HistorialEstadoPedido(Pedido pedido, EstadoPedido estado, Timestamp fechaHoraCambioEstado) {
-        this.pedido = pedido;
-        this.estado = estado;
-        this.fechaHoraCambioEstado = fechaHoraCambioEstado;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Pedido getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
-    }
-
-    public EstadoPedido getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoPedido estado) {
-        this.estado = estado;
-    }
-
-    public Timestamp getFechaHoraCambioEstado() {
-        return fechaHoraCambioEstado;
-    }
-
-    public void setFechaHoraCambioEstado(Timestamp fechaHoraCambioEstado) {
-        this.fechaHoraCambioEstado = fechaHoraCambioEstado;
-    }
 }

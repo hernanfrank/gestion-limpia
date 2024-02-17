@@ -85,6 +85,7 @@ public class ReabastecimientoController {
 
             List<Producto> productos = productoService.findAll();
             List<Proveedor> proveedores = productoService.findAllProveedores();
+            reabastecimiento.setCantidadProducto(producto.getCantidadPorUnidad()*reabastecimiento.getUnidades());
 
             model.addAttribute("reabastecimiento", reabastecimiento);
             model.addAttribute("productos", productos); // para el select
@@ -130,7 +131,7 @@ public class ReabastecimientoController {
         Producto producto = reabastecimiento.getProducto();
         if(producto != null) {
             productoService.saveReabastecimiento(reabastecimiento);
-            productoService.addReabastecimiento(producto, reabastecimiento);
+            productoService.updateCantidadActual(producto);
 
             flashmsg.addFlashAttribute("success", "Listado de reabastecimientos actualizado");
         }else{
@@ -145,13 +146,16 @@ public class ReabastecimientoController {
         if (reabastecimiento != null) {
             Producto producto = reabastecimiento.getProducto();
             if(producto != null) {
+                producto.setCantidadActual(producto.getCantidadActual() - reabastecimiento.getCantidadProducto());
+                productoService.save(producto);
                 productoService.deleteReabastecimiento(producto, reabastecimiento);
                 flashmsg.addFlashAttribute("success", "Reabastecimiento eliminado correctamente.");
             }else{
                 flashmsg.addFlashAttribute("danger", "Error al eliminar el reabastecimiento. Producto no encontrado.");
             }
+        }else{
+            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el reabastecimiento.");
         }
-        flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el reabastecimiento.");
 
         return "redirect:/productos/reabastecimientos/listar";
     }

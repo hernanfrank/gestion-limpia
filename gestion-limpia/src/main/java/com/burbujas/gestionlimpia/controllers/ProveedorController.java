@@ -91,8 +91,9 @@ public class ProveedorController {
             }
             productoService.deleteProveedor(id);
             flashmsg.addFlashAttribute("success", "Proveedor eliminado correctamente.");
+        }else{
+            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el proveedor.");
         }
-        flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el proveedor.");
 
         return "redirect:/productos/proveedores/listar";
     }

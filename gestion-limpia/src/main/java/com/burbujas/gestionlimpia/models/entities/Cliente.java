@@ -2,12 +2,18 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "clientes")
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Cliente implements Serializable {
 
     @Id
@@ -34,67 +40,8 @@ public class Cliente implements Serializable {
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pedido> pedidos;
 
-    public Cliente(){
-        this.pedidos = new ArrayList<Pedido>();
-    }
-
-    public Cliente(String dni, String nombreApellido, String direccion, String telefono) {
-        this.dni = dni;
-        this.nombreApellido = nombreApellido;
-        this.direccion = direccion;
-        this.telefono = telefono;
-        this.pedidos = new ArrayList<Pedido>();
-    }
-
     public void addPedido(Pedido pedido){
         this.pedidos.add(pedido);
     }
 
-    public void setPedidos(List<Pedido> pedidos){
-        this.pedidos = pedidos;
-    }
-
-    public List<Pedido> getPedidos(){
-        return pedidos;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public String getNombreApellido() {
-        return nombreApellido;
-    }
-
-    public void setNombreApellido(String nombre_apellido) {
-        this.nombreApellido = nombre_apellido;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
 }

@@ -2,6 +2,10 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "maquinas")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Maquina implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,44 +28,4 @@ public class Maquina implements Serializable {
     @OneToMany(mappedBy = "maquina", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialMaquinaPedido> historialMaquinaPedido;
 
-    public Maquina() {
-    }
-
-    public Maquina(String tipo, Integer numero) {
-        this.tipo = tipo;
-        this.numero = numero;
-        this.historialMaquinaPedido = new ArrayList<HistorialMaquinaPedido>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public Integer getNumero() {
-        return numero;
-    }
-
-    public void setNumero(Integer numero) {
-        this.numero = numero;
-    }
-
-    public List<HistorialMaquinaPedido> getHistorialMaquinaPedido() {
-        return historialMaquinaPedido;
-    }
-
-    public void setHistorialMaquinaPedido(List<HistorialMaquinaPedido> historialMaquinaPedido) {
-        this.historialMaquinaPedido = historialMaquinaPedido;
-    }
 }

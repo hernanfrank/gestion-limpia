@@ -80,13 +80,11 @@ public class ProductoController {
     public String eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Producto producto = productoService.findById(id);
         if (producto != null) {
-            // antes de eliminar el producto elimino sus reabastecimientos
-            List<Reabastecimiento> reabastecimientos = producto.getReabastecimientos();
-            reabastecimientos.forEach(reabastecimiento -> productoService.deleteReabastecimiento(producto, reabastecimiento));
             productoService.delete(id);
             flashmsg.addFlashAttribute("success", "Producto eliminado correctamente.");
+        }else{
+            flashmsg.addFlashAttribute("danger", "Error al eliminar.<br>No se encontró el producto.");
         }
-        flashmsg.addFlashAttribute("danger", "Error al eliminar.<br>No se encontró el producto.");
 
         return "redirect:/productos/inventario";
     }

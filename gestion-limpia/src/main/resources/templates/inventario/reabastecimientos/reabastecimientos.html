@@ -32,20 +32,20 @@
       <table id="reabastecimientos_table" class="table table-striped border mt-2">
         <thead>
         <tr>
-          <th>ID</th>
-          <th>Producto</th>
           <th>Fecha</th>
+          <th>Producto</th>
           <th>Cantidad</th>
+          <th>Precio</th>
           <th>Proveedor</th>
           <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="reabastecimiento: ${reabastecimientos}">
-          <td th:text="${reabastecimiento.id}"></td>
-          <td th:text="${reabastecimiento.producto.tipo}"></td>
           <td th:text="${#dates.format(reabastecimiento.fecha,'dd/MM/yyyy')}"></td>
-          <td th:text="${reabastecimiento.cantidad}"></td>
+          <td th:text="${reabastecimiento.producto.tipo}"></td>
+          <td th:text="${reabastecimiento.cantidadProducto}"></td>
+          <td th:text="${#numbers.formatCurrency(reabastecimiento.precio)}"></td>
           <td th:text="${reabastecimiento.proveedor.nombre}"></td>
           <td>
             <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/editar/{id}(id=${reabastecimiento.id})}">

@@ -3,6 +3,10 @@ package com.burbujas.gestionlimpia.models.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Period;
@@ -10,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tipo_pedido")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class TipoPedido implements Serializable {
 
     @Id
@@ -28,51 +33,4 @@ public class TipoPedido implements Serializable {
     @OneToMany(mappedBy = "tipo", fetch = FetchType.LAZY)
     private List<Pedido> pedidos;
 
-    public TipoPedido() {
-    }
-
-    public TipoPedido(String descripcion, Double precio, Integer duracionEstimada) {
-        this.descripcion = descripcion;
-        this.precio = precio;
-        this.duracionEstimada = duracionEstimada;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public Double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(Double precio) {
-        this.precio = precio;
-    }
-
-    public Integer getDuracionEstimada() {
-        return this.duracionEstimada;    }
-
-    public void setDuracionEstimada(Integer duracion) {
-        this.duracionEstimada = duracion;
-    }
-
-    public List<Pedido> getPedidos() {
-        return pedidos;
-    }
-
-    public void setPedidos(List<Pedido> pedidos) {
-        this.pedidos = pedidos;
-    }
 }

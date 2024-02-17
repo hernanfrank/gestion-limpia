@@ -27,7 +27,6 @@
       <table id="proveedores_table" class="table table-striped border mt-2">
         <thead>
         <tr>
-          <th>ID</th>
           <th>Nombre</th>
           <th>Reabastecimientos</th>
           <th>Acciones</th>
@@ -35,7 +34,6 @@
         </thead>
         <tbody>
         <tr th:each="proveedor: ${proveedores}">
-          <td th:text="${proveedor.id}"></td>
           <td th:text="${proveedor.nombre}"></td>
           <td th:if="${proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }">
             <ul>

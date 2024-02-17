@@ -4,14 +4,18 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "producto")
+@Getter @Setter @AllArgsConstructor
 public class Producto implements Serializable {
 
     @Id
@@ -21,9 +25,14 @@ public class Producto implements Serializable {
     @NotEmpty(message = "El tipo de producto no puede estar vacío")
     private String tipo;
 
-    @Max(value = 100, message = "El nivel debe ser un número entre 0 y 100")
-    @Min(value = 0, message = "El nivel debe ser un número entre 0 y 100")
-    private Integer nivel;
+    @NotNull(message = "El nivel del producto no puede estar vacío")
+    private Double cantidadActual;
+
+    @NotNull(message = "La cantidad por unidad no puede estar vacía")
+    private Double cantidadPorUnidad;
+
+    @NotNull(message = "La cantidad usada por pedido no puede ser vacía")
+    private Double cantidadUsadaPorPedido;
 
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
@@ -32,54 +41,8 @@ public class Producto implements Serializable {
     private List<HistorialProductoPedido> historialProductoPedidos;
 
     public Producto() {
-        this.reabastecimientos = new ArrayList<Reabastecimiento>();
-        this.historialProductoPedidos = new ArrayList<HistorialProductoPedido>();
+        this.cantidadActual = 0.d;
+        this.cantidadPorUnidad = 10.d;
     }
 
-    public Producto(String tipo, List<Reabastecimiento> reabastecimientos, List<HistorialProductoPedido> historialProductoPedidos) {
-        this.tipo = tipo;
-        this.reabastecimientos = reabastecimientos;
-        this.historialProductoPedidos = historialProductoPedidos;
-        this.nivel = 100;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public Integer getNivel() {
-        return nivel;
-    }
-
-    public void setNivel(Integer nivel) {
-        this.nivel = nivel;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public List<Reabastecimiento> getReabastecimientos() {
-        return reabastecimientos;
-    }
-
-    public void setReabastecimientos(List<Reabastecimiento> reabastecimientos) {
-        this.reabastecimientos = reabastecimientos;
-    }
-
-    public List<HistorialProductoPedido> getHistorialProductoPedidos() {
-        return historialProductoPedidos;
-    }
-
-    public void setHistorialProductoPedidos(List<HistorialProductoPedido> historialProductoPedidos) {
-        this.historialProductoPedidos = historialProductoPedidos;
-    }
 }
