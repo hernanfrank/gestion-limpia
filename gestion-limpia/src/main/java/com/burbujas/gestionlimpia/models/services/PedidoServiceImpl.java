@@ -3,10 +3,10 @@ package com.burbujas.gestionlimpia.models.services;
 import com.burbujas.gestionlimpia.models.entities.HistorialEstadoPedido;
 import com.burbujas.gestionlimpia.models.entities.HistorialMaquinaPedido;
 import com.burbujas.gestionlimpia.models.entities.Pedido;
+import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
+import com.burbujas.gestionlimpia.models.repositories.IHistorialEstadoPedidoRepository;
 import com.burbujas.gestionlimpia.models.repositories.IPedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +28,8 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public Page<Pedido> findAll(Pageable pageable) {
-        return this.pedidoRepository.findAll(pageable);
+    public List<Pedido> findAllByOrderByPrioridadDesc() {
+        return this.pedidoRepository.findAllByOrderByPrioridadDesc();
     }
 
     @Override
@@ -59,6 +59,12 @@ public class PedidoServiceImpl implements IPedidoService{
 
     @Override
     public void save(Pedido pedido) {
+        EstadoPedido estadoAnterior = pedido.getHistorialEstadoPedido().get(pedido.getHistorialEstadoPedido().size() - 1).getEstadoNuevo();
+        EstadoPedido estadoNuevo = pedido.getEstadoActual();
+        if (estadoNuevo != estadoAnterior) {
+            HistorialEstadoPedido cambioEstado = new HistorialEstadoPedido(pedido, estadoAnterior, estadoNuevo);
+            pedido.getHistorialEstadoPedido().add(cambioEstado);
+        }
         this.pedidoRepository.save(pedido);
     }
 

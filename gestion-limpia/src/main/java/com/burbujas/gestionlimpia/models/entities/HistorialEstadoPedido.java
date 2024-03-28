@@ -1,5 +1,6 @@
 package com.burbujas.gestionlimpia.models.entities;
 
+import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -25,13 +26,17 @@ public class HistorialEstadoPedido implements Serializable {
     @NotNull
     private Pedido pedido;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
-    private EstadoPedido estado;
+    @Enumerated(EnumType.STRING)
+    private EstadoPedido estadoAnterior;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private EstadoPedido estadoNuevo;
 
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
+    @NotNull
     @Column(name = "fecha_hora_cambio_estado")
     private Timestamp fechaHoraCambioEstado;
 
@@ -44,4 +49,10 @@ public class HistorialEstadoPedido implements Serializable {
         }
     }
 
+    public HistorialEstadoPedido(Pedido pedido, EstadoPedido estadoAnterior, EstadoPedido estadoNuevo) {
+        this.pedido = pedido;
+        this.estadoAnterior = estadoAnterior;
+        this.estadoNuevo = estadoNuevo;
+        this.fechaHoraCambioEstado = new Timestamp(System.currentTimeMillis());
+    }
 }

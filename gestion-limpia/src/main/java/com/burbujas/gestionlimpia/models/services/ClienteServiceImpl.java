@@ -27,12 +27,6 @@ public class ClienteServiceImpl implements IClienteService{
     }
 
     @Override
-    @Transactional(readOnly = true)// los métodos que no modifiquen el registro en la bdd deben ponerse como readOnly = true
-    public Page<Cliente> findAll(Pageable pageable) {
-        return this.clienteRepository.findAll(pageable);
-    }
-
-    @Override
     @Transactional(readOnly = false)
     public void save(Cliente cliente) {
         this.clienteRepository.save(cliente);

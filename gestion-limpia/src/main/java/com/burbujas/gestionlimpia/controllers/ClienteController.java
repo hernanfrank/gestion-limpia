@@ -52,13 +52,13 @@ public class ClienteController {
         return "redirect:/clientes";
     }
 
-    @GetMapping(value = {"/listar", "" })
+    @GetMapping(value = {"/listar", "/", "" })
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de clientes");
 
         List<Cliente> clientes = clienteService.findAll();
 
-        // pasamos la página de clientes obtenida a la vista
+        // pasamos los clientes obtenida a la vista
         model.addAttribute("clientes", clientes);
 
         return "clientes/clientes";

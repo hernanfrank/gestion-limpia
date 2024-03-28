@@ -1,24 +1,23 @@
 package com.burbujas.gestionlimpia.models.entities;
 
+import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
+import com.burbujas.gestionlimpia.models.entities.enums.Prioridad;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoPedido;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 @Entity
 @Table(name = "pedidos")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @AllArgsConstructor
 public class Pedido implements Serializable {
 
     @Id
@@ -27,22 +26,33 @@ public class Pedido implements Serializable {
 
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
+    @NotNull
     @Column(name = "fecha_hora_ingreso")
     private Timestamp fechaHoraIngreso;
 
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "fecha_hora_entrega_estimada")
-    private Timestamp fechaHoraEntregaEstimada;
+    @Column(name = "fecha_hora_entrega")
+    private Timestamp fechaHoraEntrega;
+
+    @NotNull(message = "El tipo no puede estar vacío")
+    @Enumerated(EnumType.STRING)
+    private TipoPedido tipo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = "El cliente asociado al pedido no puede estar vacío")
     private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = "El tipo de pedido no puede estar vacío")
-    private TipoPedido tipo;
+    @NotNull(message = "El precio no puede estar vacío")
+    private Double precio;
+
+    @NotNull(message = "La prioridad no puede estar vacía")
+    @Enumerated(EnumType.STRING)
+    private Prioridad prioridad;
+
+    @NotNull(message = "El estado no puede estar vacío")
+    @Enumerated(EnumType.STRING)
+    private EstadoPedido estadoActual;
 
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialEstadoPedido> historialEstadoPedido;
@@ -53,20 +63,11 @@ public class Pedido implements Serializable {
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialProductoPedido> historialProductoPedido;
 
-    @PrePersist
-    public void prePersist() {
-        // asigno la fecha de ingreso
-        if (this.fechaHoraIngreso == null) {
-            this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
-        }
-
-        //asigno la fecha de entrega calculada según el tipo de pedido (fecha ingreso + duracion del pedido en dias)
-        if(this.fechaHoraEntregaEstimada == null) {
-            Calendar fechaEntregaCalculada = Calendar.getInstance();
-            fechaEntregaCalculada.setTime(this.fechaHoraIngreso);
-            fechaEntregaCalculada.add(Calendar.DAY_OF_MONTH, this.tipo.getDuracionEstimada());
-            this.fechaHoraEntregaEstimada = new Timestamp(fechaEntregaCalculada.getTimeInMillis());
-        }
+    public Pedido() {
+        this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
+        this.prioridad = Prioridad.NORMAL;
+        this.estadoActual = EstadoPedido.PENDIENTE;
+        this.historialEstadoPedido = new ArrayList<>();
     }
 
 }

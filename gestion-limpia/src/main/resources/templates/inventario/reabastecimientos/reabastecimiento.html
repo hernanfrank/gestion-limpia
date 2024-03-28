@@ -77,7 +77,9 @@
             <td>Proveedor</td>
             <td>
               <select class="form-select" th:if="${proveedores != null && proveedores.size > 0}" th:field="*{proveedor}">
-                <option th:each="proveedorSelect : ${proveedores}" th:value="${proveedorSelect.id}" th:text="${proveedorSelect.nombre}" th:selected="${reabastecimiento.proveedor != null && proveedorSelect.id == reabastecimiento.proveedor.id}"></option>
+                <option th:each="proveedorSelect : ${proveedores}"
+                        th:value="${proveedorSelect.id}" th:text="${proveedorSelect.nombre}"
+                        th:selected="${reabastecimiento.proveedor != null && proveedorSelect.id == reabastecimiento.proveedor.id}"></option>
               </select>
               <span class="text-danger" th:if="${proveedores == null || proveedores.size() <= 0}">Aún no existen proveedores</span>
               <small class="text-danger" th:errors="*{proveedor}"

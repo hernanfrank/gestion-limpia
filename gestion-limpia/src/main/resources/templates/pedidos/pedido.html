@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/topmenu :: messages}"></div>
+<div class="container">
+  <div class="row mb-2">
+    <div class="col">
+      <a class="float-start" th:href="@{/pedidos}">
+        <button class="btn btn-secondary">
+          Volver
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+    <!-- con th:object mapeamos la clase pedido al formulario -->
+    <form enctype="multipart/form-data" method="post" th:action="@{/pedidos/guardar}" th:object="${pedido}">
+      <input type="hidden" th:field="*{id}">
+      <table class="table table-bordered">
+        <tr>
+          <td>Tipo</td>
+          <td>
+            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipo}">
+              <option th:each="tipoPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoPedido).values()}"
+                      th:value="${tipoPedido}" th:text="${tipoPedido.displayValue}"
+                      th:selected="${pedido.tipo != null && tipoPedido == pedido.tipo}"></option>
+            </select>
+            <small class="text-danger" th:errors="*{tipo}"
+                   th:if="${#fields.hasErrors('tipo')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Cliente</td>
+          <td>
+            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{cliente}">
+              <option th:each="clienteSelected : ${clientes}"
+                      th:value="${clienteSelected.id}" th:text="${clienteSelected.nombreApellido}"
+                      th:selected="${pedido.cliente != null && clienteSelected.id == pedido.cliente.id}"></option>
+            </select>
+            <small class="text-danger" th:errors="*{cliente}"
+                   th:if="${#fields.hasErrors('cliente')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Precio</td>
+          <td>
+            <input class="form-control" th:errorclass="'border border-danger'" th:field="*{precio}"
+                   type="number" step="0.01" min="1.0" />
+            <small class="text-danger" th:errors="*{precio}"
+                   th:if="${#fields.hasErrors('precio')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Prioridad</td>
+          <td>
+            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{prioridad}">
+              <option th:each="prioridadPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).values()}"
+                      th:value="${prioridadPedido}" th:text="${prioridadPedido.displayValue}"
+                      th:selected="${pedido.prioridad != null && prioridadPedido == pedido.prioridad}"></option>
+            </select>
+            <small class="text-danger" th:errors="*{prioridad}"
+                   th:if="${#fields.hasErrors('prioridad')}"></small>
+          </td>
+        </tr>
+        <tr>
+          <td>Estado</td>
+          <td>
+            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{estadoActual}">
+              <option th:each="estadoPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).values()}"
+                      th:if="${estadoPedido != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).INGRESADO}"
+                      th:value="${estadoPedido}" th:text="${estadoPedido.displayValue}"
+                      th:selected="${pedido.estadoActual != null && estadoPedido == pedido.estadoActual}"></option>
+            </select>
+            <small class="text-danger" th:errors="*{estadoActual}"
+                   th:if="${#fields.hasErrors('estadoActual')}"></small>
+          </td>
+        </tr>
+      </table>
+      <div class="d-flex justify-content-center">
+        <input class="btn btn-primary" type="submit" value="Guardar"/>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+</html>

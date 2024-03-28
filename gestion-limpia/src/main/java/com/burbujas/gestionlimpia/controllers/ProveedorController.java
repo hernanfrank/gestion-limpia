@@ -27,7 +27,7 @@ public class ProveedorController {
     }
 
 
-    @GetMapping("/listar")
+    @GetMapping(value = {"/listar", "/", ""})
     public String listarProveedores(Model model){
         model.addAttribute("titulo", "Proveedores");
 

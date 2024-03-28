@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div th:replace="~{components/imports :: styles}"></div>
+<div class="container">
+   <div th:replace="~{components/topmenu :: messages}"></div>
+   <div class="row mb-2">
+        <div class="col">
+            <a class="float-end" th:href="@{/pedidos/nuevo}">
+                <button class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Nuevo Pedido
+                </button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col border rounded-3 p-2">
+        <table id="pedidos_table" class="table table-striped border mt-2">
+            <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Ingreso</th>
+                <th>Entrega</th>
+                <th>Cliente</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pedido: ${pedidos}">
+                <td th:text="${pedido.tipo.displayValue}"></td>
+                <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>
+                <td th:text="${pedido.cliente.nombreApellido}"></td>
+                <td th:text="${pedido.prioridad}"></td>
+                <td th:text="${pedido.estadoActual.displayValue}"></td>
+                <td>
+                    <a class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
+                        <button class="btn btn-warning">
+                            Editar
+                        </button>
+                    </a>
+                    <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el pedido?')"
+                       th:href="@{/pedidos/eliminar/{id}(id=${pedido.id})}">
+                        <button class="btn btn-danger">
+                            Eliminar
+                        </button>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script>
+    createTable('pedidos_table');
+</script>
+</html>

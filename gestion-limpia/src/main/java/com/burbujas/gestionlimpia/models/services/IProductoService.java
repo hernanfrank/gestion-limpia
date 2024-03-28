@@ -24,6 +24,8 @@ public interface IProductoService {
 
     public List<HistorialProductoPedido> getHistorialProductoPedidoByProductoId(Long id);
 
+    /* vuelve a calcular la cantidad como la suma de reabastecimientos menos la suma de usos porque si
+     modifico un reabastecimiento se suma más de una vez a la cantidad actual...*/
     public void updateCantidadActual(Producto producto);
 
     public void save(Producto producto);

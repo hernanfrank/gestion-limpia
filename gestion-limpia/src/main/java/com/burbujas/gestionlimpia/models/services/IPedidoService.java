@@ -11,7 +11,7 @@ import java.util.List;
 public interface IPedidoService {
     public List<Pedido> findAll();
 
-    public Page<Pedido> findAll(Pageable pageable); // busca todos los clientes, con paginacion
+    public List<Pedido> findAllByOrderByPrioridadDesc();
 
     public List<HistorialEstadoPedido> getHistorialEstadosByPedidoId(Long id);
 

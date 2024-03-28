@@ -30,7 +30,6 @@ public class ReabastecimientoController {
         this.productoService = productoService;
     }
 
-
     @GetMapping("/listar/{idProducto}")
     public String listarReabastecimientos(@PathVariable(value = "idProducto") Long idProducto, Model model){
         model.addAttribute("titulo", "Reabastecimientos");
@@ -42,7 +41,7 @@ public class ReabastecimientoController {
         return "inventario/reabastecimientos/reabastecimientos";
     }
 
-    @GetMapping("/listar")
+    @GetMapping(value= {"/listar", "/", ""})
     public String listarReabastecimientos(Model model){
         model.addAttribute("titulo", "Reabastecimientos");
 

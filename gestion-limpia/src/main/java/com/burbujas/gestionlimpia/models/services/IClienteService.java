@@ -10,8 +10,6 @@ import java.util.List;
 public interface IClienteService {
     public List<Cliente> findAll();
 
-    public Page<Cliente> findAll(Pageable pageable); // busca todos los clientes, con paginacion
-
     public void save(Cliente cliente);
 
     public Cliente findById(Long id);

@@ -49,7 +49,7 @@ public class ProductoController {
         return "redirect:/productos/inventario";
     }
 
-    @GetMapping(value = {"/inventario", "" })
+    @GetMapping(value = {"/inventario", "/", "" })
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de productos");
 
