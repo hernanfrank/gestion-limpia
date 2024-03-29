@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
 <body>
-
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="container-fluid">
+    <div th:replace="~{components/topmenu :: messages}"></div>
+    <div class="row mb-1">
+        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4">
+            <div class="d-inline-flex pb-3">
+                <div th:each="nro : ${#numbers.sequence(1,10)}">
+                    <div role="button" class="pedido card me-2 p-0 border-2 border-danger user-select-none">
+                        <div th:text="${'Pedido ' + nro}" class="p-0 card-header text-center bg-danger-subtle"></div>
+                        <div class="p-0 card-body">
+                            <p class="px-2 py-1 card-text">
+                                -Ropa<br>
+                                -Hernan Frank
+                            </p>
+                        </div>
+                        <div class="p-0 card-footer text-center bg-danger-subtle">
+                            20/03
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-2">
+            <a class="me-n4 ms-2 float-end" th:href="@{/}">
+                <button class="btn btn-sm btn-secondary">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </a>
+            <a class="float-end" th:href="@{/pedidos/nuevo/index}">
+                <button class="btn btn-primary">
+                    <i class="bi bi-box2"></i>
+                    Nuevo Pedido
+                </button>
+            </a>
+        </div>
+    </div>
+    <div th:replace="~{components/snap_grid :: maquinas}"></div>
+</div>
 </body>
+<div th:replace="~{components/snap_grid :: maquinas_js}"></div>
+<footer th:replace="~{components/imports :: footer}"></footer>
 </html>

@@ -3,14 +3,13 @@
 <head th:replace="~{components/imports :: head}"></head>
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
-<div th:replace="~{components/imports :: styles}"></div>
-<div class="container">
+<div class="container-fluid">
    <div th:replace="~{components/topmenu :: messages}"></div>
    <div class="row mb-2">
         <div class="col">
-            <a class="float-end" th:href="@{/pedidos/nuevo}">
+            <a class="float-end me-n25" th:href="@{/pedidos/nuevo/pedidos}">
                 <button class="btn btn-primary">
-                    <i class="bi bi-person-plus-fill"></i>
+                    <i class="bi bi-box2"></i>
                     Nuevo Pedido
                 </button>
             </a>
@@ -33,11 +32,28 @@
             <tbody>
             <tr th:each="pedido: ${pedidos}">
                 <td th:text="${pedido.tipo.displayValue}"></td>
-                <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>
                 <td th:text="${pedido.cliente.nombreApellido}"></td>
-                <td th:text="${pedido.prioridad}"></td>
-                <td th:text="${pedido.estadoActual.displayValue}"></td>
+                <td><span th:text="${pedido.prioridad}"
+                    th:class="${
+                    pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).BAJA ? 'text-black-50' :
+                    (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).NORMAL ? 'text-dark' :
+                    (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'text-danger' :
+                    (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'text-danger fw-bold' :''
+                    )))}"></span>
+                </td>
+                <td>
+                    <h4 th:text="${pedido.estadoActual.displayValue}"
+                        th:class="'p-2 badge '+ ${
+                        pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).PENDIENTE ? 'bg-warning' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).LAVADO ? 'bg-primary' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).SECADO ? 'bg-secondary' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO ? 'bg-danger' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO ? 'bg-success' : ''
+                        ))))}"
+                    ></h4>
+                </td>
                 <td>
                     <a class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
                         <button class="btn btn-warning">

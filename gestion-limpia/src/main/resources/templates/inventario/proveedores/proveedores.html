@@ -4,17 +4,16 @@
 <head th:replace="~{components/imports :: head}"></head>
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
-<div th:replace="~{components/imports :: styles}"></div>
-<div class="container">
+<div class="container-fluid">
   <div th:replace="~{components/topmenu :: messages}"></div>
   <div class="row mb-2">
     <div class="col">
-      <a class="float-start" th:href="@{/productos/reabastecimientos/listar}">
+      <a class="float-start ms-n25" th:href="@{/productos/reabastecimientos/listar}">
         <button class="btn btn-secondary">
           Volver
         </button>
       </a>
-      <a class="float-end" th:href="@{/productos/proveedores/nuevo}">
+      <a class="float-end me-n25" th:href="@{/productos/proveedores/nuevo}">
         <button class="btn btn-primary">
           <i class="bi bi-plus-circle"></i>
           Nuevo Proveedor

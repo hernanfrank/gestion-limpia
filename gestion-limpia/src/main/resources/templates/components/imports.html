@@ -3,11 +3,76 @@
 <!--header-->
 <head th:fragment="head">
   <meta charset="UTF-8"/>
-  <title th:if="${titulo != null}" th:text="${titulo}"></title>
+  <title th:text="${titulo != null ? titulo : @environment.getProperty('environment.nombreLavanderia')}"></title>
   <link rel="icon" type="image/x-icon" th:href="@{/images/logo.png}">
   <link rel="stylesheet" href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/webjars/datatables/1.13.5/css/jquery.dataTables.min.css">
+  <!--estilos globales-->
+  <style>
+    .dataTables_wrapper .dataTables_filter{
+      margin-bottom: 10px;
+    }
+    table.dataTable tbody td {
+      padding-top: 8px;
+      text-align:center;
+      vertical-align: middle;
+      border: black 1px solid;
+    }
+    table.dataTable thead th{
+      text-align:center;
+      vertical-align: middle;
+      border: black 1px solid;
+    }
+    .pedido {
+      width: 12.1rem;
+    }
+    .snap-grid{
+      margin: 0 1.75rem;
+    }
+    .messages{
+      cursor:pointer;
+    }
+    body .container-fluid{
+      padding: 0px 50px;
+    }
+    .me-n1{
+      margin-right: -.25rem !important;
+    }
+    .me-n2{
+      margin-right: -.5rem !important;
+    }
+    .me-n25{
+      margin-right: -.75rem !important;
+    }
+    .me-n3{
+      margin-right: -1rem !important;
+    }
+    .me-n4{
+      margin-right: -1.5rem !important;
+    }
+    .me-n5{
+      margin-right: -3rem !important;
+    }
+    .ms-n1{
+      margin-left: -.25rem !important;
+    }
+    .ms-n2{
+      margin-left: -.5rem !important;
+    }
+    .ms-n25{
+      margin-left: -.75rem !important;
+    }
+    .ms-n3{
+      margin-left: -1rem !important;
+    }
+    .ms-n4{
+      margin-left: -1.5rem !important;
+    }
+    .ms-n5{
+      margin-left: -3rem !important;
+    }
+  </style>
 </head>
 <!--footer-->
 <footer style="margin-top:20%" th:fragment="footer">
@@ -21,22 +86,11 @@
         responsive: true,
         language: {
           url: translationUrl
-        }
+        },
+        aaSorting: []
       });
     }
   </script>
 </footer>
-<!--estilos globales-->
-<style th:fragment="styles">
-  .dataTables_wrapper .dataTables_filter{
-    margin-bottom: 10px;
-  }
-  table.dataTable tbody td {
-    padding: 8px 20px;
-  }
-  .messages{
-    cursor:pointer;
-  }
-</style>
 </html>
 

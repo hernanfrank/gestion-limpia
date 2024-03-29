@@ -3,11 +3,10 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <!--suppress HtmlRequiredTitleElement -->
 <head th:replace="~{components/imports :: head}"></head>
-
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
-<div th:replace="~{components/topmenu :: messages}"></div>
-<div class="container">
+<div class="container-fluid">
+  <div th:replace="~{components/topmenu :: messages}"></div>
   <div class="row mb-2">
     <div class="col">
       <a class="float-start" th:href="@{/productos/proveedores/listar}">

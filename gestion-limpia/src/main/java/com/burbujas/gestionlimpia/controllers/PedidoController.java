@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/pedidos")
@@ -33,9 +34,14 @@ public class PedidoController {
         this.clienteService = clienteService;
     }
 
-    @GetMapping(value = "/nuevo")
-    public String crear(Model model) {
+    @GetMapping(value = {"/nuevo/{last}"})
+    public String crear(@PathVariable(value = "last") String last, Model model) {
         model.addAttribute("titulo", "Nuevo pedido");
+        if(Objects.equals(last, "index")){
+            model.addAttribute("last", "");
+        }else{
+            model.addAttribute("last", last);
+        }
 
         // instanciamos un pedido
         Pedido pedido = new Pedido();
@@ -73,14 +79,11 @@ public class PedidoController {
         return "redirect:/pedidos/listar";
     }
 
-
     @GetMapping(value = {"/listar", "/", "" })
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de pedidos");
 
-        // busca los pedidos por FechaHoraEntregaEstimada, ordenándolos de manera descendiente (es decir, por prioridad)
         List<Pedido> pedidos = pedidoService.findAllByOrderByPrioridadDesc();
-
         // pasamos los de pedidos obtenida a la vista
         model.addAttribute("pedidos", pedidos);
 

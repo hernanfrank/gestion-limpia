@@ -9,8 +9,10 @@ import com.burbujas.gestionlimpia.models.repositories.IPedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoServiceImpl implements IPedidoService{
@@ -29,7 +31,7 @@ public class PedidoServiceImpl implements IPedidoService{
 
     @Override
     public List<Pedido> findAllByOrderByPrioridadDesc() {
-        return this.pedidoRepository.findAllByOrderByPrioridadDesc();
+        return this.pedidoRepository.findAll().stream().sorted(Comparator.comparing(Pedido::getPrioridad).thenComparing(Pedido::getFechaHoraIngreso).reversed()).collect(Collectors.toList());
     }
 
     @Override
