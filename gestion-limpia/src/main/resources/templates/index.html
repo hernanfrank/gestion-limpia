@@ -6,26 +6,27 @@
 <div class="container-fluid">
     <div th:replace="~{components/topmenu :: messages}"></div>
     <div class="row mb-1">
-        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4">
-            <div class="d-inline-flex pb-3">
-                <div th:each="nro : ${#numbers.sequence(1,10)}">
-                    <div role="button" class="pedido card me-2 p-0 border-2 border-danger user-select-none">
-                        <div th:text="${'Pedido ' + nro}" class="p-0 card-header text-center bg-danger-subtle"></div>
-                        <div class="p-0 card-body">
-                            <p class="px-2 py-1 card-text">
-                                -Ropa<br>
-                                -Hernan Frank
-                            </p>
-                        </div>
-                        <div class="p-0 card-footer text-center bg-danger-subtle">
-                            20/03
-                        </div>
+        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4 border border-2 border-secondary rounded">
+            <div class="d-inline-flex pt-1 ps-1 pb-3">
+                <ol id="pedidosList" class="m-0 p-0">
+                <li th:each="pedido : ${pedidos}" role="button" th:class="'pedido card me-2 p-0 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
+                    <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
+                    <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
+                        <p class="px-2 py-1 card-text">
+                            <span th:text="'-'+${pedido.tipo.displayValue}"></span><br/>
+                            <span th:text="'-'+${pedido.cliente.nombreApellido}"></span>
+                            <input class="pedidoId" type="hidden" th:value="${pedido.id}">
+                        </p>
                     </div>
-                </div>
+                    <div th:class="'p-0 card-footer text-center text-muted ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
+                        <small th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy')}"></small>
+                    </div>
+                </li>
+                </ol>
             </div>
         </div>
         <div class="col-2">
-            <a class="me-n4 ms-2 float-end" th:href="@{/}">
+            <a class="me-n4 ms-2 float-end" th:href="@{/maquinas/configurar}">
                 <button class="btn btn-sm btn-secondary">
                     <i class="bi bi-gear"></i>
                 </button>
@@ -38,9 +39,9 @@
             </a>
         </div>
     </div>
-    <div th:replace="~{components/snap_grid :: maquinas}"></div>
+    <div th:replace="~{components/maquinas :: maquinas}"></div>
 </div>
 </body>
-<div th:replace="~{components/snap_grid :: maquinas_js}"></div>
+<div th:replace="~{components/maquinas :: pedidos_js}"></div>
 <footer th:replace="~{components/imports :: footer}"></footer>
 </html>

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Controller
-@RequestMapping("/pedidos")
 public class PedidoController {
 
     private final IPedidoService pedidoService;
@@ -34,13 +33,21 @@ public class PedidoController {
         this.clienteService = clienteService;
     }
 
-    @GetMapping(value = {"/nuevo/{last}"})
+    @GetMapping(value = {"/", ""})
+    public String listarIndex(Model model){
+        List<Pedido> pedidos = pedidoService.findAllByOrderByPrioridadDesc();
+        // pasamos los de pedidos obtenida a la vista
+        model.addAttribute("pedidos", pedidos);
+        return "index";
+    }
+
+    @GetMapping(value = {"/pedidos/nuevo/{last}"})
     public String crear(@PathVariable(value = "last") String last, Model model) {
         model.addAttribute("titulo", "Nuevo pedido");
         if(Objects.equals(last, "index")){
             model.addAttribute("last", "");
         }else{
-            model.addAttribute("last", last);
+            model.addAttribute("last", "pedidos/listar");
         }
 
         // instanciamos un pedido
@@ -54,7 +61,7 @@ public class PedidoController {
         return "pedidos/pedido";
     }
 
-    @PostMapping(value = "/guardar")
+    @PostMapping(value = "/pedidos/guardar")
     public String guardar(@Valid Pedido pedido, BindingResult result, Model model, RedirectAttributes flashmsg) {
         if (result.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
             model.addAttribute("titulo", model.getAttribute("titulo"));
@@ -79,7 +86,7 @@ public class PedidoController {
         return "redirect:/pedidos/listar";
     }
 
-    @GetMapping(value = {"/listar", "/", "" })
+    @GetMapping(value = "/pedidos/listar")
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de pedidos");
 
@@ -90,7 +97,7 @@ public class PedidoController {
         return "pedidos/pedidos";
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/pedidos/{id}")
     public String editar(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
         Pedido pedido = pedidoService.findById(id);
@@ -111,7 +118,7 @@ public class PedidoController {
 
     }
 
-    @GetMapping("/eliminar/{id}")
+    @GetMapping("/pedidos/eliminar/{id}")
     public String eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Pedido pedido = pedidoService.findById(id);
         if (pedido != null) {

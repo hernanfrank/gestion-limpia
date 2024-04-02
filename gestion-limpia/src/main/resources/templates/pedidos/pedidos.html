@@ -20,6 +20,7 @@
         <table id="pedidos_table" class="table table-striped border mt-2">
             <thead>
             <tr>
+                <th>Número</th>
                 <th>Tipo</th>
                 <th>Ingreso</th>
                 <th>Entrega</th>
@@ -31,6 +32,7 @@
             </thead>
             <tbody>
             <tr th:each="pedido: ${pedidos}">
+                <td th:text="${pedido.id}"></td>
                 <td th:text="${pedido.tipo.displayValue}"></td>
                 <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>

@@ -10,6 +10,10 @@
   <link rel="stylesheet" href="/webjars/datatables/1.13.5/css/jquery.dataTables.min.css">
   <!--estilos globales-->
   <style>
+    body{
+      background-color: lightsteelblue;
+      background-color: mintcream;
+    }
     .dataTables_wrapper .dataTables_filter{
       margin-bottom: 10px;
     }
@@ -24,11 +28,37 @@
       vertical-align: middle;
       border: black 1px solid;
     }
-    .pedido {
-      width: 12.1rem;
+    #pedidosList{
+      display: flex;
     }
-    .snap-grid{
-      margin: 0 1.75rem;
+    .container-pedidos{
+      min-height: 132px;
+    }
+    .pedido {
+      display: inline-block;
+      width: 12.1rem;
+      touch-action: none;
+    }
+    .maquina{
+      border: dashed 4px transparent;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+    }
+    .maquina > .card-body{
+      min-height: 130px;
+    }
+    .maquina > div{
+      background-color: rgba(255, 136, 37, 0.11);
+    }
+    .activa > div{
+      background-color: rgba(231, 154, 102, 0.56);
+    }
+    .drop-active {
+      border-color: rgba(100, 83, 26, 0.82);
+    }
+    .drop-target {
+      border-color: rgba(229, 181, 22, 0.82);
+      border-style: solid;
     }
     .messages{
       cursor:pointer;
@@ -89,6 +119,7 @@
         },
         aaSorting: []
       });
+      $("#"+tableName).parent().css('background-color','white');
     }
   </script>
 </footer>
