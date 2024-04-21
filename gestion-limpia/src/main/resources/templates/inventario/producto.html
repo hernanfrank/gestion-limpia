@@ -31,26 +31,31 @@
           <tr>
             <td>Cantidad por unidad (litros)</td>
             <td>
-              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadPorUnidad}"
-                     type="number" step="0.1" min="1"/>
+              <input class="form-control w-15" th:errorclass="'border border-danger'" th:field="*{cantidadPorUnidad}"
+                     type="number" step="0.01" min="0.00"/>
               <small class="text-danger" th:errors="*{cantidadPorUnidad}"
                      th:if="${#fields.hasErrors('cantidadPorUnidad')}"></small>
             </td>
           </tr>
           <tr>
-            <td>Cantidad usada por pedido unidad (litros)</td>
+            <td>Cantidad usada por tipo de pedido (litros)</td>
             <td>
-              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadUsadaPorPedido}"
-                     type="number" step="0.1" min="0"/>
-              <small class="text-danger" th:errors="*{cantidadUsadaPorPedido}"
-                     th:if="${#fields.hasErrors('cantidadUsadaPorPedido')}"></small>
+              <p th:each="tipoPedidoProducto, iter : *{tipoPedidoProductoMapping}">
+                <label th:text="*{tipoPedidoProductoMapping[__${iter.index}__].tipoPedido.descripcion + ':'}"></label>
+                <input type="hidden" th:field="*{tipoPedidoProductoMapping[__${iter.index}__].tipoPedido}">
+                <input type="hidden" th:field="*{tipoPedidoProductoMapping[__${iter.index}__].producto}">
+                <input type="hidden" th:field="*{tipoPedidoProductoMapping[__${iter.index}__].id}">
+                <input class="form-control ms-2 w-15 d-inline" type="number" step="0.01" min="0.00" th:field="*{tipoPedidoProductoMapping[__${iter.index}__].cantidadUsada}" />
+                <small class="text-danger" th:errors="*{tipoPedidoProductoMapping}"
+                       th:if="${#fields.hasErrors('tipoPedidoProductoMapping')}"></small>
+              </p>
             </td>
           </tr>
           <tr>
             <td>Cantidad actual (litros)</td>
             <td>
-              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadActual}"
-                     type="number" step="0.05" min="0.05" th:readonly="${(producto.reabastecimientos!= null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>
+              <input class="form-control w-15" th:errorclass="'border border-danger'" th:field="*{cantidadActual}"
+                     type="number" step="0.01" min="0.00" th:readonly="${(producto.reabastecimientos!= null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>
               <span class="text-warning" th:if="${(producto.reabastecimientos!= null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}">No es posible editar la cantidad actual de un producto que ya haya sido reabastecido o ya haya sido usado en pedidos</span>
               <small class="text-danger" th:errors="*{cantidadActual}"
                      th:if="${#fields.hasErrors('cantidadActual')}"></small>

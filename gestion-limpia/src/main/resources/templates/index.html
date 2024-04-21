@@ -6,14 +6,15 @@
 <div class="container-fluid">
     <div th:replace="~{components/topmenu :: messages}"></div>
     <div class="row mb-1">
-        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4 border border-2 border-secondary rounded">
+        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4">
             <div class="d-inline-flex pt-1 ps-1 pb-3">
+                <span id="sinPedidos" class="text-center d-none">No hay pedidos por realizar</span>
                 <ol id="pedidosList" class="m-0 p-0">
                 <li th:each="pedido : ${pedidos}" role="button" th:class="'pedido card me-2 p-0 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
                     <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
                     <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
                         <p class="px-2 py-1 card-text">
-                            <span th:text="'-'+${pedido.tipo.displayValue}"></span><br/>
+                            <span th:text="'-'+${pedido.tipo.descripcion}"></span><br/>
                             <span th:text="'-'+${pedido.cliente.nombreApellido}"></span>
                             <input class="pedidoId" type="hidden" th:value="${pedido.id}">
                         </p>
@@ -39,9 +40,9 @@
             </a>
         </div>
     </div>
-    <div th:replace="~{components/maquinas :: maquinas}"></div>
+    <div th:replace="~{maquinas/maquinas :: maquinas}"></div>
 </div>
 </body>
-<div th:replace="~{components/maquinas :: pedidos_js}"></div>
+<div th:replace="~{maquinas/maquinas :: pedidos_js}"></div>
 <footer th:replace="~{components/imports :: footer}"></footer>
 </html>

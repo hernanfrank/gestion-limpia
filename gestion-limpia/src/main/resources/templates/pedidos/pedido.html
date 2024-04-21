@@ -24,9 +24,9 @@
           <td>Tipo</td>
           <td>
             <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipo}">
-              <option th:each="tipoPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoPedido).values()}"
-                      th:value="${tipoPedido}" th:text="${tipoPedido.displayValue}"
-                      th:selected="${pedido.tipo != null && tipoPedido == pedido.tipo}"></option>
+              <option th:each="tipoPedido : ${tiposPedido}"
+                      th:value="${tipoPedido.id}" th:text="${tipoPedido.descripcion}"
+                      th:selected="${pedido.tipo != null && tipoPedido.id == pedido.tipo.id}"></option>
             </select>
             <small class="text-danger" th:errors="*{tipo}"
                    th:if="${#fields.hasErrors('tipo')}"></small>

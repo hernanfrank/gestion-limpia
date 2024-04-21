@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "historial_producto_pedido")
+@Table(name = "historial_productos_pedidos")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialProductoPedido implements Serializable {
 
@@ -31,9 +31,11 @@ public class HistorialProductoPedido implements Serializable {
 
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
     @Column(name = "fecha_hora_uso")
     private Timestamp fechaHoraUso;
+
+    @NotNull
+    private double cantidadUsada;
 
     @PrePersist
     public void prePersist(){

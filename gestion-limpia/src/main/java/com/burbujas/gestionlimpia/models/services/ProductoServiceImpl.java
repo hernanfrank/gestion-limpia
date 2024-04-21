@@ -1,11 +1,11 @@
 package com.burbujas.gestionlimpia.models.services;
 
 import com.burbujas.gestionlimpia.models.entities.*;
-import com.burbujas.gestionlimpia.models.repositories.IProductoRepository;
-import com.burbujas.gestionlimpia.models.repositories.IProveedorRepository;
-import com.burbujas.gestionlimpia.models.repositories.IReabastecimientoRepository;
+import com.burbujas.gestionlimpia.models.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,14 +14,20 @@ import java.util.Objects;
 public class ProductoServiceImpl implements IProductoService{
 
     private final IProductoRepository productoRepository;
+    private final ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository;
     private final IReabastecimientoRepository reabastecimientoRepository;
     private final IProveedorRepository proveedorRepository;
+    private final IPedidoRepository pedidoRepository;
+    private final ITipoPedidoRepository tipoPedidoRepository;
 
     @Autowired
-    public ProductoServiceImpl(IProductoRepository productoRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository) {
+    public ProductoServiceImpl(IProductoRepository productoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository, IPedidoRepository pedidoRepository, ITipoPedidoRepository tipoPedidoRepository) {
         this.productoRepository = productoRepository;
+        this.tipoPedidoProductoMappingRepository = tipoPedidoProductoMappingRepository;
         this.reabastecimientoRepository = reabastecimientoRepository;
         this.proveedorRepository = proveedorRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.tipoPedidoRepository = tipoPedidoRepository;
     }
 
     @Override
@@ -79,10 +85,45 @@ public class ProductoServiceImpl implements IProductoService{
             producto.getReabastecimientos().forEach(reabastecimiento -> cantidad[0] += reabastecimiento.getCantidadProducto());
         }
         if(producto.getHistorialProductoPedidos() != null) {
-            cantidad[0] -= producto.getCantidadUsadaPorPedido() * producto.getHistorialProductoPedidos().size();
+            producto.getHistorialProductoPedidos().forEach(historialProductoPedido -> {
+                TipoPedidoProductoMapping tipoPedidoProductoMappings = this.tipoPedidoProductoMappingRepository.findByTipoPedidoAndProducto(historialProductoPedido.getPedido().getTipo(), producto);
+                cantidad[0] -= tipoPedidoProductoMappings.getCantidadUsada();
+            });
         }
         producto.setCantidadActual(cantidad[0]);
         this.productoRepository.save(producto);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean setUso(Long idPedido, Long idMaquina){
+        try {
+            Pedido pedido = this.pedidoRepository.findById(idPedido).orElse(null);
+            if (pedido == null) {
+                return false;
+            }
+            // Agrego al historial el producto y descuento lo usado en cantidad actual
+            List<TipoPedidoProductoMapping> tipoPedidoProductoMappings = this.tipoPedidoProductoMappingRepository.findAllByTipoPedido(pedido.getTipo());
+
+            tipoPedidoProductoMappings.forEach(tipoPedidoProductoMapping -> {
+                // agrego al historial de producto - pedido
+                HistorialProductoPedido historialProductoPedido = new HistorialProductoPedido();
+                historialProductoPedido.setPedido(pedido);
+                historialProductoPedido.setProducto(tipoPedidoProductoMapping.getProducto());
+                historialProductoPedido.setCantidadUsada(tipoPedidoProductoMapping.getCantidadUsada());
+                pedido.getHistorialProductoPedido().add(historialProductoPedido);
+
+                // descuento lo usado en cantidad actual del producto
+                Double cantidadActualProducto = tipoPedidoProductoMapping.getProducto().getCantidadActual();
+                tipoPedidoProductoMapping.getProducto().setCantidadActual(cantidadActualProducto - tipoPedidoProductoMapping.getCantidadUsada());
+                this.productoRepository.save(tipoPedidoProductoMapping.getProducto());
+            });
+
+            return true;
+        }catch (Exception e){
+            System.out.println("Excepción capturada setear uso de producto: "+e);
+            return false;
+        }
     }
 
     @Override

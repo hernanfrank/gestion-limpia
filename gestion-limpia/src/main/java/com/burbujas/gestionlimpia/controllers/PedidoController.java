@@ -1,22 +1,25 @@
 package com.burbujas.gestionlimpia.controllers;
 
-import com.burbujas.gestionlimpia.models.entities.Cliente;
-import com.burbujas.gestionlimpia.models.entities.HistorialEstadoPedido;
-import com.burbujas.gestionlimpia.models.entities.Pedido;
+import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import com.burbujas.gestionlimpia.models.services.IClienteService;
 import com.burbujas.gestionlimpia.models.services.IPedidoService;
+import com.burbujas.gestionlimpia.models.services.IProductoService;
+import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,12 +28,16 @@ import java.util.Objects;
 public class PedidoController {
 
     private final IPedidoService pedidoService;
+    private final ITipoPedidoService tipoPedidoService;
     private final IClienteService clienteService;
+    private final IProductoService productoService;
 
     @Autowired
-    public PedidoController(IPedidoService pedidoService, IClienteService clienteService) {
+    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService) {
         this.pedidoService = pedidoService;
+        this.tipoPedidoService = tipoPedidoService;
         this.clienteService = clienteService;
+        this.productoService = productoService;
     }
 
     @GetMapping(value = {"/", ""})
@@ -52,12 +59,13 @@ public class PedidoController {
 
         // instanciamos un pedido
         Pedido pedido = new Pedido();
-
+        List<TipoPedido> tiposPedido = tipoPedidoService.findAll();
         List<Cliente> clientes = clienteService.findAll();
 
         // mapeamos el pedido y listado de clientes al formulario
         model.addAttribute("pedido", pedido);
         model.addAttribute("clientes", clientes);
+        model.addAttribute("tiposPedido", tiposPedido);
         return "pedidos/pedido";
     }
 
@@ -75,7 +83,7 @@ public class PedidoController {
             }
         }else{
             List<HistorialEstadoPedido> historialInicial = new ArrayList<>();
-            historialInicial.add(new HistorialEstadoPedido(pedido, EstadoPedido.INGRESADO, EstadoPedido.PENDIENTE));
+            historialInicial.add(new HistorialEstadoPedido(pedido, EstadoPedido.INGRESADO, EstadoPedido.PENDIENTE, new Timestamp(System.currentTimeMillis())));
             pedido.setHistorialEstadoPedido(historialInicial);
         }
         // recibimos el objeto pedido del formulario y lo persistimos
@@ -108,7 +116,10 @@ public class PedidoController {
             model.addAttribute("pedido", pedido);
 
             List<Cliente> clientes = clienteService.findAll();
+            List<TipoPedido> tiposPedido = tipoPedidoService.findAll();
+
             model.addAttribute("clientes", clientes);
+            model.addAttribute("tiposPedido", tiposPedido);
             model.addAttribute("titulo", "Editar pedido");
             return "pedidos/pedido";
         } else {
@@ -129,5 +140,24 @@ public class PedidoController {
         }
 
         return "redirect:/pedidos";
+    }
+
+    @PostMapping(value = "/pedidos/{idPedido}/maquina/{idMaquina}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "idMaquina") Long idMaquina){
+        if(!pedidoService.asignarAMaquina(idPedido, idMaquina)){
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al asignar el pedido a la máquina. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if(!this.productoService.setUso(idPedido, idMaquina)){
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al actualizar el contenido de producto usado. Revise el inventario para corregir inconsistencias.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Pedido asignado a la máquina correctamente\"}", HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/pedidos/{idPedido}/estado/{estado}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "estado") String estado){
+        if(!pedidoService.asignarAMaquina(idPedido, 0L, estado)){
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al cambiar el estado del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El estado del pedido ha sido cambiado correctamente.\"}", HttpStatus.OK);
     }
 }

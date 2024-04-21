@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
-@Table(name = "producto")
+@Table(name = "productos")
 @Getter @Setter @AllArgsConstructor
 public class Producto implements Serializable {
 
@@ -31,18 +33,19 @@ public class Producto implements Serializable {
     @NotNull(message = "La cantidad por unidad no puede estar vacía")
     private Double cantidadPorUnidad;
 
-    @NotNull(message = "La cantidad usada por pedido no puede ser vacía")
-    private Double cantidadUsadaPorPedido;
-
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
 
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialProductoPedido> historialProductoPedidos;
 
+    @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<TipoPedidoProductoMapping> tipoPedidoProductoMapping;
+
     public Producto() {
         this.cantidadActual = 0.d;
         this.cantidadPorUnidad = 10.d;
+        this.tipoPedidoProductoMapping = new ArrayList<>();
     }
 
 }

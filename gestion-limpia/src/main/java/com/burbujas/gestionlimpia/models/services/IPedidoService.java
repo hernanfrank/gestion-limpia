@@ -17,6 +17,10 @@ public interface IPedidoService {
 
     public List<HistorialMaquinaPedido> getHistorialMaquinasByPedidoId(Long id);
 
+    public boolean asignarAMaquina(Long pedidoId, Long maquinaId);
+
+    public boolean asignarAMaquina(Long pedidoId, Long maquinaId, String estadoId);
+
     public Pedido findById(Long id);
 
     public void save(Pedido pedido);

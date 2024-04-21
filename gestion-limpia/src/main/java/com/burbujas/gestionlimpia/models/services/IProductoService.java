@@ -39,4 +39,6 @@ public interface IProductoService {
     public void deleteReabastecimiento(Producto producto, Reabastecimiento reabastecimiento);
 
     public void deleteProveedor(Long id);
+
+    boolean setUso(Long idPedido, Long idMaquina);
 }

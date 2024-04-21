@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "historial_maquina_pedido")
+@Table(name = "historial_maquinas_pedidos")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialMaquinaPedido implements Serializable {
 
@@ -26,18 +26,22 @@ public class HistorialMaquinaPedido implements Serializable {
     private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Maquina maquina;
+    private Maquina maquinaAnterior;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    private Maquina maquinaNueva;
 
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
-    @Column(name = "fecha_hora_inicio")
-    private Timestamp fechaHoraInicio;
+    @NotNull
+    @Column(name = "fecha_hora_asignacion")
+    private Timestamp fechaHoraAsignacion;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotEmpty
-    @Column(name = "fecha_hora_fin")
-    private Timestamp fechaHoraFin;
-
+    public HistorialMaquinaPedido(Pedido pedido, Maquina maquinaAnterior, Maquina maquinaNueva, Timestamp fechaHoraAsignacion) {
+        this.pedido = pedido;
+        this.maquinaAnterior = maquinaAnterior;
+        this.maquinaNueva = maquinaNueva;
+        this.fechaHoraAsignacion = fechaHoraAsignacion;
+    }
 }

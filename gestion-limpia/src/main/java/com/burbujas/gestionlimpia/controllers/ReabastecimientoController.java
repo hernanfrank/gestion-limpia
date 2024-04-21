@@ -136,7 +136,7 @@ public class ReabastecimientoController {
         }else{
             flashmsg.addFlashAttribute("danger", "Error al guardar el reabastecimiento. Producto no encontrado.");
         }
-        return "redirect:/productos/reabastecimientos/listar";
+        return "redirect:/productos/inventario";
     }
 
     @GetMapping("/eliminar/{id}")

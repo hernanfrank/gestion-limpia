@@ -2,7 +2,6 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.Prioridad;
-import com.burbujas.gestionlimpia.models.entities.enums.TipoPedido;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -35,8 +34,8 @@ public class Pedido implements Serializable {
     @Column(name = "fecha_hora_entrega")
     private Timestamp fechaHoraEntrega;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = "El tipo no puede estar vacío")
-    @Enumerated(EnumType.STRING)
     private TipoPedido tipo;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,6 +53,9 @@ public class Pedido implements Serializable {
     @Enumerated(EnumType.STRING)
     private EstadoPedido estadoActual;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Maquina maquinaActual;
+
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialEstadoPedido> historialEstadoPedido;
 
@@ -67,7 +69,9 @@ public class Pedido implements Serializable {
         this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
         this.prioridad = Prioridad.NORMAL;
         this.estadoActual = EstadoPedido.PENDIENTE;
+        this.maquinaActual = null;
         this.historialEstadoPedido = new ArrayList<>();
+        this.historialMaquinaPedido = new ArrayList<>();
     }
 
 }

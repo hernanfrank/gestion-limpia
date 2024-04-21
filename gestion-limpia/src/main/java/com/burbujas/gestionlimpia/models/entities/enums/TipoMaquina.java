@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 
-public enum TipoPedido {
-    ROPA("Ropa"),
-    ACOLCHADO("Acolchado"),
-    MIXTO("Mixto");
-
+public enum TipoMaquina {
+    NINGUNO("Ninguno"),// para cancelados, finalizados y pendientes
+    LAVADORA("Lavadora"),
+    SECADORA("Secadora");
     private final String displayValue;
 
     public String getDisplayValue() {

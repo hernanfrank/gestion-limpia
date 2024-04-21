@@ -43,7 +43,7 @@
         <tr th:each="reabastecimiento: ${reabastecimientos}">
           <td th:text="${#dates.format(reabastecimiento.fecha,'dd/MM/yyyy')}"></td>
           <td th:text="${reabastecimiento.producto.tipo}"></td>
-          <td th:text="${reabastecimiento.cantidadProducto}"></td>
+          <td th:text="${reabastecimiento.cantidadProducto+' litro/s'}"></td>
           <td th:text="${#numbers.formatCurrency(reabastecimiento.precio)}"></td>
           <td th:text="${reabastecimiento.proveedor.nombre}"></td>
           <td>

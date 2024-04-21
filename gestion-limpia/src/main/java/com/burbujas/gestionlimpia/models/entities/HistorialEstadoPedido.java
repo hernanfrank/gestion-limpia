@@ -2,7 +2,6 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "historial_estado_pedido")
+@Table(name = "historial_estados_pedidos")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialEstadoPedido implements Serializable {
 
@@ -49,10 +48,10 @@ public class HistorialEstadoPedido implements Serializable {
         }
     }
 
-    public HistorialEstadoPedido(Pedido pedido, EstadoPedido estadoAnterior, EstadoPedido estadoNuevo) {
+    public HistorialEstadoPedido(Pedido pedido, EstadoPedido estadoAnterior, EstadoPedido estadoNuevo, Timestamp fechaHoraCambioEstado) {
         this.pedido = pedido;
         this.estadoAnterior = estadoAnterior;
         this.estadoNuevo = estadoNuevo;
-        this.fechaHoraCambioEstado = new Timestamp(System.currentTimeMillis());
+        this.fechaHoraCambioEstado = fechaHoraCambioEstado;
     }
 }

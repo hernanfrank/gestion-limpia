@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "reabastecimiento")
+@Table(name = "reabastecimientos")
 @Getter @Setter @AllArgsConstructor
 public class Reabastecimiento implements Serializable {
 

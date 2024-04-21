@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<!--suppress RequiredAttributes -->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="snap-grid" th:fragment="maquinas">
+  <div class="row">
+    <div class="col-2">
+      <!-- lavadoras -->
+      <div th:each="nro : ${#numbers.sequence(2,4)}" class="row mt-2 user-select-none maquina">
+        <div class="card p-0">
+          <div th:text="${'Lavadora '+ nro}" class="card-header"></div>
+          <div class="card-body">
+            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
+            <ul class="pedidoAsignado"></ul>
+            <input type="hidden" class="maquinaId" th:value="${nro}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <!-- lavadoras -->
+      <div th:each="nro : ${#numbers.sequence(2,4)}" class="row mt-2 user-select-none maquina">
+        <div class="card p-0">
+          <div th:text="${'Lavadora '+ nro}" class="card-header"></div>
+          <div class="card-body">
+            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
+            <ul class="pedidoAsignado"></ul>
+            <input type="hidden" class="maquinaId" th:value="${nro}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <div class="row mt-2 user-select-none cancelar">
+        <div class="card p-0 bg-danger">
+          <div class="card-header">Cancelar Pedido</div>
+          <div class="card-body">
+            <p class="card-text h3 text-muted text-center m-0 p-0">X</p>
+            <input type="hidden" class="maquinaId" th:value="0">
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2 user-select-none finalizar">
+        <div class="card p-0 bg-success">
+          <div class="card-header">Finalizar Pedido</div>
+          <div class="card-body">
+            <p class="card-text h2 text-muted text-center m-0 p-0">&#x2714;</p>
+            <input type="hidden" class="maquinaId" th:value="0">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <!-- secadoras -->
+      <div th:each="nro : ${#numbers.sequence(5,7)}" class="row mt-2 user-select-none maquina">
+        <div class="card p-0">
+          <div th:text="${'Secadora '+ nro}" class="card-header"></div>
+          <div class="card-body">
+            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
+            <ul class="pedidoAsignado"></ul>
+            <input type="hidden" class="maquinaId" th:value="${nro}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <!-- secadoras -->
+      <div th:each="nro : ${#numbers.sequence(5,7)}" class="row mt-2 user-select-none maquina">
+        <div class="card p-0">
+          <div th:text="${'Secadora '+ nro}" class="card-header"></div>
+          <div class="card-body">
+            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
+            <ul class="pedidoAsignado"></ul>
+            <input type="hidden" class="maquinaId" th:value="${nro}">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:fragment="pedidos_js">
+  <script src="webjars/interactjs/1.10.17/dist/interact.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function(evt){
+      // scroll para el costado de pedidos
+      const scrollContainer = document.querySelector(".container-pedidos");
+      scrollContainer.addEventListener("wheel", (evt) => {
+        evt.preventDefault();
+        scrollContainer.scrollLeft += evt.deltaY;
+      });
+
+      // hago pedidos draggables
+      var dragging = false;
+      var duplicate_pedido;
+      var last_maquina;
+      function dragMoveListener (event) {
+        // permite mover los pedidos
+        if(!dragging){
+          duplicate_pedido = event.target.cloneNode(true);
+          duplicate_pedido.style.filter = 'grayscale(85%)';
+          duplicate_pedido.setAttribute('disabled',true);
+          event.target.after(duplicate_pedido);
+          dragging = true;
+        }
+        let target = event.target;
+        target.style.position = 'absolute';
+        target.style.zIndex = '10';
+
+        // keep the dragged position in the data-x/data-y attributes
+        let x = parseFloat(target.getAttribute('data-x')) + event.dx;
+        let y = parseFloat(target.getAttribute('data-y')) + event.dy;
+
+        // translate the element
+        target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+
+        // update the position attributes
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+      }
+      function setInitialCoords(event){
+          event.target.setAttribute('data-x', parseFloat(0));
+          event.target.setAttribute('data-y', parseFloat(0));
+          last_maquina = event.target.parentNode;
+      }
+      function onDropCheck(event){
+        if(dragging){ // si no se soltó dentro de una máquina, el duplicado reemplaza el original y borro el original
+          duplicate_pedido.style.filter = '';
+          duplicate_pedido.removeAttribute('disabled');
+          interact(duplicate_pedido) // activo la acción draggable para el duplicado
+          .draggable({
+            listeners: {
+              start: setInitialCoords,
+              move : dragMoveListener,
+              end : onDropCheck
+            }
+          });
+          event.target.remove(); //elimino el original que quedó flotando fuera del listado
+          dragging = false;
+        }
+      }
+      interact('.pedido')
+      .draggable({
+        listeners: {
+          start: setInitialCoords,
+          move : dragMoveListener,
+          end : onDropCheck
+        }
+      });
+
+      // seteo las maquinas como dropzones para pedidos
+      interact('.maquina').dropzone({
+        // only accept elements matching this CSS selector
+        accept: '.pedido',
+        // Require a 50% element overlap for a drop to be possible
+        overlap: 0.5,
+
+        // listen for drop related events:
+        ondropactivate: function (event) {
+          // add active dropzone feedback
+          event.target.classList.add('drop-active')
+        },
+        ondragenter: function (event) {
+          let dropzoneElement = event.target
+
+          // feedback the possibility of a drop
+          dropzoneElement.classList.add('drop-target');
+        },
+        ondragleave: function (event) {
+          // remove the drop feedback style
+          event.target.classList.remove('drop-target');
+          event.target.classList.remove('activa');
+          event.target.querySelector(".card-text").classList.remove("d-none");
+        },
+        ondrop: function (event) {
+          dragging = false;
+          event.relatedTarget.style.transform = ''
+          event.relatedTarget.style.position = '';
+          duplicate_pedido.remove();// cuando se suelta dentro de una maquina, elimino el duplicado que esta en el listado
+
+          let misma_maquina = last_maquina.parentNode.parentNode.parentNode === event.target;
+          if(misma_maquina){//si lo agarré y solté dentro de la misma máquina no hago nada
+            return;
+          }
+
+          event.target.querySelector(".card-text").classList.add("d-none");
+          let pedidoAsignado = event.target.querySelector(".pedidoAsignado");
+          pedidoAsignado.appendChild(event.relatedTarget);// muestro el que solté en la maquina actual
+          pedidoAsignado.classList.remove('d-none');
+          event.target.classList.add('activa');
+
+          let pedidoId = pedidoAsignado.querySelector(".pedidoId").value;
+          let maquinaId = event.target.querySelector(".maquinaId").value;
+
+          // trigger del cambio de estado en el pedido
+          $.ajax({
+              type : "POST",
+              contentType : "application/json",
+              url : "/pedidos/"+pedidoId+"/maquina/"+maquinaId,
+              dataType: 'json',
+              success : function(result) {
+                console.log(result.msg);
+                if (result.status !== "OK") {
+                  // volver ponerlo en la máquina que estaba antes
+                }
+              },
+              error : function(e) {
+                alert(e)
+              }
+          });
+
+
+
+          // si no hay mas pedidos por realizar muestro texto dentro del contenedor de pedidos
+          if($(".container-pedidos #pedidosList").children().length > 0){
+            $(".container-pedidos #sinPedidos").addClass("d-none");
+          }else{
+            $(".container-pedidos #sinPedidos").removeClass("d-none");
+          }
+        },
+        ondropdeactivate: function (event) {
+          // remove active dropzone feedback
+          event.target.classList.remove('drop-active');
+          event.target.classList.remove('drop-target');
+        }
+      });
+
+      interact('.container-pedidos').dropzone({
+          // only accept elements matching this CSS selector
+          accept: '.pedido',
+          // Require a 50% element overlap for a drop to be possible
+          overlap: 0.5,
+
+          // listen for drop related events:
+          ondropactivate: function (event) {
+            // add active dropzone feedback
+            event.target.parentNode.classList.add('drop-active')
+          },
+          ondragenter: function (event) {
+            let dropzoneElement = event.target.parentNode;
+            // feedback the possibility of a drop
+            dropzoneElement.classList.add('drop-target');
+          },
+          ondragleave: function (event) {
+            // remove the drop feedback style
+            event.target.parentNode.classList.remove('drop-target');
+          },
+          ondrop: function (event) {
+            dragging = false;
+            // event.target es el listado de pedidos pendientes
+            // event.relatedTarget es el pedido arrastrado
+            duplicate_pedido.remove();// cuando se suelta en el listado, elimino el duplicado que esta dentro de una maquina
+            event.relatedTarget.style.transform = ''
+            event.relatedTarget.style.position = '';
+            let misma_maquina = last_maquina === event.relatedTarget.parentNode;
+            if(misma_maquina){//si lo agarré y solté dentro de la misma máquina no hago nada
+              return;
+            }
+
+            event.target.querySelector("#pedidosList").appendChild(event.relatedTarget);// muestro el que solté en el listado de pendientes
+
+            let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+
+            // trigger del cambio de estado en el pedido
+            $.ajax({
+              type : "POST",
+              contentType : "application/json",
+              url : "/pedidos/"+pedidoId+"/estado/PENDIENTE",
+              dataType: 'json',
+              success : function(result) {
+                if (result.status !== "OK") {
+                  // volver ponerlo en la máquina que estaba antes
+                }else{
+                }
+                console.log(result.msg);
+              },
+              error : function(e) {
+                alert(e)
+              }
+            });
+
+            // oculto texto de que no hay pedidos
+            $(".container-pedidos #sinPedidos").addClass("d-none");
+          },
+          ondropdeactivate: function (event) {
+            event.target.parentNode.classList.remove('drop-active');
+            event.target.parentNode.classList.remove('drop-target');
+          }
+      });
+
+      interact('.finalizar').dropzone({
+        accept: '.pedido',
+        overlap: 0.5,
+        ondropactivate: function (event) {
+          event.target.classList.add('drop-active')
+        },
+        ondragenter: function (event) {
+          let dropzoneElement = event.target
+          dropzoneElement.classList.add('drop-target');
+        },
+        ondragleave: function (event) {
+          event.target.classList.remove('drop-target');
+        },
+        ondrop: function (event) {
+          if(window.confirm("¿Finalizar el pedido?")) {
+            // event.target es la máquina de finalización
+            // event.relatedTarget es el pedido arrastrado
+            dragging = false;
+            duplicate_pedido.remove();// cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+            event.relatedTarget.style.transform = ''
+            event.relatedTarget.style.position = '';
+
+            let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+
+            // trigger del cambio de estado en el pedido
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/pedidos/" + pedidoId + "/estado/FINALIZADO",
+              dataType: 'json',
+              success: function (result) {
+                if (result.status !== "OK") {
+                  // ver que hacer
+                }else{
+                  event.relatedTarget.remove();// borro del dom el pedido
+                }
+                console.log(result.msg)
+              },
+              error: function (e) {
+                alert(e)
+              }
+            });
+          }
+        },
+        ondropdeactivate: function (event) {
+          // remove active dropzone feedback
+          event.target.classList.remove('drop-active');
+          event.target.classList.remove('drop-target');
+        }
+      });
+      interact('.cancelar').dropzone({
+        accept: '.pedido',
+        overlap: 0.5,
+        ondropactivate: function (event) {
+          event.target.classList.add('drop-active')
+        },
+        ondragenter: function (event) {
+          let dropzoneElement = event.target
+          dropzoneElement.classList.add('drop-target');
+        },
+        ondragleave: function (event) {
+          event.target.classList.remove('drop-target');
+        },
+        ondrop: function (event) {
+          if(window.confirm("¿Cancelar el pedido?")) {
+            // event.target es la máquina de cancelación
+            // event.relatedTarget es el pedido arrastrado
+            dragging = false;
+            duplicate_pedido.remove();// cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+            event.relatedTarget.style.transform = ''
+            event.relatedTarget.style.position = '';
+
+            let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+
+            // trigger del cambio de estado en el pedido
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              url: "/pedidos/" + pedidoId + "/estado/CANCELADO",
+              dataType: 'json',
+              success: function (result) {
+                if (result.status !== "OK") {
+                  //ver que hacer
+                }else{
+                  event.relatedTarget.remove(); // borro del dom el pedido
+                }
+                console.log(result.msg)
+              },
+              error: function (e) {
+                alert(e)
+              }
+            });
+          }
+        },
+        ondropdeactivate: function (event) {
+          // remove active dropzone feedback
+          event.target.classList.remove('drop-active');
+          event.target.classList.remove('drop-target');
+        }
+      });
+    });
+  </script>
+<script>
+</script>
+</div>
+</body>
+</html>
