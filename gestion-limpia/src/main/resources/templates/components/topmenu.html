@@ -3,7 +3,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
     <div th:fragment="navbar">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
             <a class="navbar-brand" th:href="@{/}">
                 <img th:src="@{/images/logo.png}" width="40" height="40" class="d-inline-block ms-3" alt="🫧">
                 <span class="align-middle" th:text="${@environment.getProperty('environment.nombreLavanderia')}"></span>

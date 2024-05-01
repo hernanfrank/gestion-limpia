@@ -142,12 +142,12 @@ public class PedidoController {
         return "redirect:/pedidos";
     }
 
-    @PostMapping(value = "/pedidos/{idPedido}/maquina/{idMaquina}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "idMaquina") Long idMaquina){
-        if(!pedidoService.asignarAMaquina(idPedido, idMaquina)){
+    @PostMapping(value = "/pedidos/{idPedido}/maquina/{numeroMaquina}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "numeroMaquina") Integer numeroMaquina){
+        if(!pedidoService.asignarAMaquina(idPedido, numeroMaquina)){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al asignar el pedido a la máquina. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if(!this.productoService.setUso(idPedido, idMaquina)){
+        if(!this.productoService.setUso(idPedido, numeroMaquina)){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al actualizar el contenido de producto usado. Revise el inventario para corregir inconsistencias.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Pedido asignado a la máquina correctamente\"}", HttpStatus.OK);
@@ -155,7 +155,7 @@ public class PedidoController {
 
     @PostMapping(value = "/pedidos/{idPedido}/estado/{estado}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "estado") String estado){
-        if(!pedidoService.asignarAMaquina(idPedido, 0L, estado)){
+        if(!pedidoService.asignarAMaquina(idPedido, 0, estado)){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al cambiar el estado del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El estado del pedido ha sido cambiado correctamente.\"}", HttpStatus.OK);

@@ -40,5 +40,5 @@ public interface IProductoService {
 
     public void deleteProveedor(Long id);
 
-    boolean setUso(Long idPedido, Long idMaquina);
+    boolean setUso(Long idPedido, Integer maquinaNumero);
 }

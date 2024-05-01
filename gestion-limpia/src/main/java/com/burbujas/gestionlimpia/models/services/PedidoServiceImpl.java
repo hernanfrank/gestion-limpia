@@ -71,11 +71,11 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public boolean asignarAMaquina(Long pedidoId, Long maquinaId) {
+    public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero) {
         try{
             // si estoy asignando a una máquina verdadera, la busco por id, y busco su estado asociado
             Optional<Pedido> pedido = this.pedidoRepository.findById(pedidoId);
-            Optional<Maquina> maquina = this.maquinaRepository.findById(maquinaId);
+            Optional<Maquina> maquina = this.maquinaRepository.findByNumero(maquinaNumero);
 
             return realizarAsignacion(pedido, maquina, maquina.get().getEstadoAsociado());
         } catch (Exception e){
@@ -85,7 +85,7 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override // para cuando asigno a FINALIZADO, CANCELADO o PENDIENTE
-    public boolean asignarAMaquina(Long pedidoId, Long maquinaId, String estado) {
+    public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero, String estado) {
         try{
             // si estoy asignando a una máquina artificial, siempre va a ser la de tipo NINGUNO, y va a cambiar el estado asociado
             Optional<Pedido> pedido = this.pedidoRepository.findById(pedidoId);

@@ -12,12 +12,12 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/maquinas")
-public class MaquinasController {
+public class MaquinaController {
 
     private final IMaquinaService maquinaService;
 
     @Autowired
-    public MaquinasController(IMaquinaService maquinaService) {
+    public MaquinaController(IMaquinaService maquinaService) {
         this.maquinaService = maquinaService;
     }
 

@@ -4,18 +4,34 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
+    <div class="row">
+        <div class="col">
+        <a class="me-n4 ms-2 float-end" th:href="@{/maquinas/configurar}">
+            <button class="btn btn-sm btn-secondary">
+                <i class="bi bi-gear"></i>
+            </button>
+        </a>
+        <a class="float-end" th:href="@{/pedidos/nuevo/index}">
+            <button class="btn btn-primary">
+                <i class="bi bi-box2"></i>
+                Nuevo Pedido
+            </button>
+        </a>
+        </div>
+    </div>
     <div th:replace="~{components/topmenu :: messages}"></div>
-    <div class="row mb-1">
-        <div class="container-pedidos col-10 overflow-x-scroll ms-4 ps-0 me-n4">
-            <div class="d-inline-flex pt-1 ps-1 pb-3">
-                <span id="sinPedidos" class="text-center d-none">No hay pedidos por realizar</span>
-                <ol id="pedidosList" class="m-0 p-0">
-                <li th:each="pedido : ${pedidos}" role="button" th:class="'pedido card me-2 p-0 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
+    <div class="row">
+        <div class="col-2 ms-n35 me-3">
+            <div class="container-pedidos">
+            <h5 class="text-center">PENDIENTES</h5>
+            <span id="sinPedidos" class="text-center d-none">No quedan pedidos por realizar</span>
+            <ol id="pedidosList" class="m-0 p-0 d-grid justify-content-center">
+                <li th:each="pedido : ${pedidos}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
                     <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
                     <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
                         <p class="px-2 py-1 card-text">
-                            <span th:text="'-'+${pedido.tipo.descripcion}"></span><br/>
-                            <span th:text="'-'+${pedido.cliente.nombreApellido}"></span>
+                            <span th:text="'• '+${pedido.tipo.descripcion}"></span><br/>
+                            <span th:text="'• '+${pedido.cliente.nombreApellido}"></span>
                             <input class="pedidoId" type="hidden" th:value="${pedido.id}">
                         </p>
                     </div>
@@ -23,24 +39,33 @@
                         <small th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy')}"></small>
                     </div>
                 </li>
-                </ol>
+            </ol>
             </div>
         </div>
-        <div class="col-2">
-            <a class="me-n4 ms-2 float-end" th:href="@{/maquinas/configurar}">
-                <button class="btn btn-sm btn-secondary">
-                    <i class="bi bi-gear"></i>
-                </button>
-            </a>
-            <a class="float-end" th:href="@{/pedidos/nuevo/index}">
-                <button class="btn btn-primary">
-                    <i class="bi bi-box2"></i>
-                    Nuevo Pedido
-                </button>
-            </a>
+        <div th:replace="~{maquinas/maquinas :: maquinas}"></div>
+        <div class="col-2 me-n5 ms-3">
+            <div class="row mt-5 user-select-none cancelar">
+                <div class="card p-0 bg-danger">
+                    <div class="card-header">Cancelar Pedido</div>
+                    <div class="card-body">
+                        <p class="card-text h2 text-muted text-center">X</p>
+                        <ul class="pedido-asignado"></ul>
+                        <input type="hidden" class="maquinaNumero" th:value="0">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2 user-select-none finalizar">
+                <div class="card p-0 bg-success">
+                    <div class="card-header">Finalizar Pedido</div>
+                    <div class="card-body">
+                        <p class="card-text h1 text-muted text-center">&#x2714;</p>
+                        <ul class="pedido-asignado"></ul>
+                        <input type="hidden" class="maquinaNumero" th:value="0">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div th:replace="~{maquinas/maquinas :: maquinas}"></div>
 </div>
 </body>
 <div th:replace="~{maquinas/maquinas :: pedidos_js}"></div>

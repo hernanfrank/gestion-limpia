@@ -2,92 +2,59 @@
 <!--suppress RequiredAttributes -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div class="snap-grid" th:fragment="maquinas">
+<div th:fragment="maquinas" class="col-8 container-maquinas">
   <div class="row">
-    <div class="col-2">
+    <div class="col-6 border-start border-end border-black border-2" >
+      <h5 class="text-center">LAVADO</h5>
       <!-- lavadoras -->
-      <div th:each="nro : ${#numbers.sequence(2,4)}" class="row mt-2 user-select-none maquina">
-        <div class="card p-0">
+      <div th:each="nro : ${#numbers.sequence(1,3)}" class="row">
+        <div class="card p-0 col-6 user-select-none maquina lavadora">
           <div th:text="${'Lavadora '+ nro}" class="card-header"></div>
           <div class="card-body">
             <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedidoAsignado"></ul>
-            <input type="hidden" class="maquinaId" th:value="${nro}">
+            <ul class="pedido-asignado"></ul>
+            <input type="hidden" class="maquinaNumero" th:value="${nro}">
           </div>
         </div>
       </div>
     </div>
-    <div class="col-2">
-      <!-- lavadoras -->
-      <div th:each="nro : ${#numbers.sequence(2,4)}" class="row mt-2 user-select-none maquina">
-        <div class="card p-0">
-          <div th:text="${'Lavadora '+ nro}" class="card-header"></div>
-          <div class="card-body">
-            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedidoAsignado"></ul>
-            <input type="hidden" class="maquinaId" th:value="${nro}">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-2">
-      <div class="row mt-2 user-select-none cancelar">
-        <div class="card p-0 bg-danger">
-          <div class="card-header">Cancelar Pedido</div>
-          <div class="card-body">
-            <p class="card-text h3 text-muted text-center m-0 p-0">X</p>
-            <input type="hidden" class="maquinaId" th:value="0">
-          </div>
-        </div>
-      </div>
-      <div class="row mt-2 user-select-none finalizar">
-        <div class="card p-0 bg-success">
-          <div class="card-header">Finalizar Pedido</div>
-          <div class="card-body">
-            <p class="card-text h2 text-muted text-center m-0 p-0">&#x2714;</p>
-            <input type="hidden" class="maquinaId" th:value="0">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-2">
+    <div class="col-6 border-end border-black border-2" >
+      <h5 class="text-center">SECADO</h5>
       <!-- secadoras -->
-      <div th:each="nro : ${#numbers.sequence(5,7)}" class="row mt-2 user-select-none maquina">
-        <div class="card p-0">
+      <div th:each="nro : ${#numbers.sequence(4,6)}" class="row">
+        <div class="card p-0 col-6  user-select-none maquina secadora">
           <div th:text="${'Secadora '+ nro}" class="card-header"></div>
           <div class="card-body">
             <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedidoAsignado"></ul>
-            <input type="hidden" class="maquinaId" th:value="${nro}">
+            <ul class="pedido-asignado"></ul>
+            <input type="hidden" class="maquinaNumero" th:value="${nro}">
           </div>
         </div>
-      </div>
-    </div>
-    <div class="col-2">
-      <!-- secadoras -->
-      <div th:each="nro : ${#numbers.sequence(5,7)}" class="row mt-2 user-select-none maquina">
-        <div class="card p-0">
-          <div th:text="${'Secadora '+ nro}" class="card-header"></div>
+        <!-- secadoras -->
+        <div class="card p-0 col-6 user-select-none maquina secadora">
+          <div th:text="${'Secadora '+ (nro+3)}" class="card-header"></div>
           <div class="card-body">
             <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedidoAsignado"></ul>
-            <input type="hidden" class="maquinaId" th:value="${nro}">
+            <ul class="pedido-asignado"></ul>
+            <input type="hidden" class="maquinaNumero" th:value="${(nro+3)}">
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
+
 <div th:fragment="pedidos_js">
   <script src="webjars/interactjs/1.10.17/dist/interact.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function(evt){
       // scroll para el costado de pedidos
-      const scrollContainer = document.querySelector(".container-pedidos");
+      /*const scrollContainer = document.querySelector(".container-pedidos");
       scrollContainer.addEventListener("wheel", (evt) => {
         evt.preventDefault();
         scrollContainer.scrollLeft += evt.deltaY;
-      });
+      });*/
 
       // hago pedidos draggables
       var dragging = false;
@@ -183,19 +150,19 @@
           }
 
           event.target.querySelector(".card-text").classList.add("d-none");
-          let pedidoAsignado = event.target.querySelector(".pedidoAsignado");
+          let pedidoAsignado = event.target.querySelector(".pedido-asignado");
           pedidoAsignado.appendChild(event.relatedTarget);// muestro el que solté en la maquina actual
           pedidoAsignado.classList.remove('d-none');
           event.target.classList.add('activa');
 
           let pedidoId = pedidoAsignado.querySelector(".pedidoId").value;
-          let maquinaId = event.target.querySelector(".maquinaId").value;
+          let maquinaNumero = event.target.querySelector(".maquinaNumero").value;
 
           // trigger del cambio de estado en el pedido
           $.ajax({
               type : "POST",
               contentType : "application/json",
-              url : "/pedidos/"+pedidoId+"/maquina/"+maquinaId,
+              url : "/pedidos/"+pedidoId+"/maquina/"+maquinaNumero,
               dataType: 'json',
               success : function(result) {
                 console.log(result.msg);

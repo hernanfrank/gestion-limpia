@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface IMaquinaRepository extends JpaRepository<Maquina, Long> {
     Maquina findByTipo(TipoMaquina tipo);
+
+    Optional<Maquina> findByNumero(Integer maquinaNumero);
 }

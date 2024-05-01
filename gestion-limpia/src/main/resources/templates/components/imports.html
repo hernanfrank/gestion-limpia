@@ -11,8 +11,15 @@
   <!--estilos globales-->
   <style>
     body{
-      background-color: lightsteelblue;
-      background-color: mintcream;
+      --black: #193532;
+      background-color: #ABB3B6A8;
+
+    }
+    .navbar{
+      background-color: steelblue !important;
+    }
+    h5{
+      color: #173331;
     }
     .dataTables_wrapper .dataTables_filter{
       margin-bottom: 10px;
@@ -28,48 +35,98 @@
       vertical-align: middle;
       border: black 1px solid;
     }
-    #pedidosList{
-      display: flex;
-    }
     .container-pedidos{
       min-height: 132px;
     }
     .pedido {
-      display: inline-block;
       width: 12.1rem;
+      display:block;
+      float:left;
+      clear: left;
       touch-action: none;
     }
-    .pedidoAsignado{
-      padding-left:0.4rem;
+    .pedido > .card-body > .card-text {
+      text-align: center;
+      background-color: #ede3d985;
     }
-    .maquina{
-      border: dashed 4px transparent;
+    .pedido-asignado{
+      padding:0;
+      margin:0;
+      margin-left: -0.1rem;
+    }
+    .container-maquinas{
+      margin-top:-2rem;
+    }
+    .maquina{;
       border-radius: 10px;
-      transition: background-color 0.3s;
-      width: 15.5rem;
+      max-width: 13.9rem;
+      margin: 0.2rem 0.57rem;
     }
-    .maquina > .card > .card-body{
+    .lavadora{
+      background-color: #B9E4E1C9;
+      transition: background-color 0.3s;
+    }
+    .secadora{
+      background-color: #F1B86F57;
+      transition: background-color 0.3s;
+    }
+    .maquina > .card-body{
       min-height: 8.74rem;
       padding-bottom:0;
+      margin-top: 0;
+      padding-top: 0.5rem;
+      background-color: #ede3d985;
     }
-    .maquina > div{
-      background-color: rgba(255, 136, 37, 0.11);
+    .finalizar > .card > .card-header{
+      background-color: #ede3d91f;
     }
-    .activa > div{
-      background-color: rgba(231, 154, 102, 0.56);
+    .finalizar > .card > .card-body{
+      min-height: 8.74rem;
+      background-color: #ede3d985;
+    }
+    .finalizar > .card > .card-body > p{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 90%;
+    }
+    .cancelar > .card > .card-header{
+      background-color: #ede3d91f;
+    }
+    .cancelar > .card > .card-body{
+      min-height: 8.74rem;
+      background-color: #ede3d985;
+    }
+    .cancelar > .card > .card-body > p{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 90%;
+    }
+    .activa {
+      background-color: #abacad;
+      filter: brightness(90%);
     }
     .drop-active {
+      border-radius: 10px;
       border-color: rgba(100, 83, 26, 0.82);
+      border-style: solid;
+      border-width: 3px;
     }
     .drop-target {
-      border-color: rgba(229, 181, 22, 0.82);
+      border-radius: 10px;
+      border-color: rgba(229, 112, 22, 0.82);
       border-style: solid;
+      border-width: 3px;
     }
     .messages{
       cursor:pointer;
     }
     body .container-fluid{
       padding: 0px 50px;
+    }
+    body .border-black{
+      border-color: #193532;
     }
     .me-n1{
       margin-right: -.25rem !important;
@@ -82,6 +139,9 @@
     }
     .me-n3{
       margin-right: -1rem !important;
+    }
+    .me-n35{
+      margin-left: -1.25rem !important;
     }
     .me-n4{
       margin-right: -1.5rem !important;
@@ -101,6 +161,9 @@
     .ms-n3{
       margin-left: -1rem !important;
     }
+    .ms-n35{
+      margin-left: -1.25rem !important;
+    }
     .ms-n4{
       margin-left: -1.5rem !important;
     }
@@ -119,7 +182,7 @@
   </style>
 </head>
 <!--footer-->
-<footer style="margin-top:20%" th:fragment="footer">
+<footer th:fragment="footer">
   <script src="/webjars/jquery/3.7.0/jquery.min.js"></script>
   <script src="/webjars/bootstrap/5.3.2/js/bootstrap.min.js"></script>
   <script src="/webjars/datatables/1.13.5/js/jquery.dataTables.min.js"></script>
@@ -133,7 +196,7 @@
         },
         aaSorting: []
       });
-      $("#"+tableName).parent().css('background-color','white');
+      $("#"+tableName).parent().css('background-color','#f4f4f4');
     }
   </script>
 </footer>

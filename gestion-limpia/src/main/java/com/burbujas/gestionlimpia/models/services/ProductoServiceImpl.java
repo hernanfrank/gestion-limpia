@@ -96,7 +96,7 @@ public class ProductoServiceImpl implements IProductoService{
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean setUso(Long idPedido, Long idMaquina){
+    public boolean setUso(Long idPedido, Integer maquinaNumero){
         try {
             Pedido pedido = this.pedidoRepository.findById(idPedido).orElse(null);
             if (pedido == null) {
