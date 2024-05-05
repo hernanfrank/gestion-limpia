@@ -84,7 +84,7 @@ public class ReabastecimientoController {
 
             List<Producto> productos = productoService.findAll();
             List<Proveedor> proveedores = productoService.findAllProveedores();
-            reabastecimiento.setCantidadProducto(producto.getCantidadPorUnidad()*reabastecimiento.getUnidades());
+            reabastecimiento.setCantidadProducto(producto.getCantidadActual());
 
             model.addAttribute("reabastecimiento", reabastecimiento);
             model.addAttribute("productos", productos); // para el select

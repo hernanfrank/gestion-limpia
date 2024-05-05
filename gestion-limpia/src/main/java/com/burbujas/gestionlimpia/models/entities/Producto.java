@@ -30,9 +30,6 @@ public class Producto implements Serializable {
     @NotNull(message = "El nivel del producto no puede estar vacío")
     private Double cantidadActual;
 
-    @NotNull(message = "La cantidad por unidad no puede estar vacía")
-    private Double cantidadPorUnidad;
-
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
 
@@ -44,7 +41,6 @@ public class Producto implements Serializable {
 
     public Producto() {
         this.cantidadActual = 0.d;
-        this.cantidadPorUnidad = 10.d;
         this.tipoPedidoProductoMapping = new ArrayList<>();
     }
 

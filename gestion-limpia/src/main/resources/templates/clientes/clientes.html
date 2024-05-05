@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col border rounded-3 p-2">
+        <div class="col border rounded-3 p-3">
         <table id="clientes_table" class="table table-striped border mt-2">
             <thead>
             <tr>
@@ -34,15 +34,15 @@
                 <td th:text="${cliente.telefono}"></td>
                 <td th:text="${cliente.pedidos.size() > 0 ? cliente.pedidos.size() : 'Sin pedidos aún'}"></td>
                 <td>
-                    <a class="d-inline nav-link" th:href="@{/clientes/{id}(id=${cliente.id})}">
-                        <button class="btn btn-warning">
-                            Editar
+                    <a title="Editar" class="d-inline nav-link" th:href="@{/clientes/{id}(id=${cliente.id})}">
+                        <button class="btn btn-sm btn-warning text-dark fs-6">
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                     </a>
-                    <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el cliente?')"
+                    <a title="Eliminar" class="d-inline nav-link" onclick="return confirm('¿Eliminar el pedido?')"
                        th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}">
-                        <button class="btn btn-danger">
-                            Eliminar
+                        <button class="btn btn-sm btn-danger text-dark fs-6">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </a>
                 </td>

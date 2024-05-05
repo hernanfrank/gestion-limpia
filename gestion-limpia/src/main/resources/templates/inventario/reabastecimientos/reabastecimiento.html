@@ -42,15 +42,6 @@
             </td>
           </tr>
           <tr>
-            <td>Cantidad de unidades</td>
-            <td>
-              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{unidades}"
-                     type="number" min="1"/>
-              <small class="text-danger" th:errors="*{unidades}"
-                     th:if="${#fields.hasErrors('unidades')}"></small>
-            </td>
-          </tr>
-          <tr>
             <td>Cantidad total de producto (litros)</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadProducto}"

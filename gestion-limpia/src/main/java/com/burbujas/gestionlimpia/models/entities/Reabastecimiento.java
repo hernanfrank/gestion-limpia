@@ -30,10 +30,6 @@ public class Reabastecimiento implements Serializable {
     @Column(name = "fecha")
     private Date fecha;
 
-    @NotNull
-    @Min(value = 1, message = "La cantidad de unidades no puede ser 0")
-    private Integer unidades;
-
     @NotNull(message = "La cantidad de producto no puede estar vacía")
     private Double cantidadProducto;
 
@@ -46,7 +42,6 @@ public class Reabastecimiento implements Serializable {
 
     public Reabastecimiento() {
         this.fecha = new Date();
-        this.unidades = 1;
         this.precio = 0.D;
     }
 

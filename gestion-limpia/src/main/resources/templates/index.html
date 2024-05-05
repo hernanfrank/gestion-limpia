@@ -22,10 +22,9 @@
     <div th:replace="~{components/topmenu :: messages}"></div>
     <div class="row">
         <div class="col-2 ms-n35 me-3">
-            <div class="container-pedidos">
+            <div class="container-pedidos h-100" data-tipo="pendientes">
             <h5 class="text-center">PENDIENTES</h5>
-            <span id="sinPedidos" class="text-center d-none">No quedan pedidos por realizar</span>
-            <ol id="pedidosList" class="m-0 p-0 d-grid justify-content-center">
+            <ol id="pedidosList" class="m-0 p-0 d-grid justify-content-center" data-tipo="pendientes">
                 <li th:each="pedido : ${pedidos}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
                     <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
                     <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">

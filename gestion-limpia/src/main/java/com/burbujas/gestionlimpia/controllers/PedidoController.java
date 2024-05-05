@@ -120,6 +120,7 @@ public class PedidoController {
 
             model.addAttribute("clientes", clientes);
             model.addAttribute("tiposPedido", tiposPedido);
+            model.addAttribute("last", "pedidos/listar");
             model.addAttribute("titulo", "Editar pedido");
             return "pedidos/pedido";
         } else {

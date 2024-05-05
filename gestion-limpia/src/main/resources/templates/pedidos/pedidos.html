@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col border rounded-3 p-2">
+        <div class="col border rounded-3 p-3">
         <table id="pedidos_table" class="table table-striped border mt-2">
             <thead>
             <tr>
@@ -47,7 +47,7 @@
                 </td>
                 <td>
                     <h4 th:text="${pedido.estadoActual.displayValue}"
-                        th:class="'p-2 badge '+ ${
+                        th:class="'text-light p-2 badge '+ ${
                         pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).PENDIENTE ? 'bg-warning' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).LAVADO ? 'bg-primary' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).SECADO ? 'bg-secondary' :
@@ -57,15 +57,15 @@
                     ></h4>
                 </td>
                 <td>
-                    <a class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
-                        <button class="btn btn-warning">
-                            Editar
+                    <a title="Editar" class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
+                        <button class="btn btn-sm btn-warning text-dark fs-6">
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                     </a>
-                    <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el pedido?')"
+                    <a title="Eliminar" class="d-inline nav-link" onclick="return confirm('¿Eliminar el pedido?')"
                        th:href="@{/pedidos/eliminar/{id}(id=${pedido.id})}">
-                        <button class="btn btn-danger">
-                            Eliminar
+                        <button class="btn btn-sm btn-danger text-dark fs-6">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </a>
                 </td>

@@ -22,34 +22,34 @@
     </div>
   </div>
   <div class="row">
-    <div class="col border rounded-3 p-2">
+    <div class="col border rounded-3 p-3">
       <table id="proveedores_table" class="table table-striped border mt-2">
         <thead>
         <tr>
           <th>Nombre</th>
-          <th>Reabastecimientos</th>
+          <th>Últimos Reabastecimientos</th>
           <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="proveedor: ${proveedores}">
           <td th:text="${proveedor.nombre}"></td>
-          <td th:if="${proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }">
+          <td class="d-flex justify-content-center" th:if="${proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }" style="max-height:115px;overflow-y: scroll">
             <ul>
               <li th:each="reabastecimiento : ${proveedor.reabastecimientos}" th:text="${#dates.format(reabastecimiento.fecha, 'yyyy/MM/dd')} +  ' - ' + ${reabastecimiento.producto.tipo}"></li>
             </ul>
           </td>
           <td th:if="${proveedor.reabastecimientos == null || proveedor.reabastecimientos.size() <= 0 }">Sin reabastecimientos aún</td>
           <td>
-            <a class="d-inline nav-link" th:href="@{/productos/proveedores/editar/{id}(id=${proveedor.id})}">
-              <button class="btn btn-warning">
-                Editar
+            <a title="Editar" class="d-inline nav-link" th:href="@{/productos/proveedores/editar/{id}(id=${proveedor.id})}">
+              <button class="btn btn-sm btn-warning text-dark fs-6">
+                <i class="bi bi-pencil-square"></i>
               </button>
             </a>
-            <a class="d-inline nav-link" onclick="return confirm('¿Eliminar el proveedor?')"
+            <a title="Eliminar" class="d-inline nav-link" onclick="return confirm('¿Eliminar el producto?')"
                th:href="@{/productos/proveedores/eliminar/{id}(id=${proveedor.id})}">
-              <button class="btn btn-danger">
-                Eliminar
+              <button class="btn btn-sm btn-danger text-dark fs-6">
+                <i class="bi bi-trash"></i>
               </button>
             </a>
           </td>

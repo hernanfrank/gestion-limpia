@@ -8,11 +8,11 @@
       <h5 class="text-center">LAVADO</h5>
       <!-- lavadoras -->
       <div th:each="nro : ${#numbers.sequence(1,3)}" class="row">
-        <div class="card p-0 col-6 user-select-none maquina lavadora">
+        <div class="card p-0 col-6 user-select-none maquina lavadora" data-tipo="lavadora">
           <div th:text="${'Lavadora '+ nro}" class="card-header"></div>
-          <div class="card-body">
-            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedido-asignado"></ul>
+          <div class="card-body d-flex justify-content-center">
+            <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
+            <ul class="pedido-asignado" data-tipo="lavadora"></ul>
             <input type="hidden" class="maquinaNumero" th:value="${nro}">
           </div>
         </div>
@@ -22,20 +22,20 @@
       <h5 class="text-center">SECADO</h5>
       <!-- secadoras -->
       <div th:each="nro : ${#numbers.sequence(4,6)}" class="row">
-        <div class="card p-0 col-6  user-select-none maquina secadora">
+        <div class="card p-0 col-6  user-select-none maquina secadora" data-tipo="secadora">
           <div th:text="${'Secadora '+ nro}" class="card-header"></div>
-          <div class="card-body">
-            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedido-asignado"></ul>
+          <div class="card-body  d-flex justify-content-center">
+            <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
+            <ul class="pedido-asignado" data-tipo="secadora"></ul>
             <input type="hidden" class="maquinaNumero" th:value="${nro}">
           </div>
         </div>
         <!-- secadoras -->
-        <div class="card p-0 col-6 user-select-none maquina secadora">
+        <div class="card p-0 col-6 user-select-none maquina secadora" data-tipo="secadora">
           <div th:text="${'Secadora '+ (nro+3)}" class="card-header"></div>
-          <div class="card-body">
-            <p class="card-text h6 text-muted text-center m-0 p-0">Sin pedido asignado</p>
-            <ul class="pedido-asignado"></ul>
+          <div class="card-body  d-flex justify-content-center">
+            <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
+            <ul class="pedido-asignado" data-tipo="secadora"></ul>
             <input type="hidden" class="maquinaNumero" th:value="${(nro+3)}">
           </div>
         </div>
@@ -59,18 +59,18 @@
       // hago pedidos draggables
       var dragging = false;
       var duplicate_pedido;
-      var last_maquina;
+      var last_maquina_tipo;
       function dragMoveListener (event) {
         // permite mover los pedidos
         if(!dragging){
           duplicate_pedido = event.target.cloneNode(true);
-          duplicate_pedido.style.filter = 'grayscale(85%)';
           duplicate_pedido.setAttribute('disabled',true);
           event.target.after(duplicate_pedido);
+          //aplico estilos al duplicado, para que sea vea debajo del que estoy arrastrando, que este gris y no desplace los pedidos siguientes
+          duplicate_pedido.style.cssText = 'zIndex:0;transform:translateY(-'+(12+duplicate_pedido.offsetHeight)+'px);margin-bottom:-'+(8+duplicate_pedido.offsetHeight)+'px !important;filter:brightness(50%)';
           dragging = true;
         }
         let target = event.target;
-        target.style.position = 'absolute';
         target.style.zIndex = '10';
 
         // keep the dragged position in the data-x/data-y attributes
@@ -87,11 +87,12 @@
       function setInitialCoords(event){
           event.target.setAttribute('data-x', parseFloat(0));
           event.target.setAttribute('data-y', parseFloat(0));
-          last_maquina = event.target.parentNode;
+
+          last_maquina_tipo = event.target.parentNode.dataset.tipo;
       }
       function onDropCheck(event){
         if(dragging){ // si no se soltó dentro de una máquina, el duplicado reemplaza el original y borro el original
-          duplicate_pedido.style.filter = '';
+          duplicate_pedido.style.cssText = 'zIndex:10;';
           duplicate_pedido.removeAttribute('disabled');
           interact(duplicate_pedido) // activo la acción draggable para el duplicado
           .draggable({
@@ -124,11 +125,10 @@
         // listen for drop related events:
         ondropactivate: function (event) {
           // add active dropzone feedback
-          event.target.classList.add('drop-active')
+          event.target.classList.add('drop-active');
         },
         ondragenter: function (event) {
           let dropzoneElement = event.target
-
           // feedback the possibility of a drop
           dropzoneElement.classList.add('drop-target');
         },
@@ -136,20 +136,19 @@
           // remove the drop feedback style
           event.target.classList.remove('drop-target');
           event.target.classList.remove('activa');
-          event.target.querySelector(".card-text").classList.remove("d-none");
         },
         ondrop: function (event) {
+          // event.target es el pedido
+          // event relatedTarget es la maquina
           dragging = false;
           event.relatedTarget.style.transform = ''
           event.relatedTarget.style.position = '';
           duplicate_pedido.remove();// cuando se suelta dentro de una maquina, elimino el duplicado que esta en el listado
 
-          let misma_maquina = last_maquina.parentNode.parentNode.parentNode === event.target;
+          let misma_maquina = last_maquina_tipo === event.target.dataset.tipo;
           if(misma_maquina){//si lo agarré y solté dentro de la misma máquina no hago nada
             return;
           }
-
-          event.target.querySelector(".card-text").classList.add("d-none");
           let pedidoAsignado = event.target.querySelector(".pedido-asignado");
           pedidoAsignado.appendChild(event.relatedTarget);// muestro el que solté en la maquina actual
           pedidoAsignado.classList.remove('d-none');
@@ -194,31 +193,32 @@
       interact('.container-pedidos').dropzone({
           // only accept elements matching this CSS selector
           accept: '.pedido',
-          // Require a 50% element overlap for a drop to be possible
-          overlap: 0.5,
+          // Require a 35% element overlap for a drop to be possible
+          overlap: 0.35,
 
           // listen for drop related events:
           ondropactivate: function (event) {
             // add active dropzone feedback
-            event.target.parentNode.classList.add('drop-active')
+            event.target.classList.add('drop-active')
           },
           ondragenter: function (event) {
-            let dropzoneElement = event.target.parentNode;
             // feedback the possibility of a drop
-            dropzoneElement.classList.add('drop-target');
+            event.target.classList.add('drop-target');
           },
           ondragleave: function (event) {
             // remove the drop feedback style
-            event.target.parentNode.classList.remove('drop-target');
+            event.target.classList.remove('drop-target');
           },
           ondrop: function (event) {
             dragging = false;
-            // event.target es el listado de pedidos pendientes
+            // event.target es container-pedidos
             // event.relatedTarget es el pedido arrastrado
             duplicate_pedido.remove();// cuando se suelta en el listado, elimino el duplicado que esta dentro de una maquina
             event.relatedTarget.style.transform = ''
             event.relatedTarget.style.position = '';
-            let misma_maquina = last_maquina === event.relatedTarget.parentNode;
+
+            let misma_maquina = last_maquina_tipo === event.target.dataset.tipo;
+
             if(misma_maquina){//si lo agarré y solté dentro de la misma máquina no hago nada
               return;
             }
@@ -249,8 +249,8 @@
             $(".container-pedidos #sinPedidos").addClass("d-none");
           },
           ondropdeactivate: function (event) {
-            event.target.parentNode.classList.remove('drop-active');
-            event.target.parentNode.classList.remove('drop-target');
+            event.target.classList.remove('drop-active');
+            event.target.classList.remove('drop-target');
           }
       });
 
