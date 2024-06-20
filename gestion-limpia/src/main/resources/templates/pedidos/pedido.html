@@ -68,14 +68,8 @@
         <tr>
           <td>Estado</td>
           <td>
-            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{estadoActual}">
-              <option th:each="estadoPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).values()}"
-                      th:if="${estadoPedido != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).INGRESADO}"
-                      th:value="${estadoPedido}" th:text="${estadoPedido.displayValue}"
-                      th:selected="${pedido.estadoActual != null && estadoPedido == pedido.estadoActual}"></option>
-            </select>
-            <small class="text-danger" th:errors="*{estadoActual}"
-                   th:if="${#fields.hasErrors('estadoActual')}"></small>
+            <input class="form-control"  th:field="*{estadoActual.displayValue}"
+                   type="text" step="0.01" min="1.0" readonly />
           </td>
         </tr>
       </table>

@@ -2,10 +2,8 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
-import com.burbujas.gestionlimpia.models.services.IClienteService;
-import com.burbujas.gestionlimpia.models.services.IPedidoService;
-import com.burbujas.gestionlimpia.models.services.IProductoService;
-import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
+import com.burbujas.gestionlimpia.models.services.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,15 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Controller
 public class PedidoController {
@@ -31,20 +25,42 @@ public class PedidoController {
     private final ITipoPedidoService tipoPedidoService;
     private final IClienteService clienteService;
     private final IProductoService productoService;
+    private final IMaquinaService maquinaService;
 
     @Autowired
-    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService) {
+    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService, IMaquinaService maquinaService) {
         this.pedidoService = pedidoService;
         this.tipoPedidoService = tipoPedidoService;
         this.clienteService = clienteService;
         this.productoService = productoService;
+        this.maquinaService = maquinaService;
     }
 
     @GetMapping(value = {"/", ""})
     public String listarIndex(Model model){
-        List<Pedido> pedidos = pedidoService.findAllByOrderByPrioridadDesc();
+        List<Pedido> pedidosPendientes = pedidoService.findAllByEstadoActualOrderByPrioridadDesc(EstadoPedido.PENDIENTE);
+        Map<Integer, Pedido> lavadorasPedidosMap = new HashMap<>();
+        Map<Integer, Pedido> secadorasPedidosMap = new HashMap<>();
+
+        // obtenemos los pedidos en estado LAVADO y los mapeamos con el numero de su máquina actual
+        maquinaService.findAllByTipo(TipoMaquina.LAVADORA).forEach(
+                lavadora -> {
+                    Pedido pedidoAsociado = pedidoService.findByMaquinaActualId(lavadora.getId());
+                    lavadorasPedidosMap.put(lavadora.getNumero(), pedidoAsociado);
+                }
+        );
+        // lo mismo con los pedidos en estado SECADO
+        maquinaService.findAllByTipo(TipoMaquina.SECADORA).forEach(
+                secadora -> {
+                    Pedido pedidoAsociado = pedidoService.findByMaquinaActualId(secadora.getId());
+                    secadorasPedidosMap.put(secadora.getNumero(), pedidoAsociado);
+                }
+        );
+
         // pasamos los de pedidos obtenida a la vista
-        model.addAttribute("pedidos", pedidos);
+        model.addAttribute("pedidosPendientes", pedidosPendientes);
+        model.addAttribute("lavadorasPedidosMap", lavadorasPedidosMap);
+        model.addAttribute("secadorasPedidosMap", secadorasPedidosMap);
         return "index";
     }
 
@@ -105,6 +121,18 @@ public class PedidoController {
         return "pedidos/pedidos";
     }
 
+
+    @GetMapping(value = "/pedidos/listar/estado/{estadoActual}")
+    public String listarConEstadoActual(@PathVariable(value = "estadoActual") EstadoPedido estadoActual, Model model){
+        model.addAttribute("titulo", "Listado de pedidos");
+
+        List<Pedido> pedidos = pedidoService.findAllByEstadoActual(estadoActual);
+        // pasamos los de pedidos obtenida a la vista
+        model.addAttribute("pedidos", pedidos);
+
+        return "pedidos/pedidos";
+    }
+
     @GetMapping(value = "/pedidos/{id}")
     public String editar(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
@@ -125,7 +153,7 @@ public class PedidoController {
             return "pedidos/pedido";
         } else {
             flashmsg.addFlashAttribute("danger", "No se encontró el pedido.");
-            return "redirect:/pedidos";
+            return "redirect:/pedidos/listar";
         }
 
     }
@@ -140,7 +168,7 @@ public class PedidoController {
             flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el pedido.");
         }
 
-        return "redirect:/pedidos";
+        return "redirect:/pedidos/listar";
     }
 
     @PostMapping(value = "/pedidos/{idPedido}/maquina/{numeroMaquina}", produces = MediaType.APPLICATION_JSON_VALUE)

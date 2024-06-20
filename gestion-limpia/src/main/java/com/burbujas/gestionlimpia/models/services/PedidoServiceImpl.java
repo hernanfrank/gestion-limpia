@@ -16,15 +16,11 @@ public class PedidoServiceImpl implements IPedidoService{
 
     private final IPedidoRepository pedidoRepository;
     private final IMaquinaRepository maquinaRepository;
-    private final ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository;
-    private final IProductoRepository productoRepository;
 
     @Autowired
-    public PedidoServiceImpl(IPedidoRepository pedidoRepository, IMaquinaRepository maquinaRepository, IHistorialEstadoPedidoRepository historialEstadoPedidoRepository, IHistorialMaquinaPedido historialMaquinaPedidoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, ITipoPedidoRepository tipoPedidoRepository, IProductoRepository productoRepository) {
+    public PedidoServiceImpl(IPedidoRepository pedidoRepository, IMaquinaRepository maquinaRepository) {
         this.pedidoRepository = pedidoRepository;
         this.maquinaRepository = maquinaRepository;
-        this.tipoPedidoProductoMappingRepository = tipoPedidoProductoMappingRepository;
-        this.productoRepository = productoRepository;
     }
 
     @Override
@@ -35,6 +31,16 @@ public class PedidoServiceImpl implements IPedidoService{
     @Override
     public List<Pedido> findAllByOrderByPrioridadDesc() {
         return this.pedidoRepository.findAll().stream().sorted(Comparator.comparing(Pedido::getPrioridad).thenComparing(Pedido::getFechaHoraIngreso).reversed()).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual) {
+        return this.pedidoRepository.findAllByEstadoActual(estadoActual);
+    }
+
+    @Override
+    public List<Pedido> findAllByEstadoActualOrderByPrioridadDesc(EstadoPedido estadoActual) {
+        return this.pedidoRepository.findAllByEstadoActualOrderByPrioridadDesc(estadoActual);
     }
 
     @Override
@@ -89,7 +95,7 @@ public class PedidoServiceImpl implements IPedidoService{
         try{
             // si estoy asignando a una máquina artificial, siempre va a ser la de tipo NINGUNO, y va a cambiar el estado asociado
             Optional<Pedido> pedido = this.pedidoRepository.findById(pedidoId);
-            Optional<Maquina> maquina = Optional.ofNullable(this.maquinaRepository.findByTipo(TipoMaquina.NINGUNO));
+            Optional<Maquina> maquina = Optional.ofNullable(this.maquinaRepository.findAllByTipo(TipoMaquina.NINGUNO).get(0));
             EstadoPedido estado_pedido = null;
             switch (estado){
                 case "PENDIENTE" -> estado_pedido = EstadoPedido.PENDIENTE;
@@ -107,6 +113,11 @@ public class PedidoServiceImpl implements IPedidoService{
     @Override
     public Pedido findById(Long id) {
         return this.pedidoRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Pedido findByMaquinaActualId(Long maquinaId) {
+        return this.pedidoRepository.findByMaquinaActualId(maquinaId);
     }
 
     @Override

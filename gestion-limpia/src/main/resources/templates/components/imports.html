@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/webjars/datatables/1.13.5/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="/webjars/notyf/3.10.0/notyf.min.css">
   <!--estilos globales-->
   <style>
     body{
@@ -60,7 +61,7 @@
     .maquina{;
       border-radius: 10px;
       max-width: 13.9rem;
-      margin: 0.2rem 0.57rem;
+      margin: 0.2rem 0;
     }
     .lavadora{
       background-color: #B9E4E1C9;
@@ -195,6 +196,7 @@
   <script src="/webjars/jquery/3.7.0/jquery.min.js"></script>
   <script src="/webjars/bootstrap/5.3.2/js/bootstrap.min.js"></script>
   <script src="/webjars/datatables/1.13.5/js/jquery.dataTables.min.js"></script>
+  <script src="/webjars/notyf/3.10.0/notyf.min.js"></script>
   <script th:inline="javascript">
     let translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
     function createTable(tableName){
@@ -207,6 +209,23 @@
       });
       $("#"+tableName).parent().css('background-color','#f4f4f4');
     }
+    // toast notifications
+    const notyf = new Notyf();
+    const notifyError = (message) =>{
+      notyf.error({
+        message: message,
+        duration: 3000,
+        ripple: false,
+        position: {x:'center',y:'top'},
+        dismissible: true,
+        icon: {
+          className: 'bi bi-exclamation-triangle',
+          tagName: 'i',
+          text: '',
+          color: 'white'
+        }
+      });
+    };
   </script>
 </footer>
 </html>

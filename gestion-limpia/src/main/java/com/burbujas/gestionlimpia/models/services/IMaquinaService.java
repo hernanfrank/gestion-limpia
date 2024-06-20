@@ -9,11 +9,11 @@ import java.util.Optional;
 public interface IMaquinaService {
     public List<Maquina> findAll();
 
+    public List<Maquina> findAllByTipo(TipoMaquina tipo);
+
     public void save(Maquina Maquina);
 
     public Optional<Maquina> findById(Long id);
-
-    public Optional<Maquina> findByTipo(TipoMaquina tipo);
 
     public void delete(Long id);
 

@@ -24,7 +24,6 @@ public class MaquinaController {
     @GetMapping(value = "/configurar")
     public String configurar(Model model){
         List<Maquina> maquinas = maquinaService.findAll();
-        // pasamos los de pedidos obtenida a la vista
         model.addAttribute("maquinas", maquinas);
         return "maquinas/configurar";
     }

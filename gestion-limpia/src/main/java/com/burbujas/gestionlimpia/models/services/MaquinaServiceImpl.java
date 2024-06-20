@@ -26,13 +26,13 @@ public class MaquinaServiceImpl implements IMaquinaService{
     }
 
     @Override
-    public Optional<Maquina> findById(Long id) {
-        return this.maquinaRepository.findById(id);
+    public List<Maquina> findAllByTipo(TipoMaquina tipo) {
+        return this.maquinaRepository.findAllByTipo(tipo);
     }
 
     @Override
-    public Optional<Maquina> findByTipo(TipoMaquina tipo) {
-        return Optional.ofNullable(this.maquinaRepository.findByTipo(tipo));
+    public Optional<Maquina> findById(Long id) {
+        return this.maquinaRepository.findById(id);
     }
 
     @Override
