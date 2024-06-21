@@ -198,9 +198,9 @@
   <script src="/webjars/datatables/1.13.5/js/jquery.dataTables.min.js"></script>
   <script src="/webjars/notyf/3.10.0/notyf.min.js"></script>
   <script th:inline="javascript">
-    let translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
-    function createTable(tableName){
-      let table = new DataTable('#'+tableName,{
+    const translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
+    const createTable = (tableName) => {
+      new DataTable('#'+tableName,{
         responsive: true,
         language: {
           url: translationUrl
@@ -209,23 +209,46 @@
       });
       $("#"+tableName).parent().css('background-color','#f4f4f4');
     }
+
     // toast notifications
-    const notyf = new Notyf();
-    const notifyError = (message) =>{
-      notyf.error({
-        message: message,
+    /** Usage:
+     * notyf.open({
+     *   type: 'error',
+     *   message: ''
+     * });
+     */
+    const notyf =
+      new Notyf({
         duration: 3000,
-        ripple: false,
-        position: {x:'center',y:'top'},
+        position: {
+          x: 'right',
+          y: 'top',
+        },
         dismissible: true,
-        icon: {
-          className: 'bi bi-exclamation-triangle',
-          tagName: 'i',
-          text: '',
-          color: 'white'
-        }
+        ripple: false,
+        types: [
+          {
+            type: 'warning',
+            background: '#e7a937',
+            icon: {
+              className: 'bi bi-exclamation-triangle',
+              tagName: 'i',
+              text: '',
+              color: 'white'
+            },
+          },
+          {
+            type: 'error',
+            background: 'indianred',
+            icon: {
+              className: 'bi bi-exclamation-triangle',
+              tagName: 'i',
+              text: '',
+              color: 'white'
+            },
+          }
+        ]
       });
-    };
   </script>
 </footer>
 </html>

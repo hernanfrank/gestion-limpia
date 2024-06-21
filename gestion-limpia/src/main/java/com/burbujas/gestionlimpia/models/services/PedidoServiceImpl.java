@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,29 +72,56 @@ public class PedidoServiceImpl implements IPedidoService{
             return true;
         }else{
             // si falla la asignación retorno false
-            System.out.println("Error en asignarAMaquina: no se encontró el pedido o la máquina");
             return false;
         }
     }
 
     @Override
-    public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero) {
+    public String asignarAMaquina(Long pedidoId, Integer maquinaNumero, boolean force) {
         try{
             // si estoy asignando a una máquina verdadera, la busco por id, y busco su estado asociado
             Optional<Pedido> pedido = this.pedidoRepository.findById(pedidoId);
             Optional<Maquina> maquina = this.maquinaRepository.findByNumero(maquinaNumero);
 
-            return realizarAsignacion(pedido, maquina, maquina.get().getEstadoAsociado());
+            if(pedido.isPresent() && maquina.isPresent()) {
+                EstadoPedido estadoProximo = maquina.get().getEstadoAsociado();
+                if(!force){
+                    // me fijo si ya pasó por el próximo estado al que está por pasar
+                    // si es true, pregunto en el front si quiere volver a asignarlo a este estado
+                    // y si el usuario lo fuerza, llamo de nuevo esta función con force = true
+                    AtomicBoolean estadoYaExiste = new AtomicBoolean(false);
+                    pedido.get().getHistorialEstadoPedido().forEach(
+                            historialEstadoPedido -> {
+                                if(
+                                        historialEstadoPedido.getEstadoAnterior().equals(estadoProximo) ||
+                                                historialEstadoPedido.getEstadoNuevo().equals(estadoProximo)
+                                ){
+                                    estadoYaExiste.set(true);
+                                }
+                            }
+                    );
+                    if(estadoYaExiste.get()){
+                        return "repetido";
+                    }
+                }
+                if(realizarAsignacion(pedido, maquina, estadoProximo)) {
+                    return "exito";
+                }else{
+                    return "error";
+                }
+            }else{
+                return "error";
+            }
         } catch (Exception e){
-            System.out.println("Error en asignarAMaquina: "+e);
-            return false;
+            return "error";
         }
     }
 
-    @Override // para cuando asigno a FINALIZADO, CANCELADO o PENDIENTE
+    @Override
     public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero, String estado) {
         try{
-            // si estoy asignando a una máquina artificial, siempre va a ser la de tipo NINGUNO, y va a cambiar el estado asociado
+            // si estoy asignando a una máquina artificial (FINALIZADO, CANCELADO o PENDIENTE),
+            // siempre va a ser la de tipo NINGUNO, y va a cambiar el estado asociado
             Optional<Pedido> pedido = this.pedidoRepository.findById(pedidoId);
             Optional<Maquina> maquina = Optional.ofNullable(this.maquinaRepository.findAllByTipo(TipoMaquina.NINGUNO).get(0));
             EstadoPedido estado_pedido = null;

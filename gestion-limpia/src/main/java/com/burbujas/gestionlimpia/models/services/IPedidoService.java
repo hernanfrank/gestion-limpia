@@ -21,7 +21,7 @@ public interface IPedidoService {
 
     public List<HistorialMaquinaPedido> getHistorialMaquinasByPedidoId(Long id);
 
-    public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero);
+    public String asignarAMaquina(Long pedidoId, Integer maquinaNumero, boolean force);
 
     public boolean asignarAMaquina(Long pedidoId, Integer maquinaNumero, String estadoId);
 

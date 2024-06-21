@@ -121,7 +121,6 @@ public class PedidoController {
         return "pedidos/pedidos";
     }
 
-
     @GetMapping(value = "/pedidos/listar/estado/{estadoActual}")
     public String listarConEstadoActual(@PathVariable(value = "estadoActual") EstadoPedido estadoActual, Model model){
         model.addAttribute("titulo", "Listado de pedidos");
@@ -171,15 +170,23 @@ public class PedidoController {
         return "redirect:/pedidos/listar";
     }
 
-    @PostMapping(value = "/pedidos/{idPedido}/maquina/{numeroMaquina}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "numeroMaquina") Integer numeroMaquina){
-        if(!pedidoService.asignarAMaquina(idPedido, numeroMaquina)){
+    @PostMapping(value = "/pedidos/{idPedido}/maquina/{numeroMaquina}/{force}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido,
+                                                        @PathVariable(name = "numeroMaquina") Integer numeroMaquina,
+                                                        @PathVariable(name = "force") boolean force){
+        String result = pedidoService.asignarAMaquina(idPedido, numeroMaquina, force);
+        if(Objects.equals(result, "repetido")){
+            // si ya pasó por el estado de esta máquina, pregunto si quiere volver a asignarlo (por si se equivocó)
+            return new ResponseEntity<Object>("{\"status\":\"REPETIDO\",\"msg\": \"El pedido ya pasó por este estado, ¿desea asignarlo igualmente?.\"}", HttpStatus.OK);
+        } else if(Objects.equals(result, "error")) {
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al asignar el pedido a la máquina. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        // si se logró signar a la máquina, seteo el uso de ella
         if(!this.productoService.setUso(idPedido, numeroMaquina)){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al actualizar el contenido de producto usado. Revise el inventario para corregir inconsistencias.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Pedido asignado a la máquina correctamente\"}", HttpStatus.OK);
+        return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Pedido asignado correctamente a la máquina\"}", HttpStatus.OK);
+
     }
 
     @PostMapping(value = "/pedidos/{idPedido}/estado/{estado}", produces = MediaType.APPLICATION_JSON_VALUE)

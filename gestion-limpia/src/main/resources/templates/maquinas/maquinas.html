@@ -163,7 +163,10 @@
           let misma_maquina = last_maquina_tipo === event.target.dataset.tipo;
           if(misma_maquina){
             //si lo agarré y solté dentro del mismo tipo de máquina, aviso y no hago nada
-            notifyError('El pedido ya se encuentra asignado a una ' + last_maquina_tipo);
+            notyf.open({
+              type: 'error',
+              message: 'El pedido ya se encuentra asignado a una ' + last_maquina_tipo
+            });
             return;
           }
           let pedidoAsignado = event.target.querySelector(".pedido-asignado");
@@ -176,23 +179,7 @@
           let maquinaNumero = event.target.querySelector(".maquinaNumero").value;
 
           // trigger del cambio de estado en el pedido
-          $.ajax({
-              type : "POST",
-              contentType : "application/json",
-              url : "/pedidos/"+pedidoId+"/maquina/"+maquinaNumero,
-              dataType: 'json',
-              success : function(result) {
-                console.log(result.msg);
-                if (result.status !== "OK") {
-                  // volver ponerlo en la máquina que estaba antes
-                }
-              },
-              error : function(e) {
-                alert(e)
-              }
-          });
-
-
+          asignarPedidoAMaquina(pedidoId, maquinaNumero, forzar=false);
 
           // si no hay mas pedidos por realizar muestro texto dentro del contenedor de pedidos
           if($(".container-pedidos #pedidosList").children().length > 0){
@@ -247,23 +234,7 @@
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
             // trigger del cambio de estado en el pedido
-            $.ajax({
-              type : "POST",
-              contentType : "application/json",
-              url : "/pedidos/"+pedidoId+"/estado/PENDIENTE",
-              dataType: 'json',
-              success : function(result) {
-                if (result.status !== "OK") {
-                  console.log(last_maquina);
-                  // volver ponerlo en la máquina que estaba antes
-                }else{
-                }
-                console.log(result.msg);
-              },
-              error : function(e) {
-                alert(e)
-              }
-            });
+            cambiarEstadoPedido(pedidoId, "PENDIENTE");
 
             // oculto texto de que no hay pedidos
             $(".container-pedidos #sinPedidos").addClass("d-none");
@@ -299,23 +270,7 @@
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
             // trigger del cambio de estado en el pedido
-            $.ajax({
-              type: "POST",
-              contentType: "application/json",
-              url: "/pedidos/" + pedidoId + "/estado/FINALIZADO",
-              dataType: 'json',
-              success: function (result) {
-                if (result.status !== "OK") {
-                  // ver que hacer
-                }else{
-                  event.relatedTarget.remove();// borro del dom el pedido
-                }
-                console.log(result.msg)
-              },
-              error: function (e) {
-                alert(e)
-              }
-            });
+            cambiarEstadoPedido(pedidoId, "FINALIZADO");
           }
         },
         ondropdeactivate: function (event) {
@@ -349,23 +304,7 @@
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
             // trigger del cambio de estado en el pedido
-            $.ajax({
-              type: "POST",
-              contentType: "application/json",
-              url: "/pedidos/" + pedidoId + "/estado/CANCELADO",
-              dataType: 'json',
-              success: function (result) {
-                if (result.status !== "OK") {
-                  //ver que hacer
-                }else{
-                  event.relatedTarget.remove(); // borro del dom el pedido
-                }
-                console.log(result.msg)
-              },
-              error: function (e) {
-                alert(e)
-              }
-            });
+            cambiarEstadoPedido(pedidoId, "CANCELADO");
           }
         },
         ondropdeactivate: function (event) {
@@ -375,6 +314,50 @@
         }
       });
     });
+
+    const asignarPedidoAMaquina = (pedidoId, maquinaNumero, forzar) => {
+      $.ajax({
+        type : "POST",
+        contentType : "application/json",
+        url : "/pedidos/"+pedidoId+"/maquina/"+maquinaNumero+"/"+forzar,
+        dataType: 'json',
+        success : function(result) {
+          console.log(result.msg);
+          if (result.status === "ERROR") {
+            alert("ERROR");
+            console.log(result);
+            // volver ponerlo en la máquina que estaba antes
+          }
+          if(result.status === "REPETIDO"){
+            // si HttpStatus es OK pero result.status es REPETIDO,
+            // es pq ya pasó por este estado... pregunto si quiere repetirlo
+            if(confirm(result.msg)){
+              asignarPedidoAMaquina(pedidoId, maquinaNumero, true);
+            }
+          }
+        },
+        error : function(e) {
+          alert(e)
+        }
+      });
+    }
+
+    const cambiarEstadoPedido = (pedidoId, estado) => {
+      $.ajax({
+        type : "POST",
+        contentType : "application/json",
+        url : "/pedidos/"+pedidoId+"/estado/"+estado,
+        dataType: 'json',
+        success : function(result) {
+          if (result.status !== "OK") {
+            //si hay error, mostrarlo por pantalla y volver a poner el pedido en el listado de pendientes
+          }
+        },
+        error : function(e) {
+          alert(e)
+        }
+      });
+    }
   </script>
 <script>
 </script>
