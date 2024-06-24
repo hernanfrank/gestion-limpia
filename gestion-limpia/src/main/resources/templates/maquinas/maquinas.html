@@ -83,11 +83,10 @@
           duplicate_pedido.setAttribute('disabled',true);
           event.target.after(duplicate_pedido);
           //aplico estilos al duplicado, para que sea vea debajo del que estoy arrastrando, que este gris y no desplace los pedidos siguientes
-          duplicate_pedido.style.cssText = 'zIndex:0;transform:translateY(-'+(12+duplicate_pedido.offsetHeight)+'px);margin-bottom:-'+(8+duplicate_pedido.offsetHeight)+'px !important;filter:brightness(50%)';
+          duplicate_pedido.style.cssText = 'z-index:5;transform:translateY(-'+(12+duplicate_pedido.offsetHeight)+'px);margin-bottom:-'+(8+duplicate_pedido.offsetHeight)+'px !important;filter:brightness(50%)';
           dragging = true;
         }
         let target = event.target;
-        target.style.zIndex = '10';
 
         // keep the dragged position in the data-x/data-y attributes
         let x = parseFloat(target.getAttribute('data-x')) + event.dx;
@@ -108,7 +107,9 @@
       }
       function onDropCheck(event){
         if(dragging){ // si no se soltó dentro de una máquina, el duplicado reemplaza el original y borro el original
-          duplicate_pedido.style.cssText = 'zIndex:10;';
+          duplicate_pedido.style.transform = ''
+          duplicate_pedido.style.position = '';
+          duplicate_pedido.style.marginBottom = '';
           duplicate_pedido.removeAttribute('disabled');
           interact(duplicate_pedido) // activo la acción draggable para el duplicado
           .draggable({
@@ -153,15 +154,19 @@
           event.target.classList.remove('drop-target');
         },
         ondrop: function (event) {
-          // event.target es el pedido
-          // event relatedTarget es la maquina
+          // event.target es la maquina
+          // event relatedTarget es el pedido
           dragging = false;
           event.relatedTarget.style.transform = ''
           event.relatedTarget.style.position = '';
-          duplicate_pedido.remove();// cuando se suelta dentro de una maquina, elimino el duplicado que esta en el listado
+          duplicate_pedido.remove();// cuando se suelta dentro de una maquina, elimino el duplicado que esta en el listado/máquina anterior
 
-          let misma_maquina = last_maquina_tipo === event.target.dataset.tipo;
+          let misma_maquina = last_maquina === event.target;
+          let misma_maquina_tipo = last_maquina_tipo === event.target.dataset.tipo;
           if(misma_maquina){
+            //si lo agarré y solté dentro de la mismo máquina, no hago nada
+            return;
+          }else if(misma_maquina_tipo){
             //si lo agarré y solté dentro del mismo tipo de máquina, aviso y no hago nada
             notyf.open({
               type: 'error',
@@ -169,17 +174,27 @@
             });
             return;
           }
-          let pedidoAsignado = event.target.querySelector(".pedido-asignado");
-          pedidoAsignado.appendChild(event.relatedTarget);// muestro el que solté en la maquina actual
-          pedidoAsignado.classList.remove('d-none');
-          event.target.classList.add('activa');
-          last_maquina.classList.remove('activa');
 
-          let pedidoId = pedidoAsignado.querySelector(".pedidoId").value;
+          let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
           let maquinaNumero = event.target.querySelector(".maquinaNumero").value;
 
           // trigger del cambio de estado en el pedido
-          asignarPedidoAMaquina(pedidoId, maquinaNumero, forzar=false);
+          asignarPedidoAMaquina(pedidoId, maquinaNumero, forzar=false)
+          .then(
+              ()=>{
+                // muestro el que solté en la maquina actual, y le pongo clase activa
+                let pedidoAsignado = event.target.querySelector(".pedido-asignado");
+                pedidoAsignado.appendChild(event.relatedTarget);
+                pedidoAsignado.classList.remove('d-none');
+                event.target.classList.add('activa');
+              }
+          ).catch(
+              (error)=>{
+                alert(error);
+              }
+          )
+
+          last_maquina.classList.remove('activa');
 
           // si no hay mas pedidos por realizar muestro texto dentro del contenedor de pedidos
           if($(".container-pedidos #pedidosList").children().length > 0){
@@ -218,9 +233,11 @@
             dragging = false;
             // event.target es container-pedidos
             // event.relatedTarget es el pedido arrastrado
-            duplicate_pedido.remove();// cuando se suelta en el listado, elimino el duplicado que esta dentro de una maquina
             event.relatedTarget.style.transform = ''
             event.relatedTarget.style.position = '';
+
+            // cuando se suelta en el listado, elimino el duplicado que esta dentro de una maquina
+            duplicate_pedido.remove();
 
             let misma_maquina = last_maquina_tipo === event.target.dataset.tipo;
 
@@ -229,15 +246,20 @@
               return;
             }
 
-            event.target.querySelector("#pedidosList").appendChild(event.relatedTarget);// muestro el que solté en el listado de pendientes
-
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
-
             // trigger del cambio de estado en el pedido
-            cambiarEstadoPedido(pedidoId, "PENDIENTE");
+            if(cambiarEstadoPedido(pedidoId, "PENDIENTE")){
+              // muestro el que solté en el listado de pendientes
+              event.target.querySelector("#pedidosList").appendChild(event.relatedTarget);
 
-            // oculto texto de que no hay pedidos
-            $(".container-pedidos #sinPedidos").addClass("d-none");
+              // si ahora hay mas pedidos por realizar, oculto el texto dentro del contenedor de pedidos
+              if($(".container-pedidos #pedidosList").children().length > 0){
+                $(".container-pedidos #sinPedidos").addClass("d-none");
+              }else{
+                $(".container-pedidos #sinPedidos").removeClass("d-none");
+              }
+            }
+            last_maquina.classList.remove('activa');
           },
           ondropdeactivate: function (event) {
             event.target.classList.remove('drop-active');
@@ -263,14 +285,33 @@
             // event.target es la máquina de finalización
             // event.relatedTarget es el pedido arrastrado
             dragging = false;
-            duplicate_pedido.remove();// cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+
+            // event.target es la máquina de cancelación
+            // event.relatedTarget es el pedido arrastrado
+            duplicate_pedido.style.transform = ''
+            duplicate_pedido.style.position = '';
+            duplicate_pedido.style.marginBottom = '';
+            duplicate_pedido.style.filter = '';
+
+            // y el que se estaba arrastrando tmb
+            event.relatedTarget.remove();
+
             event.relatedTarget.style.transform = ''
             event.relatedTarget.style.position = '';
 
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
             // trigger del cambio de estado en el pedido
-            cambiarEstadoPedido(pedidoId, "FINALIZADO");
+            cambiarEstadoPedido(pedidoId, "FINALIZADO")
+                    .then(result => {
+                      // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                      duplicate_pedido.remove();
+                    })
+                    .catch(error => {
+                      alert(error);
+                    });
+
+            last_maquina.classList.remove('activa');
           }
         },
         ondropdeactivate: function (event) {
@@ -279,6 +320,7 @@
           event.target.classList.remove('drop-target');
         }
       });
+
       interact('.cancelar').dropzone({
         accept: '.pedido',
         overlap: 0.5,
@@ -294,17 +336,31 @@
         },
         ondrop: function (event) {
           if(window.confirm("¿Cancelar el pedido?")) {
+            dragging = false;
+
             // event.target es la máquina de cancelación
             // event.relatedTarget es el pedido arrastrado
-            dragging = false;
-            duplicate_pedido.remove();// cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-            event.relatedTarget.style.transform = ''
-            event.relatedTarget.style.position = '';
+            duplicate_pedido.style.transform = ''
+            duplicate_pedido.style.position = '';
+            duplicate_pedido.style.marginBottom = '';
+            duplicate_pedido.style.filter = '';
+
+            // elimino el que se estaba arrastrando
+            event.relatedTarget.remove();
 
             let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
             // trigger del cambio de estado en el pedido
-            cambiarEstadoPedido(pedidoId, "CANCELADO");
+            cambiarEstadoPedido(pedidoId, "CANCELADO")
+                    .then(result => {
+                      // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                      duplicate_pedido.remove();
+                    })
+                    .catch(error => {
+                      alert(error);
+                    });
+
+            last_maquina.classList.remove('activa');
           }
         },
         ondropdeactivate: function (event) {
@@ -316,48 +372,57 @@
     });
 
     const asignarPedidoAMaquina = (pedidoId, maquinaNumero, forzar) => {
-      $.ajax({
-        type : "POST",
-        contentType : "application/json",
-        url : "/pedidos/"+pedidoId+"/maquina/"+maquinaNumero+"/"+forzar,
-        dataType: 'json',
-        success : function(result) {
-          console.log(result.msg);
-          if (result.status === "ERROR") {
-            alert("ERROR");
-            console.log(result);
-            // volver ponerlo en la máquina que estaba antes
-          }
-          if(result.status === "REPETIDO"){
-            // si HttpStatus es OK pero result.status es REPETIDO,
-            // es pq ya pasó por este estado... pregunto si quiere repetirlo
-            if(confirm(result.msg)){
-              asignarPedidoAMaquina(pedidoId, maquinaNumero, true);
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          type : "POST",
+          contentType : "application/json",
+          url : "/pedidos/"+pedidoId+"/maquina/"+maquinaNumero+"/"+forzar,
+          dataType: 'json',
+          success : function(result) {
+            if (result.status === "ERROR") {
+              reject(result.msg);
+              // volver ponerlo en la máquina que estaba antes
+            }else if(result.status === "REPETIDO"){
+              // si HttpStatus es OK pero result.status es REPETIDO,
+              // es pq ya pasó por este estado... pregunto si quiere repetirlo
+              if(confirm(result.msg)){
+                asignarPedidoAMaquina(pedidoId, maquinaNumero, true)
+                .then(()=>resolve())
+                .catch((error)=>reject(error))
+              }
+            }else{
+              resolve();
             }
+          },
+          error : function(err) {
+            reject(err.responseJSON.msg)
           }
-        },
-        error : function(e) {
-          alert(e)
-        }
+        });
       });
     }
 
     const cambiarEstadoPedido = (pedidoId, estado) => {
-      $.ajax({
-        type : "POST",
-        contentType : "application/json",
-        url : "/pedidos/"+pedidoId+"/estado/"+estado,
-        dataType: 'json',
-        success : function(result) {
-          if (result.status !== "OK") {
-            //si hay error, mostrarlo por pantalla y volver a poner el pedido en el listado de pendientes
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: "/pedidos/" + pedidoId + "/estado/" + estado,
+          dataType: 'json',
+          success: function(result) {
+            if (result.status !== "OK") {
+              // si hay error, mostrarlo por pantalla y volver a poner el pedido en el listado de pendientes
+              reject(result.msg);
+            } else {
+              resolve();
+            }
+          },
+          error: function(err) {
+            reject(err.responseJSON.msg);
           }
-        },
-        error : function(e) {
-          alert(e)
-        }
+        });
       });
-    }
+    };
+
   </script>
 <script>
 </script>

@@ -39,12 +39,16 @@
     .container-pedidos{
       min-height: 132px;
     }
+    .pedido-dragging{
+      z-index:15 !important;
+    }
     .pedido {
       width: 12.1rem;
       display:block;
       float:left;
       clear: left;
       touch-action: none;
+      z-index:10;
     }
     .pedido > .card-body > .card-text {
       text-align: center;
@@ -62,6 +66,7 @@
       border-radius: 10px;
       max-width: 13.9rem;
       margin: 0.2rem 0;
+      z-index:1;
     }
     .lavadora{
       background-color: #B9E4E1C9;
@@ -78,6 +83,10 @@
       padding-top: 0.5rem;
       background-color: #ede3d985;
       border-radius: 0 0 9px 9px;
+      z-index:1;
+    }
+    .maquina > .sin-pedido-text{
+      z-index:2;
     }
     .finalizar > .card > .card-header{
       background-color: #ede3d91f;
