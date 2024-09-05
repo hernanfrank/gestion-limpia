@@ -102,7 +102,7 @@
       function setInitialCoords(event){
           event.target.setAttribute('data-x', parseFloat(0));
           event.target.setAttribute('data-y', parseFloat(0));
-          last_maquina =event.target.parentNode.parentNode.parentNode;
+          last_maquina = event.target.parentNode.parentNode.parentNode;
           last_maquina_tipo = event.target.parentNode.dataset.tipo;
       }
       function onDropCheck(event){
@@ -281,7 +281,8 @@
           event.target.classList.remove('drop-target');
         },
         ondrop: function (event) {
-          if(window.confirm("¿Finalizar el pedido?")) {
+          sweet_confirm("Finalizar Pedido", "¿Desea finalizar el pedido?", "Si, finalizar", "Volver").
+             then((result)=>{
             // event.target es la máquina de finalización
             // event.relatedTarget es el pedido arrastrado
             dragging = false;
@@ -299,20 +300,23 @@
             event.relatedTarget.style.transform = ''
             event.relatedTarget.style.position = '';
 
-            let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+            if(result.isConfirmed){
+              let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
-            // trigger del cambio de estado en el pedido
-            cambiarEstadoPedido(pedidoId, "FINALIZADO")
-                    .then(result => {
-                      // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                      duplicate_pedido.remove();
-                    })
-                    .catch(error => {
-                      alert(error);
-                    });
+              // trigger del cambio de estado en el pedido
+              cambiarEstadoPedido(pedidoId, "FINALIZADO")
+                      .then(result => {
+                        // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                        duplicate_pedido.remove();
+                      })
+                      .catch(error => {
+                        alert(error);
+                      });
 
-            last_maquina.classList.remove('activa');
-          }
+              last_maquina.classList.remove('activa');
+            }
+
+          })
         },
         ondropdeactivate: function (event) {
           // remove active dropzone feedback
@@ -335,7 +339,8 @@
           event.target.classList.remove('drop-target');
         },
         ondrop: function (event) {
-          if(window.confirm("¿Cancelar el pedido?")) {
+          sweet_confirm("Cancelar Pedido", "¿Desea cancelar el pedido?", "Si, cancelar", "Volver").
+          then( (result)=>{
             dragging = false;
 
             // event.target es la máquina de cancelación
@@ -347,21 +352,23 @@
 
             // elimino el que se estaba arrastrando
             event.relatedTarget.remove();
+            if(result.isConfirmed) {
 
-            let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+              let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
-            // trigger del cambio de estado en el pedido
-            cambiarEstadoPedido(pedidoId, "CANCELADO")
-                    .then(result => {
-                      // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                      duplicate_pedido.remove();
-                    })
-                    .catch(error => {
-                      alert(error);
-                    });
+              // trigger del cambio de estado en el pedido
+              cambiarEstadoPedido(pedidoId, "CANCELADO")
+                      .then(result => {
+                        // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                        duplicate_pedido.remove();
+                      })
+                      .catch(error => {
+                        alert(error);
+                      });
 
-            last_maquina.classList.remove('activa');
-          }
+              last_maquina.classList.remove('activa');
+            }
+          });
         },
         ondropdeactivate: function (event) {
           // remove active dropzone feedback
@@ -385,11 +392,14 @@
             }else if(result.status === "REPETIDO"){
               // si HttpStatus es OK pero result.status es REPETIDO,
               // es pq ya pasó por este estado... pregunto si quiere repetirlo
-              if(confirm(result.msg)){
-                asignarPedidoAMaquina(pedidoId, maquinaNumero, true)
-                .then(()=>resolve())
-                .catch((error)=>reject(error))
-              }
+              sweet_confirm("Atención", result.msg, "Si, asignar", "Volver").
+              then( (result)=>{
+                if(result.isConfirmed){
+                  asignarPedidoAMaquina(pedidoId, maquinaNumero, true)
+                  .then(()=>resolve())
+                  .catch((error)=>reject(error))
+                }
+              });
             }else{
               resolve();
             }

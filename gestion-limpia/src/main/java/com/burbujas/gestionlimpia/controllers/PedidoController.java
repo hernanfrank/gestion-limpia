@@ -177,7 +177,7 @@ public class PedidoController {
         String result = pedidoService.asignarAMaquina(idPedido, numeroMaquina, force);
         if(Objects.equals(result, "repetido")){
             // si ya pasó por el estado de esta máquina, pregunto si quiere volver a asignarlo (por si se equivocó)
-            return new ResponseEntity<Object>("{\"status\":\"REPETIDO\",\"msg\": \"El pedido ya pasó por este estado, ¿desea asignarlo igualmente?.\"}", HttpStatus.OK);
+            return new ResponseEntity<Object>("{\"status\":\"REPETIDO\",\"msg\": \"El pedido ya pasó por este estado anteriormente, ¿desea asignarlo igualmente?\"}", HttpStatus.OK);
         } else if(Objects.equals(result, "error")) {
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al asignar el pedido a la máquina. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
