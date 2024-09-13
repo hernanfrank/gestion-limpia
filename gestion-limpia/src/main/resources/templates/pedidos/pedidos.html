@@ -4,7 +4,6 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-   <div th:replace="~{components/topmenu :: messages}"></div>
    <div class="row mb-2">
         <div class="col">
             <a class="float-end me-n25" th:href="@{/pedidos/nuevo/pedidos}">
@@ -25,6 +24,7 @@
                 <th>Ingreso</th>
                 <th>Entrega</th>
                 <th>Cliente</th>
+                <th>Descripción</th>
                 <th>Prioridad</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -37,6 +37,7 @@
                 <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>
                 <td th:text="${pedido.cliente.nombreApellido}"></td>
+                <td th:text="${pedido.descripcion != null ? pedido.descripcion : 'Sin descripción'}"></td>
                 <td><span th:text="${pedido.prioridad}"
                     th:class="${
                     pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).BAJA ? 'text-black-50' :
@@ -62,7 +63,7 @@
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </a>
-                    <a title="Eliminar" class="d-inline nav-link" th:onclick="'delete_pedido('+${pedido.id}+')'">
+                    <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarPedido('+${pedido.id}+',this.parentNode.parentNode)'">
                         <button class="btn btn-sm btn-danger text-dark fs-6">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -77,8 +78,8 @@
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-    createTable('pedidos_table');
-    function delete_pedido(pedidoId){
+    var pedidos_table = createTable('pedidos_table');
+    function eliminarPedido(pedidoId, elem){
         sweet_confirm("Eliminar pedido", "¿Desea eliminar el pedido?", "Si, eliminar", "Volver").
         then( (result)=>{
             if(result.isConfirmed){
@@ -92,12 +93,29 @@
                             resolve("OK");
                         },
                         error: function(err) {
-                            reject("ERROR: "+err);
+                            reject(err);
                         }
                     });
-                }).catch((err)=>{console.log(err)}).then(()=>{window.location.reload()});
+                }).then(()=>{
+                    pedidos_table.row(elem).remove().draw();
+                    notyf.open({
+                        type: 'success',
+                        message: 'El pedido fue eliminado correctamente.'
+                    });
+                    let tabla_pedidos_body = $("#pedidos_table tbody");
+                    if(tabla_pedidos_body.children.length <= 1){
+                        tabla_pedidos_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                    }
+                }).catch((err)=>{
+                    notyf.open({
+                        type: 'error',
+                        message: err.responseJSON.msg
+                    });
+                    console.log(err)}
+                );
             }
         });
     }
 </script>
+<div th:replace="~{components/topmenu :: messages}"></div>
 </html>

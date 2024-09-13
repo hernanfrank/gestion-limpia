@@ -46,8 +46,7 @@
                 <i class="bi bi-pencil-square"></i>
               </button>
             </a>
-            <a title="Eliminar" class="d-inline nav-link" onclick="return confirm('¿Eliminar el producto?')"
-               th:href="@{/productos/proveedores/eliminar/{id}(id=${proveedor.id})}">
+            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarProveedor('+${proveedor.id}+', this.parentNode.parentNode)'">
               <button class="btn btn-sm btn-danger text-dark fs-6">
                 <i class="bi bi-trash"></i>
               </button>
@@ -62,6 +61,43 @@
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  createTable('proveedores_table');
+  var proveedores_table = createTable('proveedores_table');
+  function eliminarProveedor(proveedorId, elem){
+    sweet_confirm("Eliminar proveedor", "¿Desea eliminar el proveedor?<br/><br/><b>Al hacerlo también se eliminarán todos los reabastecimientos asociados</b>.", "Si, eliminar", "Volver").
+    then( (result)=>{
+      if(result.isConfirmed){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            url: "/productos/proveedores/eliminar/" + proveedorId,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          proveedores_table.row(elem).remove().draw();
+          notyf.open({
+            type: 'success',
+            message: 'El proveedor fue eliminado correctamente.'
+          });
+          let proveedores_table_body = $("#proveedores_table tbody");
+          if(proveedores_table_body.children.length <= 1){
+            proveedores_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+          }
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.responseJSON.msg
+          });
+          console.log(err)}
+        );
+      }
+    });
+  }
 </script>
 </html>

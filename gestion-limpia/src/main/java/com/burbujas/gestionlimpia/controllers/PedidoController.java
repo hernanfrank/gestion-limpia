@@ -89,6 +89,12 @@ public class PedidoController {
     public String guardar(@Valid Pedido pedido, BindingResult result, Model model, RedirectAttributes flashmsg) {
         if (result.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
             model.addAttribute("titulo", model.getAttribute("titulo"));
+
+            List<Cliente> clientes = clienteService.findAll();
+            List<TipoPedido> tiposPedido = tipoPedidoService.findAll();
+
+            model.addAttribute("clientes", clientes);
+            model.addAttribute("tiposPedido", tiposPedido);
             return "pedidos/pedido";
         }
         if(pedido.getId() != null) {// sólo si el pedido no es nuevo
@@ -104,7 +110,8 @@ public class PedidoController {
         }
         // recibimos el objeto pedido del formulario y lo persistimos
         pedidoService.save(pedido);
-        flashmsg.addFlashAttribute("success", "Listado de pedidos actualizado");
+        flashmsg.addFlashAttribute("messageType", "success");
+        flashmsg.addFlashAttribute("message", "Listado de pedidos actualizado");
 
         // redirigimos al listado
         return "redirect:/pedidos/listar";
@@ -139,6 +146,11 @@ public class PedidoController {
 
         // chequeamos que se pase un id valido
         if (id > 0 && pedido != null) {
+            if(pedido.getEstadoActual().equals(EstadoPedido.FINALIZADO)){
+                flashmsg.addFlashAttribute("messageType", "error");
+                flashmsg.addFlashAttribute("message", "No se puede editar un pedido finalizado.");
+                return "redirect:/pedidos/listar";
+            }
             // obtenemos el pedido desde la bdd por id y lo pasamos a la vista
             model.addAttribute("pedido", pedido);
 
@@ -151,23 +163,22 @@ public class PedidoController {
             model.addAttribute("titulo", "Editar pedido");
             return "pedidos/pedido";
         } else {
-            flashmsg.addFlashAttribute("danger", "No se encontró el pedido.");
+            flashmsg.addFlashAttribute("messageType", "danger");
+            flashmsg.addFlashAttribute("message", "No se encontró el pedido.");
             return "redirect:/pedidos/listar";
         }
 
     }
 
     @GetMapping("/pedidos/eliminar/{id}")
-    public String eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Pedido pedido = pedidoService.findById(id);
         if (pedido != null) {
             pedidoService.delete(id);
-            flashmsg.addFlashAttribute("success", "Pedido eliminado correctamente.");
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El pedido ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el pedido.");
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el pedido.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return "redirect:/pedidos/listar";
     }
 
     @PostMapping(value = "/pedidos/{idPedido}/maquina/{numeroMaquina}/{force}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -52,8 +52,7 @@
                 <i class="bi bi-pencil-square"></i>
               </button>
             </a>
-            <a title="Eliminar" class="d-inline nav-link" onclick="return confirm('¿Eliminar el producto?')"
-               th:href="@{/productos/reabastecimientos/eliminar/{id}(id=${reabastecimiento.id})}">
+            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarReabastecimiento('+${reabastecimiento.id}+', this.parentNode.parentNode)'">
               <button class="btn btn-sm btn-danger text-dark fs-6">
                 <i class="bi bi-trash"></i>
               </button>
@@ -68,6 +67,43 @@
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  createTable('reabastecimientos_table');
+  var reabastecimientos_table = createTable('reabastecimientos_table');
+  function eliminarReabastecimiento(reabastecimientoId, elem){
+    sweet_confirm("Eliminar reabastecimiento", "¿Desea eliminar el reabastecimiento?", "Si, eliminar", "Volver").
+    then( (result)=>{
+      if(result.isConfirmed){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            url: "/productos/reabastecimientos/eliminar/" + reabastecimientoId,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          reabastecimientos_table.row(elem).remove().draw();
+          notyf.open({
+            type: 'success',
+            message: 'El reabastecimiento fue eliminado correctamente.'
+          });
+          let reabastecimientos_table_body = $("#reabastecimientos_table tbody");
+          if(reabastecimientos_table_body.children.length <= 1){
+            reabastecimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+          }
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.responseJSON.msg
+          });
+          console.log(err)}
+        );
+      }
+    });
+  }
 </script>
 </html>

@@ -4,13 +4,12 @@ import com.burbujas.gestionlimpia.models.entities.Proveedor;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -82,7 +81,7 @@ public class ProveedorController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarProveedor(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminarProveedor(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Proveedor proveedor = productoService.findProveedorById(id);
         if (proveedor != null) {
             if(proveedor.getReabastecimientos().size() > 0){
@@ -90,11 +89,9 @@ public class ProveedorController {
                 proveedor.getReabastecimientos().forEach(reabastecimiento -> productoService.deleteReabastecimiento(reabastecimiento.getProducto(),reabastecimiento));
             }
             productoService.deleteProveedor(id);
-            flashmsg.addFlashAttribute("success", "Proveedor eliminado correctamente.");
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El proveedor ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el proveedor.");
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el proveedor.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return "redirect:/productos/proveedores/listar";
     }
 }

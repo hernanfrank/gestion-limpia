@@ -51,6 +51,10 @@
       text-align: center;
       background-color: #ede3d985;
     }
+    #pedidosList{
+      overflow: scroll;
+      max-height: 500px;
+    }
     .pedido-asignado{
       padding:0;
       margin:0;
@@ -202,7 +206,7 @@
   <script th:inline="javascript">
     const translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
     const createTable = (tableName) => {
-      new DataTable('#'+tableName,{
+      let tabla = new DataTable('#'+tableName,{
         responsive: true,
         language: {
           url: translationUrl
@@ -210,6 +214,7 @@
         aaSorting: []
       });
       $("#"+tableName).parent().css('background-color','#f4f4f4');
+      return tabla;
     }
 
     // toast notifications
@@ -255,7 +260,7 @@
     function sweet_confirm(title, text, acceptBtnText, cancelBtnText = "Cancelar") {
       return Swal.fire({
         title: title,
-        text: text,
+        html: '<pre style="white-space: pre-wrap;">'+text+'</pre>',
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",

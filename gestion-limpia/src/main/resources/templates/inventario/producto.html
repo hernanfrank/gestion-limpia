@@ -21,7 +21,7 @@
         <table class="table table-bordered">
           <tr>
             <td>Tipo</td>
-            <td>
+            <td style="width: 70%">
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{tipo}"
                      type="text"/>
               <small class="text-danger" th:errors="*{tipo}"
@@ -46,7 +46,7 @@
             <td>Cantidad actual (litros)</td>
             <td>
               <input class="form-control w-15" th:errorclass="'border border-danger'" th:field="*{cantidadActual}"
-                     type="number" step="0.01" min="0.00" th:readonly="${(producto.reabastecimientos!= null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>
+                     type="number" step="0.01" min="0.00" th:readonly="${(producto.reabastecimientos != null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>
               <span class="text-warning" th:if="${(producto.reabastecimientos!= null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}">No es posible editar la cantidad actual de un producto que ya haya sido reabastecido o ya haya sido usado en pedidos</span>
               <small class="text-danger" th:errors="*{cantidadActual}"
                      th:if="${#fields.hasErrors('cantidadActual')}"></small>

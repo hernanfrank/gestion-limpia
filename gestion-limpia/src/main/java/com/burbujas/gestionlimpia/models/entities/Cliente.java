@@ -25,10 +25,10 @@ public class Cliente implements Serializable {
     private String dni;
 
     @NotEmpty(message = "El nombre y apellido del cliente no pueden estar vacíos")
-    @Size(min = 1, max = 250, message = "El nombre y apellido no puede ser mayor a 250 caracteres")
+    @Size(min = 3, max = 250, message = "El nombre y apellido debe tener entre 3 y 250 caracteres")
     private String nombreApellido;
 
-    @Size(min = 1, max = 250, message = "La dirección no puede ser mayor a 250 caracteres")
+    @Size(max = 250, message = "La dirección no puede ser mayor a 250 caracteres")
     private String direccion;
 
     // REGEX que evalúa teléfonos argentinos

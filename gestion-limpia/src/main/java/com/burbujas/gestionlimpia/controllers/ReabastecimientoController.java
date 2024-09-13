@@ -6,13 +6,12 @@ import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
@@ -140,7 +139,7 @@ public class ReabastecimientoController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarReabastecimiento(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminarReabastecimiento(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Reabastecimiento reabastecimiento = productoService.findReabastecimientoById(id);
         if (reabastecimiento != null) {
             Producto producto = reabastecimiento.getProducto();
@@ -148,14 +147,12 @@ public class ReabastecimientoController {
                 producto.setCantidadActual(producto.getCantidadActual() - reabastecimiento.getCantidadProducto());
                 productoService.save(producto);
                 productoService.deleteReabastecimiento(producto, reabastecimiento);
-                flashmsg.addFlashAttribute("success", "Reabastecimiento eliminado correctamente.");
+                return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El reabastecimiento ha sido eliminado correctamente.\"}", HttpStatus.OK);
             }else{
-                flashmsg.addFlashAttribute("danger", "Error al eliminar el reabastecimiento. Producto no encontrado.");
+                return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el producto.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el reabastecimiento.");
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el reabastecimiento.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return "redirect:/productos/reabastecimientos/listar";
     }
 }

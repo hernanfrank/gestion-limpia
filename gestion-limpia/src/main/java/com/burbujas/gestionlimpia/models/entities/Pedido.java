@@ -3,7 +3,9 @@ package com.burbujas.gestionlimpia.models.entities;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.Prioridad;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,6 +54,9 @@ public class Pedido implements Serializable {
     @NotNull(message = "El estado no puede estar vacío")
     @Enumerated(EnumType.STRING)
     private EstadoPedido estadoActual;
+
+    @Size(max = 250, message = "La descripción no puede contener más de 250 caracteres")
+    private String descripcion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Maquina maquinaActual;

@@ -4,6 +4,8 @@ import com.burbujas.gestionlimpia.models.entities.Cliente;
 import com.burbujas.gestionlimpia.models.services.IClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -83,15 +85,14 @@ public class ClienteController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
         Cliente cliente = clienteService.findById(id);
         if (cliente != null) {
             clienteService.delete(id);
-            flashmsg.addFlashAttribute("success", "Cliente eliminado correctamente.");
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El cliente ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al eliminar. No se encontró el cliente.");
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el cliente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return "redirect:/clientes";
     }
 }

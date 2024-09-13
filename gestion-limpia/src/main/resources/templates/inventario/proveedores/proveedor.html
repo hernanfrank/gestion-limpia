@@ -30,6 +30,24 @@
                      th:if="${#fields.hasErrors('nombre')}"></small>
             </td>
           </tr>
+          <tr>
+            <td>CUIT</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cuit}"
+                     type="text"/>
+              <small class="text-danger" th:errors="*{cuit}"
+                     th:if="${#fields.hasErrors('cuit')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Dirección</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{direccion}"
+                     type="text"/>
+              <small class="text-danger" th:errors="*{direccion}"
+                     th:if="${#fields.hasErrors('direccion')}"></small>
+            </td>
+          </tr>
         </table>
         <div class="d-flex justify-content-center">
           <input class="btn btn-primary" type="submit" value="Guardar"/>

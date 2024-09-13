@@ -1,4 +1,4 @@
-INSERT INTO db_burbujas.proveedores(nombre) VALUES ('Jabones Premium'), ('Todo Limpieza');
+INSERT INTO db_burbujas.proveedores(nombre, cuit, direccion) VALUES ('Jabones Premium', 20419800938, 'O\'brien 81'), ('Todo Limpieza',23330162449,'');
 INSERT INTO db_burbujas.tipos_pedido(minutos_duracion_lavado, minutos_duracion_secado, descripcion) VALUES (45.0,30.0,'Ropa'),(60.0,45.0,'Acolchados');
 INSERT INTO db_burbujas.productos(cantidad_actual, tipo) VALUES (10.00,'Jabón Liquido'),(8.00, 'Suavizante');
 INSERT INTO db_burbujas.tipo_pedido_producto_mapping(cantidad_usada, producto_id, tipo_pedido_id)  VALUES (0.5, 1,1),(0.85, 1,2),(0.3, 2,1),(0.5, 2,2);
