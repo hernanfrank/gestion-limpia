@@ -38,7 +38,7 @@ public class PedidoController {
 
     @GetMapping(value = {"/", ""})
     public String listarIndex(Model model){
-        List<Pedido> pedidosPendientes = pedidoService.findAllByEstadoActualOrderByPrioridadDesc(EstadoPedido.PENDIENTE);
+        List<Pedido> pedidosPendientes = pedidoService.findAllByEstadoActualOrderByPrioridadDescFechaHoraIngresoAsc(EstadoPedido.PENDIENTE);
         Map<Integer, Pedido> lavadorasPedidosMap = new HashMap<>();
         Map<Integer, Pedido> secadorasPedidosMap = new HashMap<>();
 
@@ -163,7 +163,7 @@ public class PedidoController {
             model.addAttribute("titulo", "Editar pedido");
             return "pedidos/pedido";
         } else {
-            flashmsg.addFlashAttribute("messageType", "danger");
+            flashmsg.addFlashAttribute("messageType", "error");
             flashmsg.addFlashAttribute("message", "No se encontró el pedido.");
             return "redirect:/pedidos/listar";
         }

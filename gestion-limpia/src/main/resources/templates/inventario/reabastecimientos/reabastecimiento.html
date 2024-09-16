@@ -25,7 +25,7 @@
             <td>Fecha</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{fecha}"
-                     type="date" th:max="${#dates.format(fechaActual,'yyyy-MM-dd')}" />
+                     type="date"/>
               <small class="text-danger" th:errors="*{fecha}"
                      th:if="${#fields.hasErrors('fecha')}"></small>
             </td>
@@ -56,11 +56,10 @@
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <input class="form-control" th:errorclass="'border border-danger'" th:field="*{precio}"
-                       type="number" min="0.00" step="0.01" />
-                <small class="text-danger" th:errors="*{precio}"
-                       th:if="${#fields.hasErrors('precio')}"></small>
+                       type="number" min="0.00" step="0.5" />
               </div>
-
+              <small class="text-danger" th:errors="*{precio}"
+                     th:if="${#fields.hasErrors('precio')}"></small>
             </td>
           </tr>
           <tr>

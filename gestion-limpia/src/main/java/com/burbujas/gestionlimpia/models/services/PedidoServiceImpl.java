@@ -40,8 +40,8 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public List<Pedido> findAllByEstadoActualOrderByPrioridadDesc(EstadoPedido estadoActual) {
-        return this.pedidoRepository.findAllByEstadoActualOrderByPrioridadDesc(estadoActual);
+    public List<Pedido> findAllByEstadoActualOrderByPrioridadDescFechaHoraIngresoAsc(EstadoPedido estadoActual) {
+        return this.pedidoRepository.findAllByEstadoActualOrderByPrioridadDescFechaHoraIngresoAsc(estadoActual);
     }
 
     @Override

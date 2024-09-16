@@ -59,7 +59,8 @@ public class ProveedorController {
             model.addAttribute("titulo", "Editar proveedor");
             return "inventario/proveedores/proveedor";
         } else {
-            flashmsg.addFlashAttribute("danger", "No se encontró el proveedor.");
+            flashmsg.addFlashAttribute("messageType","error");
+            flashmsg.addFlashAttribute("message","No se encontró el proveedor.");
             return "redirect:/productos/proveedores/listar";
         }
 
@@ -75,13 +76,14 @@ public class ProveedorController {
 
         productoService.saveProveedor(proveedor);
 
-        flashmsg.addFlashAttribute("success", "Listado de reabastecimientos actualizado");
+        flashmsg.addFlashAttribute("messageType","success");
+        flashmsg.addFlashAttribute("message","Listado de reabastecimientos actualizado.");
 
         return "redirect:/productos/proveedores/listar";
     }
 
     @GetMapping("/eliminar/{id}")
-    public ResponseEntity<Object> eliminarProveedor(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminarProveedor(@PathVariable(name = "id") Long id){
         Proveedor proveedor = productoService.findProveedorById(id);
         if (proveedor != null) {
             if(proveedor.getReabastecimientos().size() > 0){

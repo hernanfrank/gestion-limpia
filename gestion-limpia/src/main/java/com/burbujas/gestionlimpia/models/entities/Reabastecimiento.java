@@ -1,6 +1,7 @@
 package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -31,9 +32,11 @@ public class Reabastecimiento implements Serializable {
     private Date fecha;
 
     @NotNull(message = "La cantidad de producto no puede estar vacía")
+    @DecimalMin(value = "0.01", message = "La cantidad de producto no puede ser inferior a 0.01L")
     private Double cantidadProducto;
 
     @NotNull(message = "El precio no puede estar vacío")
+    @DecimalMin(value = "0.5", message = "El precio no puede ser inferior a $0.5")
     private Double precio;
 
     @NotNull

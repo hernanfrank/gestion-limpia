@@ -48,7 +48,8 @@ public class ClienteController {
         // recibimos el objeto cliente del formulario y lo persistimos
         clienteService.save(cliente);
 
-        flashmsg.addFlashAttribute("success", "Listado de clientes actualizado");
+        flashmsg.addFlashAttribute("messageType", "success");
+        flashmsg.addFlashAttribute("message", "Listado de clientes actualizado");
 
         // redirigimos al listado
         return "redirect:/clientes";
@@ -78,14 +79,15 @@ public class ClienteController {
             model.addAttribute("titulo", "Editar cliente");
             return "clientes/cliente";
         } else {
-            flashmsg.addFlashAttribute("danger", "No se encontró el cliente.");
+            flashmsg.addFlashAttribute("messageType", "error");
+            flashmsg.addFlashAttribute("message", "No se encontró el cliente.");
             return "redirect:/clientes";
         }
 
     }
 
     @GetMapping("/eliminar/{id}")
-    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id){
         Cliente cliente = clienteService.findById(id);
         if (cliente != null) {
             clienteService.delete(id);

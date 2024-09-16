@@ -100,7 +100,8 @@ public class ProductoController {
             model.addAttribute("titulo", "Editar producto");
             return "inventario/producto";
         } else {
-            flashmsg.addFlashAttribute("danger", "No se encontró el producto.");
+            flashmsg.addFlashAttribute("messageType", "error");
+            flashmsg.addFlashAttribute("message", "No se encontró el producto.");
             return "redirect:/productos/inventario";
         }
 

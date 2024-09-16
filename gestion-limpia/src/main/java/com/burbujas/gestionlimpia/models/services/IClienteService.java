@@ -1,9 +1,6 @@
 package com.burbujas.gestionlimpia.models.services;
 
 import com.burbujas.gestionlimpia.models.entities.Cliente;
-import com.burbujas.gestionlimpia.models.entities.Pedido;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 

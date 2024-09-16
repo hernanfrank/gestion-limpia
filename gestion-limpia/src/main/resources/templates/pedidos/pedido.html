@@ -48,7 +48,7 @@
           <td>Precio</td>
           <td>
             <input class="form-control" th:errorclass="'border border-danger'" th:field="*{precio}"
-                   type="number" step="0.01" min="1.0" />
+                   type="number" step="0.5" min="0.0" />
             <small class="text-danger" th:errors="*{precio}"
                    th:if="${#fields.hasErrors('precio')}"></small>
           </td>
@@ -76,8 +76,9 @@
         <tr>
           <td>Estado</td>
           <td>
-            <input class="form-control"  th:field="*{estadoActual.displayValue}"
-                   type="text" step="0.01" min="1.0" readonly />
+            <input class="form-control border-warning"  th:field="*{estadoActual.displayValue}"
+                   type="text" readonly />
+            <small class="text-warning" th:if="${pedido.estadoActual != null}">El estado del pedido solo se puede cambiar desde la pantalla de inicio.</small>
           </td>
         </tr>
       </table>

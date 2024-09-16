@@ -3,7 +3,7 @@ package com.burbujas.gestionlimpia.models.entities;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.Prioridad;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -45,6 +45,7 @@ public class Pedido implements Serializable {
     private Cliente cliente;
 
     @NotNull(message = "El precio no puede estar vacío")
+    @DecimalMin(value = "0.0", message = "El precio no puede ser inferior a $0")
     private Double precio;
 
     @NotNull(message = "La prioridad no puede estar vacía")

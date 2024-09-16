@@ -65,7 +65,6 @@ public class ReabastecimientoController {
         model.addAttribute("reabastecimiento", reabastecimiento);
         model.addAttribute("productos", productos); // para el select
         model.addAttribute("proveedores", proveedores); // para el select
-        model.addAttribute("fechaActual", new Date());
 
         return "inventario/reabastecimientos/reabastecimiento";
     }
@@ -88,11 +87,11 @@ public class ReabastecimientoController {
             model.addAttribute("reabastecimiento", reabastecimiento);
             model.addAttribute("productos", productos); // para el select
             model.addAttribute("proveedores", proveedores); // para el select
-            model.addAttribute("fechaActual", new Date());
 
             return "inventario/reabastecimientos/reabastecimiento";
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al crear Reabastecimiento. No se encontró el producto.");
+            flashmsg.addFlashAttribute("messageType","error");
+            flashmsg.addFlashAttribute("message","Error al crear Reabastecimiento. No se encontró el producto.");
             return "redirect:/productos/inventario";
         }
     }
@@ -108,12 +107,12 @@ public class ReabastecimientoController {
             model.addAttribute("reabastecimiento", reabastecimiento);
             model.addAttribute("productos", productos); // para el select
             model.addAttribute("proveedores", proveedores); // para el select
-            model.addAttribute("fechaActual", new Date());
 
             model.addAttribute("titulo", "Editar reabastecimiento");
             return "inventario/reabastecimientos/reabastecimiento";
         } else {
-            flashmsg.addFlashAttribute("danger", "No se encontró el reabastecimiento.");
+            flashmsg.addFlashAttribute("messageType","error");
+            flashmsg.addFlashAttribute("message","No se encontró el reabastecimiento.");
             return "redirect:/productos/reabastecimientos/listar";
         }
 
@@ -131,15 +130,17 @@ public class ReabastecimientoController {
             productoService.saveReabastecimiento(reabastecimiento);
             productoService.updateCantidadActual(producto);
 
-            flashmsg.addFlashAttribute("success", "Listado de reabastecimientos actualizado");
+            flashmsg.addFlashAttribute("messageType","success");
+            flashmsg.addFlashAttribute("message","Listado de reabastecimientos actualizado.");
         }else{
-            flashmsg.addFlashAttribute("danger", "Error al guardar el reabastecimiento. Producto no encontrado.");
+            flashmsg.addFlashAttribute("messageType","success");
+            flashmsg.addFlashAttribute("message","Error al guardar el reabastecimiento. Producto no encontrado.");
         }
         return "redirect:/productos/inventario";
     }
 
     @GetMapping("/eliminar/{id}")
-    public ResponseEntity<Object> eliminarReabastecimiento(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminarReabastecimiento(@PathVariable(name = "id") Long id){
         Reabastecimiento reabastecimiento = productoService.findReabastecimientoById(id);
         if (reabastecimiento != null) {
             Producto producto = reabastecimiento.getProducto();

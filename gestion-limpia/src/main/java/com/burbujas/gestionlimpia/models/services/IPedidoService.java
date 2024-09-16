@@ -15,7 +15,7 @@ public interface IPedidoService {
 
     public List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual);
 
-    public List<Pedido> findAllByEstadoActualOrderByPrioridadDesc(EstadoPedido estadoActual);
+    public List<Pedido> findAllByEstadoActualOrderByPrioridadDescFechaHoraIngresoAsc(EstadoPedido estadoActual);
 
     public List<HistorialEstadoPedido> getHistorialEstadosByPedidoId(Long id);
 
