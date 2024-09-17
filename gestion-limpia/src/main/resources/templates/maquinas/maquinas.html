@@ -181,18 +181,26 @@
           // trigger del cambio de estado en el pedido
           asignarPedidoAMaquina(pedidoId, maquinaNumero, forzar=false)
           .then(
-              ()=>{
-                // muestro el que solté en la maquina actual, y le pongo clase activa
-                let pedidoAsignado = event.target.querySelector(".pedido-asignado");
-                pedidoAsignado.appendChild(event.relatedTarget);
-                pedidoAsignado.classList.remove('d-none');
-                event.target.classList.add('activa');
-              }
+            ()=>{
+              // muestro el que solté en la maquina actual, y le pongo clase activa
+              let pedidoAsignado = event.target.querySelector(".pedido-asignado");
+              pedidoAsignado.appendChild(event.relatedTarget);
+              pedidoAsignado.classList.remove('d-none');
+              event.target.classList.add('activa');
+              notyf.open({
+                type: 'success',
+                message: 'Pedido asignado correctamente.'
+              });
+            }
           ).catch(
-              (error)=>{
-                alert(error);
-              }
-          )
+            (error)=>{
+              console.log(error);
+              notyf.open({
+                type: 'error',
+                message: error.responseJSON.msg
+              });
+            }
+          );
 
           last_maquina.classList.remove('activa');
 
@@ -305,13 +313,23 @@
 
               // trigger del cambio de estado en el pedido
               cambiarEstadoPedido(pedidoId, "FINALIZADO")
-                      .then(result => {
-                        // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                        duplicate_pedido.remove();
-                      })
-                      .catch(error => {
-                        alert(error);
-                      });
+                .then(()=>{
+                  // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                  duplicate_pedido.remove();
+                  notyf.open({
+                    type: 'success',
+                    message: 'Pedido finalizado correctamente.'
+                  });
+                  }
+                ).catch(
+                  (error)=>{
+                    console.log(error);
+                    notyf.open({
+                      type: 'error',
+                      message: error.responseJSON.msg
+                    });
+                  }
+                );
 
               last_maquina.classList.remove('activa');
             }
@@ -358,14 +376,22 @@
 
               // trigger del cambio de estado en el pedido
               cambiarEstadoPedido(pedidoId, "CANCELADO")
-                      .then(result => {
-                        // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                        duplicate_pedido.remove();
-                      })
-                      .catch(error => {
-                        alert(error);
-                      });
-
+                .then(()=>{
+                  // cuando se cancela, elimino el duplicado que esta dentro de una maquina
+                  duplicate_pedido.remove();
+                  notyf.open({
+                    type: 'success',
+                    message: 'Pedido cancelado correctamente.'
+                  });
+                }).catch(
+                  (error)=>{
+                    console.log(error);
+                    notyf.open({
+                      type: 'error',
+                      message: error.responseJSON.msg
+                    });
+                  }
+              );
               last_maquina.classList.remove('activa');
             }
           });

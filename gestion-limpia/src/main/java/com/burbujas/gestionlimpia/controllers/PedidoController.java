@@ -114,7 +114,7 @@ public class PedidoController {
         flashmsg.addFlashAttribute("message", "Listado de pedidos actualizado");
 
         // redirigimos al listado
-        return "redirect:/pedidos/listar";
+        return "redirect:/";
     }
 
     @GetMapping(value = "/pedidos/listar")

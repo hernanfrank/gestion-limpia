@@ -48,6 +48,7 @@ public class ProductoController {
         List<TipoPedidoProductoMapping> tiposPedidoProducto  = producto.getTipoPedidoProductoMapping();
 
         if(tiposPedidoProducto.size() == 0){
+            // sólo si es un producto nuevo
             tiposPedido.forEach(
                     tipoPedido -> {
                         TipoPedidoProductoMapping tipoPedidoProductoMappingAux = new TipoPedidoProductoMapping();
@@ -57,24 +58,27 @@ public class ProductoController {
                         tiposPedidoProducto.add(tipoPedidoProductoMappingAux);
                     }
             );
+            producto.setTipoPedidoProductoMapping(tiposPedidoProducto);
         }
 
-        producto.setTipoPedidoProductoMapping(tiposPedidoProducto);
         model.addAttribute("producto", producto);
     }
 
     @PostMapping(value = "/guardar")
     public String guardar(@Valid Producto producto, BindingResult result, Model model, RedirectAttributes flashmsg) {
+        // por alguna razón se pierden los reabastecimientos e historial de usos, y tiposPedidoProductoMapping,
+        // por lo que los seteamos nuevamente
+        producto.setReabastecimientos(producto.getReabastecimientos());
+        producto.setHistorialProductoPedidos(producto.getHistorialProductoPedidos());
+        producto.getTipoPedidoProductoMapping().forEach(tipoPedidoProductoMapping -> tipoPedidoProductoMapping.setProducto(producto));
         if (result.hasErrors()) {
-            // por alguna razón se pierden los reabastecimientos e historial de usos, por lo que los traemos nuevamente
-            producto.setReabastecimientos(productoService.findById(producto.getId()).getReabastecimientos());
-            producto.setHistorialProductoPedidos(productoService.findById(producto.getId()).getHistorialProductoPedidos());
             model.addAttribute("titulo", model.getAttribute("titulo"));
             return "inventario/producto";
         }
         productoService.save(producto);
 
-        flashmsg.addFlashAttribute("success", "Listado de productos actualizado");
+        flashmsg.addFlashAttribute("messageType", "success");
+        flashmsg.addFlashAttribute("message", "Listado de productos actualizado.");
 
         return "redirect:/productos/inventario";
     }

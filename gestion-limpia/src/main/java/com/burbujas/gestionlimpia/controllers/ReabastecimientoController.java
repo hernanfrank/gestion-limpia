@@ -122,6 +122,11 @@ public class ReabastecimientoController {
     public String guardarReabastecimiento(@Valid Reabastecimiento reabastecimiento, BindingResult result, Model model, RedirectAttributes flashmsg) {
 
         if (result.hasErrors()) {
+            List<Producto> productos = productoService.findAll();
+            List<Proveedor> proveedores = productoService.findAllProveedores();
+
+            model.addAttribute("productos", productos); // para el select
+            model.addAttribute("proveedores", proveedores); // para el select
             model.addAttribute("titulo", model.getAttribute("titulo"));
             return "inventario/reabastecimientos/reabastecimiento";
         }
@@ -136,7 +141,7 @@ public class ReabastecimientoController {
             flashmsg.addFlashAttribute("messageType","success");
             flashmsg.addFlashAttribute("message","Error al guardar el reabastecimiento. Producto no encontrado.");
         }
-        return "redirect:/productos/inventario";
+        return "redirect:/productos/reabastecimientos/listar";
     }
 
     @GetMapping("/eliminar/{id}")

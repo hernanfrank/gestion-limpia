@@ -77,7 +77,7 @@ public class ProveedorController {
         productoService.saveProveedor(proveedor);
 
         flashmsg.addFlashAttribute("messageType","success");
-        flashmsg.addFlashAttribute("message","Listado de reabastecimientos actualizado.");
+        flashmsg.addFlashAttribute("message","Listado de proveedores actualizado.");
 
         return "redirect:/productos/proveedores/listar";
     }

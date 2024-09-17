@@ -4,7 +4,6 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-    <div th:replace="~{components/topmenu :: messages}"></div>
     <div class="row mb-2">
         <div class="col">
             <a class="float-end me-n25" th:href="@{/productos/nuevo}">
@@ -35,7 +34,7 @@
                 <tbody>
                 <tr th:each="producto: ${productos}">
                     <td th:text="${producto.tipo}"></td>
-                    <td th:class="${producto.cantidadActual <= 0.2 ? 'text-danger fw-bold' : ''}" th:text="${producto.cantidadActual == null ? '0.00' : producto.cantidadActual} + ' litro/s'"></td>
+                    <td th:class="${producto.cantidadActual <= 0.2 ? 'text-danger fw-bold' : ''}" th:text="${producto.cantidadActual == null ? '0.00' : #numbers.formatDecimal(producto.cantidadActual, 1, 2)} + ' litro/s'"></td>
                     <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}"></td>
                     <td>
                         <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
@@ -103,4 +102,5 @@
         });
     }
 </script>
+<div th:replace="~{components/topmenu :: messages}"></div>
 </html>

@@ -4,7 +4,6 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-  <div th:replace="~{components/topmenu :: messages}"></div>
   <div class="row mb-2">
     <div class="col">
       <a class="float-start ms-n25" th:href="@{/productos/inventario}">
@@ -43,7 +42,7 @@
         <tr th:each="reabastecimiento: ${reabastecimientos}">
           <td th:text="${#dates.format(reabastecimiento.fecha,'dd/MM/yyyy')}"></td>
           <td th:text="${reabastecimiento.producto.tipo}"></td>
-          <td th:text="${reabastecimiento.cantidadProducto+' litro/s'}"></td>
+          <td th:text="${#numbers.formatDecimal(reabastecimiento.cantidadProducto, 1, 2)+' litro/s'}"></td>
           <td th:text="${#numbers.formatCurrency(reabastecimiento.precio)}"></td>
           <td th:text="${reabastecimiento.proveedor.nombre}"></td>
           <td>
@@ -106,4 +105,5 @@
     });
   }
 </script>
+<div th:replace="~{components/topmenu :: messages}"></div>
 </html>

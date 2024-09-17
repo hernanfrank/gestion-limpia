@@ -4,7 +4,6 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-  <div th:replace="~{components/topmenu :: messages}"></div>
   <div class="row mb-2">
     <div class="col">
       <a class="float-end me-n25" th:href="@{/caja/gasto/nuevo}">
@@ -91,4 +90,5 @@
     });
   }
 </script>
+<div th:replace="~{components/topmenu :: messages}"></div>
 </html>
