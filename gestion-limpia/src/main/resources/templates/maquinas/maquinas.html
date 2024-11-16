@@ -85,6 +85,14 @@
           //aplico estilos al duplicado, para que sea vea debajo del que estoy arrastrando, que este gris y no desplace los pedidos siguientes
           duplicate_pedido.style.cssText = 'z-index:5;transform:translateY(-'+(12+duplicate_pedido.offsetHeight)+'px);margin-bottom:-'+(8+duplicate_pedido.offsetHeight)+'px !important;filter:brightness(50%)';
           dragging = true;
+          event.target.style.zIndex = '9999';
+          if(event.target.closest('.maquina') !== null){
+            event.target.closest('.maquina').style.zIndex = '999';
+          }
+          if(event.target.closest('.container-pedidos') !== null){
+            event.target.closest('.container-pedidos').style.zIndex = '999';
+          }
+          document.querySelector('.container-pedidos #pedidosList').style.overflow = 'unset';
         }
         let target = event.target;
 
@@ -121,6 +129,14 @@
           });
           event.target.remove(); //elimino el original que quedó flotando fuera del listado
           dragging = false;
+          event.target.style.zIndex = '0';
+          if(event.target.closest('.maquina') !== null){
+            event.target.closest('.maquina').style.zIndex = '0';
+          }
+          if(event.target.closest('.container-pedidos') !== null){
+            event.target.closest('.container-pedidos').style.zIndex = '0';
+          }
+          document.querySelector('.container-pedidos #pedidosList').style.overflow = 'scroll';
         }
       }
       interact('.pedido')

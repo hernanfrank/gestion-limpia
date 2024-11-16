@@ -15,7 +15,7 @@
     body{
       --black: #193532;
       background-color: #ABB3B6A8;
-
+      overflow: hidden;
     }
     .navbar{
       background-color: steelblue !important;
@@ -52,7 +52,8 @@
       background-color: #ede3d985;
     }
     #pedidosList{
-      overflow: scroll;
+      overflow-y: scroll;
+      overflow-x: hidden;
       max-height: 500px;
     }
     .pedido-asignado{
@@ -77,7 +78,7 @@
       transition: background-color 0.3s;
     }
     .maquina > .card-body{
-      min-height: 8.74rem;
+      min-height: 8.25rem;
       padding-bottom:0;
       margin-top: 0;
       padding-top: 0.5rem;
