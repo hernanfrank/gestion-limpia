@@ -66,11 +66,7 @@ public class ProductoController {
 
     @PostMapping(value = "/guardar")
     public String guardar(@Valid Producto producto, BindingResult result, Model model, RedirectAttributes flashmsg) {
-        // por alguna razón se pierden los reabastecimientos e historial de usos, y tiposPedidoProductoMapping,
-        // por lo que los seteamos nuevamente
-        producto.setReabastecimientos(producto.getReabastecimientos());
-        producto.setHistorialProductoPedidos(producto.getHistorialProductoPedidos());
-        producto.getTipoPedidoProductoMapping().forEach(tipoPedidoProductoMapping -> tipoPedidoProductoMapping.setProducto(producto));
+        fillTipoPedidoProductoMappingArray(model, producto);
         if (result.hasErrors()) {
             model.addAttribute("titulo", model.getAttribute("titulo"));
             return "inventario/producto";

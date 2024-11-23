@@ -31,11 +31,13 @@
             </td>
           </tr>
           <tr>
-            <td>Producto</td>
+            <td style="width:45%">Producto</td>
             <td>
-              <select class="form-select" th:if="${productos != null && productos.size > 0}" th:field="*{producto}">
+              <select class="form-select" th:if="${productos != null && productos.size > 0}" th:field="*{producto}" th:disabled="${reabastecimiento.producto != null}">
                 <option th:each="productoSelect : ${productos}" th:value="${productoSelect.id}" th:text="${productoSelect.tipo}" th:selected="${reabastecimiento.producto != null && productoSelect.id == reabastecimiento.producto.id}"></option>
               </select>
+              <small class="text-warning" th:if="${reabastecimiento.producto != null}">*No se puede editar el producto de un reabastecimiento.</small>
+              <input type="hidden" th:field="*{producto}" th:if="${reabastecimiento.producto != null}">
               <span class="text-danger" th:if="${productos == null || productos.size() <= 0}">Aún no existen productos</span>
               <small class="text-danger" th:errors="*{producto}"
                      th:if="${#fields.hasErrors('producto')}"></small>

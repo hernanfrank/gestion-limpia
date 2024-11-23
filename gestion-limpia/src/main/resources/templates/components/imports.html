@@ -26,6 +26,9 @@
     .dataTables_wrapper .dataTables_filter{
       margin-bottom: 10px;
     }
+    .dataTables_scroll .dataTables_scrollHead{
+      margin-bottom: -1px !important;
+    }
     table.dataTable tbody td {
       padding-top: 8px;
       text-align:center;
@@ -218,6 +221,8 @@
         language: {
           url: translationUrl
         },
+        scrollCollapse: true,
+        scrollY: '54vh',
         aaSorting: []
       });
       $("#"+tableName).parent().css('background-color','#f4f4f4');
