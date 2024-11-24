@@ -18,16 +18,14 @@ public class ProductoServiceImpl implements IProductoService{
     private final IReabastecimientoRepository reabastecimientoRepository;
     private final IProveedorRepository proveedorRepository;
     private final IPedidoRepository pedidoRepository;
-    private final ITipoPedidoRepository tipoPedidoRepository;
 
     @Autowired
-    public ProductoServiceImpl(IProductoRepository productoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository, IPedidoRepository pedidoRepository, ITipoPedidoRepository tipoPedidoRepository) {
+    public ProductoServiceImpl(IProductoRepository productoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository, IPedidoRepository pedidoRepository) {
         this.productoRepository = productoRepository;
         this.tipoPedidoProductoMappingRepository = tipoPedidoProductoMappingRepository;
         this.reabastecimientoRepository = reabastecimientoRepository;
         this.proveedorRepository = proveedorRepository;
         this.pedidoRepository = pedidoRepository;
-        this.tipoPedidoRepository = tipoPedidoRepository;
     }
 
     @Override

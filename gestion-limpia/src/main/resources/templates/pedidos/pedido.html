@@ -22,7 +22,7 @@
       <input type="hidden" th:field="*{id}">
       <table class="table table-bordered">
         <tr>
-          <td>Tipo</td>
+          <td><i style="color:red;font-weight: bold">* </i>Tipo</td>
           <td>
             <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipo}">
               <option th:each="tipoPedido : ${tiposPedido}"
@@ -34,7 +34,7 @@
           </td>
         </tr>
         <tr>
-          <td>Cliente</td>
+          <td><i style="color:red;font-weight: bold">* </i>Cliente</td>
           <td>
             <select class="form-select" th:errorclass="'border border-danger'" th:field="*{cliente}">
               <option th:each="clienteSelected : ${clientes}"
@@ -46,7 +46,7 @@
           </td>
         </tr>
         <tr>
-          <td>Precio</td>
+          <td><i style="color:red;font-weight: bold">* </i>Precio</td>
           <td>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -58,7 +58,7 @@
           </td>
         </tr>
         <tr>
-          <td>Prioridad</td>
+          <td><i style="color:red;font-weight: bold">* </i>Prioridad</td>
           <td>
             <select class="form-select" th:errorclass="'border border-danger'" th:field="*{prioridad}">
               <option th:each="prioridadPedido : ${T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).values()}"

@@ -22,7 +22,7 @@
         <input type="hidden" th:field="*{id}">
         <table class="table table-bordered">
           <tr>
-            <td>Nombre</td>
+            <td><i style="color:red;font-weight: bold">* </i>Nombre</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{nombre}"
                      type="text"/>
@@ -31,12 +31,21 @@
             </td>
           </tr>
           <tr>
-            <td>CUIT</td>
+            <td><i style="color:red;font-weight: bold">* </i>CUIT</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cuit}"
                      type="text"/>
               <small class="text-danger" th:errors="*{cuit}"
                      th:if="${#fields.hasErrors('cuit')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td>Teléfono:</td>
+            <td>
+              <input class="form-control" th:errorclass="'border border-danger'" th:field="*{telefono}"
+                     type="text" placeholder="(Código de área)(Número)"/>
+              <small class="text-danger" th:errors="*{telefono}"
+                     th:if="${#fields.hasErrors('telefono')}"></small>
             </td>
           </tr>
           <tr>

@@ -25,7 +25,12 @@
             <h5 class="text-center">PENDIENTES</h5>
             <ol id="pedidosList" class="m-0 mt-1 p-0 d-grid justify-content-center" data-tipo="pendientes">
                 <li th:each="pedido : ${pedidosPendientes}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
-                    <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
+                    <div  th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
+                        <i class="material-icons" style="font-size:21px;margin-left:-1rem">
+                            receipt_long
+                        </i>
+                        <span th:text="${'Pedido ' + pedido.id}" style="vertical-align: super;"></span>
+                    </div>
                     <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
                         <p class="px-2 py-1 card-text">
                             <span th:text="'• '+${pedido.tipo.descripcion}"></span><br/>
@@ -46,7 +51,7 @@
                 <div class="card p-0 bg-danger">
                     <div class="card-header">Cancelar Pedido</div>
                     <div class="card-body">
-                        <p class="card-text h2 text-muted text-center">X</p>
+                        <i class="material-icons">cancel</i>
                         <ul class="pedido-asignado"></ul>
                         <input type="hidden" class="maquinaNumero" th:value="0">
                     </div>
@@ -56,7 +61,7 @@
                 <div class="card p-0 bg-success">
                     <div class="card-header">Finalizar Pedido</div>
                     <div class="card-body">
-                        <p class="card-text h1 text-muted text-center">&#x2714;</p>
+                        <i class="material-icons">check_circle</i>
                         <ul class="pedido-asignado"></ul>
                         <input type="hidden" class="maquinaNumero" th:value="0">
                     </div>

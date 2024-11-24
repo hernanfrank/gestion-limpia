@@ -26,6 +26,8 @@
         <thead>
         <tr>
           <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
           <th>Últimos Reabastecimientos</th>
           <th>Acciones</th>
         </tr>
@@ -33,6 +35,8 @@
         <tbody>
         <tr th:each="proveedor: ${proveedores}">
           <td th:text="${proveedor.nombre}"></td>
+          <td th:text="${proveedor.telefono}"></td>
+          <td th:text="${proveedor.direccion}"></td>
           <td class="d-flex justify-content-center" th:if="${proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }" style="max-height:115px;overflow-y: scroll">
             <ul>
               <li th:each="reabastecimiento : ${proveedor.reabastecimientos}" th:text="${#dates.format(reabastecimiento.fecha, 'yyyy/MM/dd')} +  ' - ' + ${reabastecimiento.producto.tipo}"></li>

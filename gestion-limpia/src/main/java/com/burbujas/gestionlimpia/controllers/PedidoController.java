@@ -175,6 +175,8 @@ public class PedidoController {
         Pedido pedido = pedidoService.findById(id);
         if (pedido != null) {
             pedidoService.delete(id);
+            // actualizo la cantidad actual para cada producto, para corregir por la eliminación de este pedido
+            productoService.findAll().forEach(productoService::updateCantidadActual);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El pedido ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el pedido.\"}", HttpStatus.INTERNAL_SERVER_ERROR);

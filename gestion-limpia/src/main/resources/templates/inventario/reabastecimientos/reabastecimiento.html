@@ -22,7 +22,7 @@
         <input type="hidden" th:field="*{id}">
         <table class="table table-bordered">
           <tr>
-            <td>Fecha</td>
+            <td><i style="color:red;font-weight: bold">* </i>Fecha</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{fecha}"
                      type="date"/>
@@ -31,20 +31,20 @@
             </td>
           </tr>
           <tr>
-            <td style="width:45%">Producto</td>
+            <td style="width:45%"><i style="color:red;font-weight: bold">* </i>Producto</td>
             <td>
-              <select class="form-select" th:if="${productos != null && productos.size > 0}" th:field="*{producto}" th:disabled="${reabastecimiento.producto != null}">
+              <select class="form-select" th:if="${productos != null && productos.size > 0}" th:field="*{producto}" th:disabled="${reabastecimiento.id != null && reabastecimiento.producto != null}">
                 <option th:each="productoSelect : ${productos}" th:value="${productoSelect.id}" th:text="${productoSelect.tipo}" th:selected="${reabastecimiento.producto != null && productoSelect.id == reabastecimiento.producto.id}"></option>
               </select>
-              <small class="text-warning" th:if="${reabastecimiento.producto != null}">*No se puede editar el producto de un reabastecimiento.</small>
-              <input type="hidden" th:field="*{producto}" th:if="${reabastecimiento.producto != null}">
+              <small class="text-warning" th:if="${reabastecimiento.id != null && reabastecimiento.producto != null}">*No se puede editar el producto de un reabastecimiento.</small>
+              <input type="hidden" th:field="*{producto}" th:if="${reabastecimiento.id != null && reabastecimiento.producto != null}">
               <span class="text-danger" th:if="${productos == null || productos.size() <= 0}">Aún no existen productos</span>
               <small class="text-danger" th:errors="*{producto}"
                      th:if="${#fields.hasErrors('producto')}"></small>
             </td>
           </tr>
           <tr>
-            <td>Cantidad total de producto (litros)</td>
+            <td><i style="color:red;font-weight: bold">* </i>Cantidad total de producto (litros)</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadProducto}"
                      type="number" min="1" step="0.1" title="Suma de la cantidad total de producto entre todas las unidades compradas"/>
@@ -53,7 +53,7 @@
             </td>
           </tr>
           <tr>
-            <td>Precio total</td>
+            <td><i style="color:red;font-weight: bold">* </i>Precio total</td>
             <td>
               <div class="input-group">
                 <span class="input-group-text">$</span>
@@ -65,7 +65,7 @@
             </td>
           </tr>
           <tr>
-            <td>Proveedor</td>
+            <td><i style="color:red;font-weight: bold">* </i>Proveedor</td>
             <td>
               <select class="form-select" th:if="${proveedores != null && proveedores.size > 0}" th:field="*{proveedor}">
                 <option th:each="proveedorSelect : ${proveedores}"

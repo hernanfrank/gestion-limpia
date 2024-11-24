@@ -22,7 +22,7 @@
         <input type="hidden" th:field="*{historialProductoPedidos}">
         <table class="table table-bordered">
           <tr>
-            <td>Tipo</td>
+            <td><i style="color:red;font-weight: bold">* </i>Tipo</td>
             <td style="width: 70%">
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{tipo}"
                      type="text"/>
@@ -31,7 +31,7 @@
             </td>
           </tr>
           <tr>
-            <td>Cantidad usada por tipo de pedido (litros)</td>
+            <td><i style="color:red;font-weight: bold">* </i>Cantidad usada por tipo de pedido (litros)</td>
             <td>
               <p th:each="tipoPedidoProducto, iter : *{tipoPedidoProductoMapping}">
                 <label th:text="*{tipoPedidoProductoMapping[__${iter.index}__].tipoPedido.descripcion + ':'}"></label>
@@ -45,7 +45,7 @@
             </td>
           </tr>
           <tr>
-            <td>Cantidad actual (litros)</td>
+            <td><i style="color:red;font-weight: bold">* </i>Cantidad actual (litros)</td>
             <td>
               <input class="form-control w-15" th:errorclass="'border border-danger'" th:field="*{cantidadActual}"
                      type="number" step="0.01" min="0.00" th:readonly="${(producto.reabastecimientos != null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>

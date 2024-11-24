@@ -10,12 +10,22 @@
         <!-- lavadoras -->
         <div class="col-6" th:each="maquinaLavadora : ${lavadorasPedidosMap}" >
           <div th:class="${'card p-0 col-12 user-select-none maquina lavadora '+(maquinaLavadora.value != null ? 'activa':'')}"  data-tipo="lavadora">
-            <div th:text="${'Lavadora '+ maquinaLavadora.key}" class="card-header"></div>
+            <div class="card-header">
+              <i class="material-icons">
+                local_laundry_service
+              </i>
+              <span style="vertical-align: super" th:text="${'Lavadora '+ maquinaLavadora.key}"></span>
+            </div>
             <div class="card-body d-flex justify-content-center">
               <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
               <ul class="pedido-asignado" data-tipo="lavadora">
                 <li th:if="${maquinaLavadora.value != null}" th:with="pedido = ${maquinaLavadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
-                  <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
+                  <div  th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
+                    <i class="material-icons" style="font-size:21px;margin-left:-1rem">
+                      receipt_long
+                    </i>
+                    <span th:text="${'Pedido ' + pedido.id}" style="vertical-align: super;"></span>
+                  </div>
                   <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
                     <p class="px-2 py-1 card-text">
                       <span th:text="'• '+${pedido.tipo.descripcion}"></span><br/>
@@ -40,12 +50,22 @@
         <div class="col-6" th:each="maquinaSecadora : ${secadorasPedidosMap}" >
             <!-- secadoras -->
               <div th:class="${'card p-0 col-12 user-select-none maquina secadora '+(maquinaSecadora.value != null ? 'activa':'')}" data-tipo="secadora">
-                <div th:text="${'Secadora '+ maquinaSecadora.key}" class="card-header"></div>
+                <div class="card-header">
+                  <i class="material-icons">
+                    dry_cleaning
+                  </i>
+                  <span style="vertical-align: super" th:text="${'Secadora '+ maquinaSecadora.key}"></span>
+                </div>
                 <div class="card-body d-flex justify-content-center">
                   <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
                   <ul class="pedido-asignado" data-tipo="secadora">
                     <li th:if="${maquinaSecadora.value != null}" th:with="pedido = ${maquinaSecadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
-                      <div th:text="${'Pedido ' + pedido.id}" th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}"></div>
+                      <div  th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-danger' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
+                        <i class="material-icons" style="font-size:21px;margin-left:-1rem">
+                          receipt_long
+                        </i>
+                        <span th:text="${'Pedido ' + pedido.id}" style="vertical-align: super;"></span>
+                      </div>
                       <div th:class="'p-0 card-body ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE? 'bg-danger-subtle' : ''}">
                         <p class="px-2 py-1 card-text">
                           <span th:text="'• '+${pedido.tipo.descripcion}"></span><br/>

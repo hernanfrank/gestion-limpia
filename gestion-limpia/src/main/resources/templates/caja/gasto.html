@@ -20,7 +20,7 @@
                 <input type="hidden" th:field="*{id}">
                 <table class="table table-bordered">
                     <tr>
-                        <td>Fecha</td>
+                        <td><i style="color:red;font-weight: bold">* </i>Fecha</td>
                         <td style="width: 70%">
                             <input class="form-control" th:errorclass="'border border-danger'" th:field="*{fecha}"
                                    type="date"/>
@@ -29,7 +29,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Descripción</td>
+                        <td><i style="color:red;font-weight: bold">* </i>Descripción</td>
                         <td>
                             <textarea rows="5" class="form-control" th:errorclass="'border border-danger'" th:field="*{descripcion}"></textarea>
                             <small class="text-danger" th:errors="*{descripcion}"
@@ -37,7 +37,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Monto</td>
+                        <td><i style="color:red;font-weight: bold">* </i>Monto</td>
                         <td>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>

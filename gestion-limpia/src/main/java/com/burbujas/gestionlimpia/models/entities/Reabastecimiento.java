@@ -23,6 +23,7 @@ public class Reabastecimiento implements Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private Producto producto;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,7 +37,7 @@ public class Reabastecimiento implements Serializable {
     private Double cantidadProducto;
 
     @NotNull(message = "El precio no puede estar vacío")
-    @DecimalMin(value = "0.5", message = "El precio no puede ser inferior a $0.5")
+    @DecimalMin(value = "0.0", message = "El precio no puede ser inferior a $0")
     private Double precio;
 
     @NotNull
