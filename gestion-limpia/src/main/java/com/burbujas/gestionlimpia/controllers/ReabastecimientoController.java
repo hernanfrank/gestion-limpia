@@ -1,8 +1,11 @@
 package com.burbujas.gestionlimpia.controllers;
 
+import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
 import com.burbujas.gestionlimpia.models.entities.Producto;
 import com.burbujas.gestionlimpia.models.entities.Proveedor;
 import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja;
+import com.burbujas.gestionlimpia.models.services.ICajaService;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -23,10 +26,12 @@ import java.util.List;
 public class ReabastecimientoController {
 
     private final IProductoService productoService;
+    private final ICajaService cajaService;
 
     @Autowired
-    public ReabastecimientoController(IProductoService productoService) {
+    public ReabastecimientoController(IProductoService productoService, ICajaService cajaService) {
         this.productoService = productoService;
+        this.cajaService = cajaService;
     }
 
     @GetMapping("/listar/{idProducto}")
@@ -134,6 +139,17 @@ public class ReabastecimientoController {
         if(producto != null) {
             productoService.saveReabastecimiento(reabastecimiento);
             productoService.updateCantidadActual(producto);
+
+            MovimientoCaja movimientoGenerado = new MovimientoCaja();
+            movimientoGenerado.setReabastecimiento(reabastecimiento);
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            movimientoGenerado.setDescripcion("Generado por reabastecimiento: "+reabastecimiento.getCantidadProducto()+" unidades de "+reabastecimiento.getProducto().getTipo()+" del proveedor "+reabastecimiento.getProveedor().getNombre()+" en la fecha "+formatter.format(reabastecimiento.getFecha())+".");
+            movimientoGenerado.setFecha(reabastecimiento.getFecha());
+            movimientoGenerado.setTipoMovimientoCaja(TipoMovimientoCaja.EGRESO);
+            movimientoGenerado.setTipoCaja(reabastecimiento.getTipoCaja());
+            movimientoGenerado.setProveedor(reabastecimiento.getProveedor());
+            movimientoGenerado.setMonto(reabastecimiento.getPrecio());
+            cajaService.saveMovimientoCaja(movimientoGenerado);
 
             flashmsg.addFlashAttribute("messageType","success");
             flashmsg.addFlashAttribute("message","Listado de reabastecimientos actualizado.");

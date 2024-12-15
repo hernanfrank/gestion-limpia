@@ -1,5 +1,6 @@
 package com.burbujas.gestionlimpia.models.entities;
 
+import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -40,9 +41,13 @@ public class Reabastecimiento implements Serializable {
     @DecimalMin(value = "0.0", message = "El precio no puede ser inferior a $0")
     private Double precio;
 
-    @NotNull
+    @NotNull(message = "Debe especificar el proveedor del reabastecimiento")
     @ManyToOne(fetch = FetchType.LAZY)
     private Proveedor proveedor;
+
+    @NotNull(message = "Debe especificar la caja de donde se realiza el pago del reabastecimiento")
+    @Enumerated(EnumType.STRING)
+    private TipoCaja tipoCaja;
 
     public Reabastecimiento() {
         this.fecha = new Date();

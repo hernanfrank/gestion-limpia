@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="container-fluid">
+    <div th:replace="~{components/topmenu :: messages}"></div>
+    <div class="row mb-2">
+        <div class="col">
+            <a class="float-start" th:href="@{/caja/movimientosCaja}">
+                <button class="btn btn-secondary">
+                    Volver
+                </button>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <form enctype="multipart/form-data" method="post" th:action="@{/caja/movimientoCaja/guardar}" th:object="${movimientoCaja}">
+                <input type="hidden" th:field="*{id}">
+                <table class="table table-bordered">
+                    <tr>
+                        <td><i style="color:red;font-weight: bold">* </i>Fecha</td>
+                        <td style="width: 70%">
+                            <input class="form-control" th:errorclass="'border border-danger'" th:field="*{fecha}"
+                                   type="date"/>
+                            <small class="text-danger" th:errors="*{fecha}"
+                                   th:if="${#fields.hasErrors('fecha')}"></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i style="color:red;font-weight: bold">* </i>Descripción</td>
+                        <td>
+                            <textarea rows="2" class="form-control" th:errorclass="'border border-danger'" th:field="*{descripcion}"></textarea>
+                            <small class="text-danger" th:errors="*{descripcion}"
+                                   th:if="${#fields.hasErrors('descripcion')}"></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i style="color:red;font-weight: bold">* </i>Caja</td>
+                        <td>
+                            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipoCaja}">
+                                <option th:each="caja : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoCaja).values()}"
+                                        th:value="${caja}" th:text="${caja.displayValue}"
+                                        th:selected="${movimientoCaja.tipoCaja != null && caja == movimientoCaja.tipoCaja}"></option>
+                            </select>
+                            <small class="text-danger" th:errors="*{tipoCaja}"
+                                   th:if="${#fields.hasErrors('tipoCaja')}"></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i style="color:red;font-weight: bold">* </i>Tipo</td>
+                        <td>
+                            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipoMovimientoCaja}">
+                                <option th:each="tipoMovimiento : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).values()}"
+                                        th:value="${tipoMovimiento}" th:text="${tipoMovimiento.displayValue}"
+                                        th:selected="${movimientoCaja.tipoMovimientoCaja != null && tipoMovimiento == movimientoCaja.tipoMovimientoCaja}"></option>
+                            </select>
+                            <small class="text-danger" th:errors="*{tipoMovimientoCaja}"
+                                   th:if="${#fields.hasErrors('tipoMovimientoCaja')}"></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i style="color:red;font-weight: bold">* </i>Monto</td>
+                        <td>
+                            <div class="input-group">
+                                <span th:if="${movimientoCaja.tipoMovimientoCaja != null && movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO}" class="input-group-text">-$</span>
+                                <span th:if="${movimientoCaja.tipoMovimientoCaja == null || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).INGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTACREDITO}" class="input-group-text">$</span>
+                                <input class="form-control" th:errorclass="'border border-danger'" th:field="*{monto}"
+                                       type="number" min="0.00" step="0.5" />
+                            </div>
+                            <small class="text-danger" th:errors="*{monto}"
+                                   th:if="${#fields.hasErrors('monto')}"></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Asociado a</td>
+                        <td th:style="${movimientoCaja.pedido != null ? '':'display:none'}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked disabled>
+                                <span class='readonly-text' th:text="${movimientoCaja.pedido != null ? 'Pedido N°'+movimientoCaja.pedido.id : ''}"></span>
+                            </div>
+                        </td>
+                        <td th:style="${movimientoCaja.pedido != null ? 'display:none':''}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checkCliente" th:checked="${movimientoCaja.cliente != null}">
+                                <label class="form-check-label" for="checkCliente">
+                                    Cliente
+                                </label>
+                            </div>
+                            <select id="selectCliente" class="form-select" th:errorclass="'border border-danger'" th:field="*{cliente}"  th:disabled="${movimientoCaja.cliente == null}">
+                                <option value="">Ninguno</option>
+                                <option th:each="clienteSelected : ${clientes}"
+                                        th:value="${clienteSelected.id}" th:text="${clienteSelected.nombreApellido}"
+                                        th:selected="${movimientoCaja.cliente != null && clienteSelected.id == movimientoCaja.cliente.id}"></option>
+                            </select>
+                            <small class="text-danger" th:errors="*{cliente}"
+                                   th:if="${#fields.hasErrors('cliente')}"></small>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checkProveedor" th:checked="${movimientoCaja.proveedor != null}">
+                                <label class="form-check-label" for="checkProveedor">
+                                    Proveedor
+                                </label>
+                            </div>
+                            <select id="selectProveedor" class="form-select" th:errorclass="'border border-danger'" th:field="*{proveedor}" th:disabled="${movimientoCaja.proveedor == null}">
+                                <option value="">Ninguno</option>
+                                <option th:each="proveedorSelected : ${proveedores}"
+                                        th:value="${proveedorSelected.id}" th:text="${proveedorSelected.nombre}"
+                                        th:selected="${movimientoCaja.proveedor != null && proveedorSelected.id == movimientoCaja.proveedor.id}"></option>
+                            </select>
+                            <small class="text-danger" th:errors="*{proveedor}"
+                                   th:if="${#fields.hasErrors('proveedor')}"></small>
+                        </td>
+                    </tr>
+                </table>
+                <div class="d-flex justify-content-center">
+                    <input class="btn btn-primary" type="submit" value="Guardar"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script>
+    $(document).ready(()=>{
+        $("#checkCliente").on('change',()=>{
+            if($("#checkCliente").is(":checked")){
+                $("#checkProveedor").prop('checked',false);
+                $("#selectCliente").attr('disabled',false);
+                $("#selectProveedor").attr('disabled',true).val('');
+            }else{
+                $("#selectCliente").attr('disabled',true).val('');
+            }
+        });
+        $("#checkProveedor").on('change',()=>{
+            if($("#checkProveedor").is(":checked")){
+                $("#checkCliente").prop('checked',false);
+                $("#selectProveedor").attr('disabled',false);
+                $("#selectCliente").attr('disabled',true).val('');
+            }else{
+                $("#selectProveedor").attr('disabled',true).val('');
+            }
+        });
+    })
+</script>
+</html>

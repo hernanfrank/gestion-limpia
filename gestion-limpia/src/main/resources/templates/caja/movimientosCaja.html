@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="container-fluid">
+  <div class="row mb-2">
+    <div class="col">
+      <a class="float-end me-n25" th:href="@{/caja/movimientoCaja/nuevo}">
+        <button class="btn btn-primary">
+          <i class="bi bi-currency-dollar"></i>
+          Generar Movimiento
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col border rounded-3 p-3">
+      <table id="movimientos_table" class="table table-striped border">
+        <thead>
+        <tr>
+          <th>Fecha</th>
+          <th style="width: 35%">Descripción</th>
+          <th>Caja</th>
+          <th>Tipo</th>
+          <th>Monto</th>
+          <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="movimientoCaja: ${movimientosCaja}">
+          <td th:text="${#dates.format(movimientoCaja.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+          <td style="width: 35%" th:text="${movimientoCaja.descripcion}"></td>
+          <td th:text="${movimientoCaja.tipoCaja}"></td>
+          <td th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: red' : 'color: green'}" th:text="${movimientoCaja.tipoMovimientoCaja}"></td>
+          <td
+                  th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: red' : 'color: green'}"
+                  th:text="${
+                  (movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? '-$':'$')
+                + movimientoCaja.monto}"></td>
+          <td>
+            <a title="Editar" class="d-inline nav-link" th:href="@{/caja/movimientoCaja/{id}(id=${movimientoCaja.id})}">
+              <button class="btn btn-sm btn-warning text-dark fs-6">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+            </a>
+            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarMovimiento('+${movimientoCaja.id}+', this.parentNode.parentNode)'">
+              <button class="btn btn-sm btn-danger text-dark fs-6">
+                <i class="bi bi-trash"></i>
+              </button>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script>
+  var movimientos_table = createTable('movimientos_table');
+  function eliminarMovimiento(movimientoId,elem){
+    sweet_confirm("Eliminar movimiento", "¿Desea eliminar el movimiento?", "Si, eliminar", "Volver").
+    then( (result)=>{
+      if(result.isConfirmed){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            url: "/caja/movimientoCaja/eliminar/" + movimientoId,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          movimientos_table.row(elem).remove().draw();
+          notyf.open({
+            type: 'success',
+            message: 'El movimientoCaja fue eliminado correctamente.'
+          });
+          let movimientos_table_body = $("#movimientos_table tbody");
+          if(movimientos_table_body.children.length <= 1){
+            movimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+          }
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.responseJSON.msg
+          });
+          console.log(err)}
+        );
+      }
+    });
+  }
+</script>
+<div th:replace="~{components/topmenu :: messages}"></div>
+</html>

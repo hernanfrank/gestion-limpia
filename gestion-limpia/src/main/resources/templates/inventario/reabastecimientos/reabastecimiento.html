@@ -44,7 +44,7 @@
             </td>
           </tr>
           <tr>
-            <td><i style="color:red;font-weight: bold">* </i>Cantidad total de producto (litros)</td>
+            <td><i style="color:red;font-weight: bold">* </i>Cantidad total de producto</td>
             <td>
               <input class="form-control" th:errorclass="'border border-danger'" th:field="*{cantidadProducto}"
                      type="number" min="1" step="0.1" title="Suma de la cantidad total de producto entre todas las unidades compradas"/>
@@ -53,7 +53,19 @@
             </td>
           </tr>
           <tr>
-            <td><i style="color:red;font-weight: bold">* </i>Precio total</td>
+            <td title="Caja desde donde se genera el pago"><i style="color:red;font-weight: bold">* </i>Caja</td>
+            <td>
+              <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipoCaja}">
+                <option th:each="caja : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoCaja).values()}"
+                        th:value="${caja}" th:text="${caja.displayValue}"
+                        th:selected="${reabastecimiento.tipoCaja != null && caja == reabastecimiento.tipoCaja}"></option>
+              </select>
+              <small class="text-danger" th:errors="*{tipoCaja}"
+                     th:if="${#fields.hasErrors('tipoCaja')}"></small>
+            </td>
+          </tr>
+          <tr>
+            <td><i style="color:red;font-weight: bold">* </i>Costo total</td>
             <td>
               <div class="input-group">
                 <span class="input-group-text">$</span>

@@ -1,15 +1,15 @@
 package com.burbujas.gestionlimpia.models.services;
 
-import com.burbujas.gestionlimpia.models.entities.Gasto;
+import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
 
 import java.util.List;
 
 public interface ICajaService {
-    public List<Gasto> findAllGastosOrderByFechaDesc();
+    public List<MovimientoCaja> findAllMovimientosCajaOrderByFechaDesc();
 
-    public Gasto findGastoById(Long id);
+    public MovimientoCaja findMovimientoCajaById(Long id);
 
-    public void saveGasto(Gasto gasto);
+    public void saveMovimientoCaja(MovimientoCaja movimientoCaja);
 
-    public void deleteGasto(Gasto gasto);
+    public void deleteMovimientoCaja(MovimientoCaja movimientoCaja);
 }

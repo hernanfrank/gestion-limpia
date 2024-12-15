@@ -71,6 +71,9 @@ public class Pedido implements Serializable {
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialProductoPedido> historialProductoPedido;
 
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<MovimientoCaja> movimientosCaja;
+
     public Pedido() {
         this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
         this.prioridad = Prioridad.NORMAL;
@@ -78,6 +81,7 @@ public class Pedido implements Serializable {
         this.maquinaActual = null;
         this.historialEstadoPedido = new ArrayList<>();
         this.historialMaquinaPedido = new ArrayList<>();
+        this.movimientosCaja = new ArrayList<>();
     }
 
 }

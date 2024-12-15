@@ -1,7 +1,7 @@
 package com.burbujas.gestionlimpia.models.services;
 
-import com.burbujas.gestionlimpia.models.entities.Gasto;
-import com.burbujas.gestionlimpia.models.repositories.IGastoRepository;
+import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
+import com.burbujas.gestionlimpia.models.repositories.IMovimientoCajaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,31 +11,31 @@ import java.util.List;
 @Service("CajaServiceImpl")
 public class ICajaServiceImpl implements ICajaService{
 
-    private final IGastoRepository gastoRepository;
+    private final IMovimientoCajaRepository MovimientoCajaRepository;
 
     @Autowired
-    public ICajaServiceImpl(IGastoRepository gastoRepository) {
-        this.gastoRepository = gastoRepository;
+    public ICajaServiceImpl(IMovimientoCajaRepository MovimientoCajaRepository) {
+        this.MovimientoCajaRepository = MovimientoCajaRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Gasto> findAllGastosOrderByFechaDesc() {
-        return this.gastoRepository.findAllByOrderByFechaDesc();
+    public List<MovimientoCaja> findAllMovimientosCajaOrderByFechaDesc() {
+        return this.MovimientoCajaRepository.findAllByOrderByFechaDesc();
     }
 
     @Override
-    public Gasto findGastoById(Long id) {
-        return this.gastoRepository.findById(id).orElse(null);
+    public MovimientoCaja findMovimientoCajaById(Long id) {
+        return this.MovimientoCajaRepository.findById(id).orElse(null);
     }
 
     @Override
-    public void saveGasto(Gasto gasto) {
-        this.gastoRepository.save(gasto);
+    public void saveMovimientoCaja(MovimientoCaja movimientoCaja) {
+        this.MovimientoCajaRepository.save(movimientoCaja);
     }
 
     @Override
-    public void deleteGasto(Gasto gasto) {
-        this.gastoRepository.delete(gasto);
+    public void deleteMovimientoCaja(MovimientoCaja movimientoCaja) {
+        this.MovimientoCajaRepository.delete(movimientoCaja);
     }
 }
