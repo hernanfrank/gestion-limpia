@@ -3,6 +3,7 @@ package com.burbujas.gestionlimpia.controllers;
 import com.burbujas.gestionlimpia.models.entities.Cliente;
 import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
 import com.burbujas.gestionlimpia.models.entities.Proveedor;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.services.ICajaService;
 import com.burbujas.gestionlimpia.models.services.IClienteService;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/caja")
@@ -76,6 +78,28 @@ public class CajaController {
 
         List<MovimientoCaja> movimientosCaja = cajaService.findAllMovimientosCajaOrderByFechaDesc();
         model.addAttribute("movimientosCaja", movimientosCaja);
+        model.addAttribute("totalMovimientosCajaEfectivo",
+            //calculamos el total de caja efectivo, ND y Egreso son negativos
+            movimientosCaja.stream()
+                .filter(movimientoCajaEfectivo -> movimientoCajaEfectivo.getTipoCaja() == TipoCaja.EFECTIVO)
+                .mapToDouble(movimientoCaja -> {
+                    return switch (movimientoCaja.getTipoMovimientoCaja()) {
+                        case NOTADEBITO, EGRESO -> -movimientoCaja.getMonto();
+                        default -> movimientoCaja.getMonto();
+                };
+            }).sum()
+        );
+        model.addAttribute("totalMovimientosCajaBanco",
+            //calculamos el total de caja banco, ND y Egreso son negativos
+            movimientosCaja.stream()
+                .filter(movimientoCajaBanco -> movimientoCajaBanco.getTipoCaja() == TipoCaja.BANCO)
+                .mapToDouble(movimientoCaja -> {
+                    return switch (movimientoCaja.getTipoMovimientoCaja()) {
+                        case NOTADEBITO, EGRESO -> -movimientoCaja.getMonto();
+                        default -> movimientoCaja.getMonto();
+                };
+            }).sum()
+        );
 
         return "caja/movimientosCaja";
     }

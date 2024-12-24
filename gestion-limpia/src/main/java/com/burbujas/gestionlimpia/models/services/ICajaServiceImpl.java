@@ -1,6 +1,8 @@
 package com.burbujas.gestionlimpia.models.services;
 
 import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
+import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.repositories.IMovimientoCajaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,11 @@ public class ICajaServiceImpl implements ICajaService{
     }
 
     @Override
+    public List<MovimientoCaja> findAllMovimientosByTipoCaja(TipoCaja tipoCaja) {
+        return this.MovimientoCajaRepository.findAllByTipoCaja(tipoCaja);
+    }
+
+    @Override
     public void saveMovimientoCaja(MovimientoCaja movimientoCaja) {
         this.MovimientoCajaRepository.save(movimientoCaja);
     }
@@ -37,5 +44,10 @@ public class ICajaServiceImpl implements ICajaService{
     @Override
     public void deleteMovimientoCaja(MovimientoCaja movimientoCaja) {
         this.MovimientoCajaRepository.delete(movimientoCaja);
+    }
+
+    @Override
+    public MovimientoCaja findMovimientoCajaByReabastecimiento(Reabastecimiento reabastecimiento) {
+        return this.MovimientoCajaRepository.findMovimientoCajaByReabastecimiento(reabastecimiento);
     }
 }

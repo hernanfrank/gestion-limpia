@@ -16,7 +16,7 @@
   </div>
   <div class="row">
     <div class="col border rounded-3 p-3">
-      <table id="movimientos_table" class="table table-striped border">
+      <table id="movimientos_table" class="table table-striped border" style="max-height: 200px;">
         <thead>
         <tr>
           <th>Fecha</th>
@@ -30,11 +30,11 @@
         <tbody>
         <tr th:each="movimientoCaja: ${movimientosCaja}">
           <td th:text="${#dates.format(movimientoCaja.fecha, 'dd/MM/yyyy HH:mm')}"></td>
-          <td style="width: 35%" th:text="${movimientoCaja.descripcion}"></td>
+          <td style="overflow-y:scroll;width: 35%" th:text="${movimientoCaja.descripcion}"></td>
           <td th:text="${movimientoCaja.tipoCaja}"></td>
-          <td th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: red' : 'color: green'}" th:text="${movimientoCaja.tipoMovimientoCaja}"></td>
+          <td th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}" th:text="${movimientoCaja.tipoMovimientoCaja}"></td>
           <td
-                  th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: red' : 'color: green'}"
+                  th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}"
                   th:text="${
                   (movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? '-$':'$')
                 + movimientoCaja.monto}"></td>
@@ -56,10 +56,22 @@
     </div>
   </div>
 </div>
+
+<table id="tablaTotales" style="float:right;margin-right:11rem;">
+  <tr th:class="${totalMovimientosCajaEfectivo > 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
+    <td style="width:150px;padding:5px;text-align:right">Total efectivo:</td>
+    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaEfectivo < 0 ?'-$':'$')+T(java.lang.Math).abs(totalMovimientosCajaEfectivo)}"></td>
+  </tr>
+  <tr th:class="${totalMovimientosCajaBanco > 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
+    <td style="width:150px;padding:5px;text-align:right">Total banco:</td>
+    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaBanco < 0 ?'-$':'$')+T(java.lang.Math).abs(totalMovimientosCajaBanco)}"></td>
+  </tr>
+</table>
+
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  var movimientos_table = createTable('movimientos_table');
+  let movimientos_table = createTable('movimientos_table');
   function eliminarMovimiento(movimientoId,elem){
     sweet_confirm("Eliminar movimiento", "¿Desea eliminar el movimiento?", "Si, eliminar", "Volver").
     then( (result)=>{
@@ -97,6 +109,10 @@
       }
     });
   }
+  movimientos_table.on('init',function(){
+    console.log("ejecuta");
+    $('#movimientos_table_wrapper .dataTables_scroll').append($("#tablaTotales"));
+  })
 </script>
 <div th:replace="~{components/topmenu :: messages}"></div>
 </html>

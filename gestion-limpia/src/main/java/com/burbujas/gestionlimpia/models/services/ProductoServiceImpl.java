@@ -19,13 +19,16 @@ public class ProductoServiceImpl implements IProductoService{
     private final IProveedorRepository proveedorRepository;
     private final IPedidoRepository pedidoRepository;
 
+    private final ICajaService cajaService;
+
     @Autowired
-    public ProductoServiceImpl(IProductoRepository productoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository, IPedidoRepository pedidoRepository) {
+    public ProductoServiceImpl(IProductoRepository productoRepository, ITipoPedidoProductoMappingRepository tipoPedidoProductoMappingRepository, IReabastecimientoRepository reabastecimientoRepository, IProveedorRepository proveedorRepository, IPedidoRepository pedidoRepository, ICajaService cajaService) {
         this.productoRepository = productoRepository;
         this.tipoPedidoProductoMappingRepository = tipoPedidoProductoMappingRepository;
         this.reabastecimientoRepository = reabastecimientoRepository;
         this.proveedorRepository = proveedorRepository;
         this.pedidoRepository = pedidoRepository;
+        this.cajaService = cajaService;
     }
 
     @Override
@@ -146,6 +149,8 @@ public class ProductoServiceImpl implements IProductoService{
 
     @Override
     public void deleteReabastecimiento(Producto producto, Reabastecimiento reabastecimiento) {
+        MovimientoCaja movimientoCajaAsociado = this.cajaService.findMovimientoCajaByReabastecimiento(reabastecimiento);
+        this.cajaService.deleteMovimientoCaja(movimientoCajaAsociado);
         producto.getReabastecimientos().remove(reabastecimiento);
         this.reabastecimientoRepository.delete(reabastecimiento);
     }

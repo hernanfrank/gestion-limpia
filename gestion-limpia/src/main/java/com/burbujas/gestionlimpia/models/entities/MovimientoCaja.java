@@ -46,11 +46,9 @@ public class MovimientoCaja implements Serializable {
     //o un movimiento suelto (un gasto de reparación por ejemplo)
     @ManyToOne(fetch = FetchType.LAZY)
     private Reabastecimiento reabastecimiento; // para poder hacer consultas del tipo "Cuanta plata se gastó en reabastecimientos de jabón liquido"
-
     @NotNull(message = "Debe especificar un tipo para el movimiento de caja")
     @Enumerated(EnumType.STRING)
     private TipoMovimientoCaja tipoMovimientoCaja;
-
     @NotNull(message = "Debe especificar la caja para el movimiento")
     @Enumerated(EnumType.STRING)
     private TipoCaja tipoCaja;
