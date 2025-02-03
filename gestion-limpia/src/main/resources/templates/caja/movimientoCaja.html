@@ -51,11 +51,16 @@
                     <tr>
                         <td><i style="color:red;font-weight: bold">* </i>Tipo</td>
                         <td>
-                            <select class="form-select" th:errorclass="'border border-danger'" th:field="*{tipoMovimientoCaja}">
+                            <input th:if="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}" type="hidden" th:field="*{tipoMovimientoCaja}">
+                            <select
+                                    th:disabled="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}"
+                                    th:class="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null ? 'form-select border border-warning':'form-select'}" th:errorclass="'border border-danger'"
+                                    th:field="*{tipoMovimientoCaja}">
                                 <option th:each="tipoMovimiento : ${T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).values()}"
                                         th:value="${tipoMovimiento}" th:text="${tipoMovimiento.displayValue}"
                                         th:selected="${movimientoCaja.tipoMovimientoCaja != null && tipoMovimiento == movimientoCaja.tipoMovimientoCaja}"></option>
                             </select>
+                            <small class="text-warning" th:if="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}">No se puede cambiar el tipo de un movimiento generado automáticamente.</small>
                             <small class="text-danger" th:errors="*{tipoMovimientoCaja}"
                                    th:if="${#fields.hasErrors('tipoMovimientoCaja')}"></small>
                         </td>
@@ -64,11 +69,17 @@
                         <td><i style="color:red;font-weight: bold">* </i>Monto</td>
                         <td>
                             <div class="input-group">
-                                <span th:if="${movimientoCaja.tipoMovimientoCaja != null && movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO}" class="input-group-text">-$</span>
-                                <span th:if="${movimientoCaja.tipoMovimientoCaja == null || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).INGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTACREDITO}" class="input-group-text">$</span>
-                                <input class="form-control" th:errorclass="'border border-danger'" th:field="*{monto}"
+                                <span th:class="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null ? 'input-group-text border border-warning':'input-group-text'}"
+                                        th:if="${movimientoCaja.tipoMovimientoCaja != null && movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO}">-$</span>
+                                <span th:class="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null ? 'input-group-text border border-warning':'input-group-text'}"
+                                        th:if="${movimientoCaja.tipoMovimientoCaja == null || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).INGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTACREDITO}">$</span>
+                                <input th:if="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}" type="hidden" th:field="*{monto}">
+                                <input th:disabled="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}"
+                                       th:class="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null ? 'form-control border border-warning':'form-control'}"
+                                       th:errorclass="'border border-danger'" th:field="*{monto}"
                                        type="number" min="0.00" step="0.5" />
                             </div>
+                            <small class="text-warning" th:if="${movimientoCaja.pedido != null || movimientoCaja.proveedor != null}">No se puede cambiar el monto de un movimiento generado automáticamente.</small>
                             <small class="text-danger" th:errors="*{monto}"
                                    th:if="${#fields.hasErrors('monto')}"></small>
                         </td>
@@ -78,11 +89,13 @@
                         <td th:style="${movimientoCaja.pedido != null ? '':'display:none'}">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" checked disabled>
+                                <input type="hidden" th:field="*{pedido}">
                                 <span class='readonly-text' th:text="${movimientoCaja.pedido != null ? 'Pedido N°'+movimientoCaja.pedido.id : ''}"></span>
                             </div>
                         </td>
                         <td th:style="${movimientoCaja.pedido != null ? 'display:none':''}">
                             <div class="form-check">
+                                <input type="hidden" th:field="*{cliente}">
                                 <input class="form-check-input" type="checkbox" id="checkCliente" th:checked="${movimientoCaja.cliente != null}">
                                 <label class="form-check-label" for="checkCliente">
                                     Cliente
@@ -97,6 +110,7 @@
                             <small class="text-danger" th:errors="*{cliente}"
                                    th:if="${#fields.hasErrors('cliente')}"></small>
                             <div class="form-check">
+                                <input type="hidden" th:field="*{proveedor}">
                                 <input class="form-check-input" type="checkbox" id="checkProveedor" th:checked="${movimientoCaja.proveedor != null}">
                                 <label class="form-check-label" for="checkProveedor">
                                     Proveedor

@@ -11,7 +11,7 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
 
     Pedido findByMaquinaActualId(Long maquinaId);
 
-    List<Pedido> findAllByOrderByEstadoActualDesc();
+    List<Pedido> findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
 
     List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual);
 

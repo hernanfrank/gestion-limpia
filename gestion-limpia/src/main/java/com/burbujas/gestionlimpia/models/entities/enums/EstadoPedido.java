@@ -10,6 +10,7 @@ public enum EstadoPedido {
     LAVADO("En lavado"),
     SECADO("En secado"),
     FINALIZADO("Finalizado"),
+    COBRADO("Cobrado"),
     CANCELADO("Cancelado");
 
     private final String displayValue;

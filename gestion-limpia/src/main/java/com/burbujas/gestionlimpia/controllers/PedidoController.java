@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
 import com.burbujas.gestionlimpia.models.services.*;
 import jakarta.validation.Valid;
@@ -26,14 +27,16 @@ public class PedidoController {
     private final IClienteService clienteService;
     private final IProductoService productoService;
     private final IMaquinaService maquinaService;
+    private final ICajaService cajaService;
 
     @Autowired
-    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService, IMaquinaService maquinaService) {
+    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService, IMaquinaService maquinaService, ICajaService cajaService) {
         this.pedidoService = pedidoService;
         this.tipoPedidoService = tipoPedidoService;
         this.clienteService = clienteService;
         this.productoService = productoService;
         this.maquinaService = maquinaService;
+        this.cajaService = cajaService;
     }
 
     @GetMapping(value = {"/", ""})
@@ -108,6 +111,12 @@ public class PedidoController {
             historialInicial.add(new HistorialEstadoPedido(pedido, EstadoPedido.INGRESADO, EstadoPedido.PENDIENTE, new Timestamp(System.currentTimeMillis())));
             pedido.setHistorialEstadoPedido(historialInicial);
         }
+
+        // cuando se edita un pedido la descripción queda como string vacío en vez de null, asi que lo evitamos acá
+        if(pedido.getDescripcion().equals("")){
+            pedido.setDescripcion(null);
+        }
+
         // recibimos el objeto pedido del formulario y lo persistimos
         pedidoService.save(pedido);
         flashmsg.addFlashAttribute("messageType", "success");
@@ -121,7 +130,7 @@ public class PedidoController {
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de pedidos");
 
-        List<Pedido> pedidos = pedidoService.findAllByOrderByPrioridadDesc();
+        List<Pedido> pedidos = pedidoService.findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
         // pasamos los de pedidos obtenida a la vista
         model.addAttribute("pedidos", pedidos);
 
@@ -146,9 +155,9 @@ public class PedidoController {
 
         // chequeamos que se pase un id valido
         if (id > 0 && pedido != null) {
-            if(pedido.getEstadoActual().equals(EstadoPedido.FINALIZADO)){
+            if(pedido.getEstadoActual().equals(EstadoPedido.FINALIZADO) || pedido.getEstadoActual().equals(EstadoPedido.COBRADO)){
                 flashmsg.addFlashAttribute("messageType", "error");
-                flashmsg.addFlashAttribute("message", "No se puede editar un pedido finalizado.");
+                flashmsg.addFlashAttribute("message", "No se pueden editar pedidos finalizados ni cobrados.");
                 return "redirect:/pedidos/listar";
             }
             // obtenemos el pedido desde la bdd por id y lo pasamos a la vista
@@ -171,10 +180,10 @@ public class PedidoController {
     }
 
     @GetMapping("/pedidos/eliminar/{id}")
-    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
+    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id){
         Pedido pedido = pedidoService.findById(id);
         if (pedido != null) {
-            pedidoService.delete(id);
+            pedidoService.deleteById(id);
             // actualizo la cantidad actual para cada producto, para corregir por la eliminación de este pedido
             productoService.findAll().forEach(productoService::updateCantidadActual);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El pedido ha sido eliminado correctamente.\"}", HttpStatus.OK);
@@ -208,5 +217,26 @@ public class PedidoController {
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al cambiar el estado del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El estado del pedido ha sido cambiado correctamente.\"}", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/cobrar/{idPedido}/caja/{caja}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> cobrar(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "caja") TipoCaja caja){
+        try{
+            // genero el movimiento y lo asocio al pedido
+            Pedido pedido = this.pedidoService.findById(idPedido);
+            MovimientoCaja movimientoCobranza = this.cajaService.generarMovimientoPorCobranzaPedido(pedido,caja);
+
+            List<MovimientoCaja> movimientosAsociadosAPedido = pedido.getMovimientosCaja();
+            movimientosAsociadosAPedido.add(movimientoCobranza);
+            pedido.setMovimientosCaja(movimientosAsociadosAPedido);
+            pedido.setEstadoActual(EstadoPedido.COBRADO);
+            this.pedidoService.save(pedido);
+
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Se ha registrado la cobranza correctamente.\"}", HttpStatus.OK);
+
+        }catch (Exception e){
+            System.out.println("Excepción capturada al cobrar un pedido: "+e);
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al generar la cobranza del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -4,7 +4,33 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-  <div class="row mb-2">
+  <div class="row mb-1 mt-n1">
+    <div class="col">
+      <span class="float-start ms-n25 bg-light p-2 border rounded">
+        <label for="fechaDesde">
+          Mostrar desde:
+        </label>
+        <input id="fechaDesde" name="fechaDesde" class="form-control d-inline" type="date" th:value="${
+          fechaDesde != null ? fechaDesde : #dates.format(#dates.create(#dates.year(#dates.createToday()), #dates.month(#dates.createToday()), 1), 'yyyy-MM-dd')
+        }"/>
+        <label for="fechaHasta" th:class="ms-3">
+           hasta:
+        </label>
+        <input id="fechaHasta" name="fechaHasta" class="form-control d-inline" type="date" th:value="${
+          fechaHasta != null ? fechaHasta : #dates.format(#dates.createToday(), 'yyyy-MM-dd')
+        }"/>
+        <a class="float-end ms-2" th:href="@{/caja/movimientosCaja}">
+          <button class="btn btn-outline-danger" title="Restablecer fechas">
+            <i class="bi bi-calendar-x"></i>
+          </button>
+        </a>
+        <a class="float-end ms-2" href="#" onclick="recargarMovimientos()">
+          <button class="btn btn-outline-secondary" title="Buscar entre fechas">
+            <i class="bi bi-search"></i>
+          </button>
+        </a>
+      </span>
+    </div>
     <div class="col">
       <a class="float-end me-n25" th:href="@{/caja/movimientoCaja/nuevo}">
         <button class="btn btn-primary">
@@ -36,8 +62,8 @@
           <td
                   th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}"
                   th:text="${
-                  (movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? '-$':'$')
-                + movimientoCaja.monto}"></td>
+                  (movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? '-':'')
+                + #numbers.formatCurrency(movimientoCaja.monto)}"></td>
           <td>
             <a title="Editar" class="d-inline nav-link" th:href="@{/caja/movimientoCaja/{id}(id=${movimientoCaja.id})}">
               <button class="btn btn-sm btn-warning text-dark fs-6">
@@ -57,21 +83,21 @@
   </div>
 </div>
 
-<table id="tablaTotales" style="float:right;margin-right:11rem;">
-  <tr th:class="${totalMovimientosCajaEfectivo > 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
+<table id="tablaTotales" style="float:right;margin-right:11rem;" th:title="${'Suma de totales: '+#numbers.formatCurrency(totalMovimientosCajaEfectivo + totalMovimientosCajaBanco)}">
+  <tr th:class="${totalMovimientosCajaEfectivo >= 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
     <td style="width:150px;padding:5px;text-align:right">Total efectivo:</td>
-    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaEfectivo < 0 ?'-$':'$')+T(java.lang.Math).abs(totalMovimientosCajaEfectivo)}"></td>
+    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaEfectivo < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaEfectivo))}"></td>
   </tr>
-  <tr th:class="${totalMovimientosCajaBanco > 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
+  <tr th:class="${totalMovimientosCajaBanco >= 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
     <td style="width:150px;padding:5px;text-align:right">Total banco:</td>
-    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaBanco < 0 ?'-$':'$')+T(java.lang.Math).abs(totalMovimientosCajaBanco)}"></td>
+    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaBanco < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaBanco))}"></td>
   </tr>
 </table>
 
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  let movimientos_table = createTable('movimientos_table');
+  let movimientos_table = createTable('movimientos_table', pageLength=5, scrollY='41.7vh');
   function eliminarMovimiento(movimientoId,elem){
     sweet_confirm("Eliminar movimiento", "¿Desea eliminar el movimiento?", "Si, eliminar", "Volver").
     then( (result)=>{
@@ -93,7 +119,7 @@
           movimientos_table.row(elem).remove().draw();
           notyf.open({
             type: 'success',
-            message: 'El movimientoCaja fue eliminado correctamente.'
+            message: err.responseJSON.msg
           });
           let movimientos_table_body = $("#movimientos_table tbody");
           if(movimientos_table_body.children.length <= 1){
@@ -110,9 +136,13 @@
     });
   }
   movimientos_table.on('init',function(){
-    console.log("ejecuta");
     $('#movimientos_table_wrapper .dataTables_scroll').append($("#tablaTotales"));
   })
+  function recargarMovimientos(){
+    let fechaDesde = $("#fechaDesde").val();
+    let fechaHasta = $("#fechaHasta").val();
+    window.location.href = window.location.origin + '/caja/movimientosCaja/'+fechaDesde+'/'+fechaHasta;
+  }
 </script>
 <div th:replace="~{components/topmenu :: messages}"></div>
 </html>

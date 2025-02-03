@@ -6,12 +6,11 @@ import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IPedidoService {
     public List<Pedido> findAll();
 
-    public List<Pedido> findAllByOrderByPrioridadDesc();
+    public List<Pedido> findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
 
     public List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual);
 
@@ -31,6 +30,6 @@ public interface IPedidoService {
 
     public void save(Pedido pedido);
 
-    public void delete(Long id);
+    public void deleteById(Long id);
 
 }

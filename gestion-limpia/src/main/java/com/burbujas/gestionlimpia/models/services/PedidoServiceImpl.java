@@ -2,12 +2,15 @@ package com.burbujas.gestionlimpia.models.services;
 
 import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
+import com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja;
 import com.burbujas.gestionlimpia.models.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -30,8 +33,15 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public List<Pedido> findAllByOrderByPrioridadDesc() {
-        return this.pedidoRepository.findAll().stream().sorted(Comparator.comparing(Pedido::getPrioridad).thenComparing(Pedido::getFechaHoraIngreso).reversed()).collect(Collectors.toList());
+    public List<Pedido> findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc() {
+        // ordenamos por estado > prioridad > fecha, mandando los ya cobrados al final, asi los primeros son los próximos a cobrar
+        List<Pedido> pedidos = this.pedidoRepository.findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
+        pedidos.sort((p1, p2) -> {
+            if (p1.getEstadoActual().equals(EstadoPedido.COBRADO) && !p2.getEstadoActual().equals(EstadoPedido.COBRADO)) return 1;
+            if (!p1.getEstadoActual().equals(EstadoPedido.COBRADO) && p2.getEstadoActual().equals(EstadoPedido.COBRADO)) return -1;
+            return 0;
+        });;
+        return pedidos;
     }
 
     @Override
@@ -170,8 +180,14 @@ public class PedidoServiceImpl implements IPedidoService{
             if(pedido.getHistorialEstadoPedido().size() > 0) { // si no había otro estado antes es pq es un pedido nuevo, por lo tanto el estado anterior es ingresado
                 estadoAnterior = pedido.getHistorialEstadoPedido().get(pedido.getHistorialEstadoPedido().size() - 1).getEstadoNuevo();
             }
+
             EstadoPedido estadoNuevo = pedido.getEstadoActual();
-            if(estadoAnterior != estadoNuevo) {
+            if(estadoNuevo.equals(EstadoPedido.COBRADO) && !estadoAnterior.equals(EstadoPedido.FINALIZADO)){
+                // a estado cobrado solo puede pasar si el anterior es finalizado, sino hay algún error
+                throw new Exception("Ha ocurrido un error con los estados del pedido ID " + pedido.getId());
+            }
+
+            if(!estadoAnterior.equals(estadoNuevo)) {
                 // si cambió el estado, agrego al historial
                 HistorialEstadoPedido cambioEstado = new HistorialEstadoPedido(pedido, estadoAnterior, estadoNuevo, ahora);
                 pedido.getHistorialEstadoPedido().add(cambioEstado);
@@ -184,7 +200,7 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         this.pedidoRepository.deleteById(id);
     }
 }

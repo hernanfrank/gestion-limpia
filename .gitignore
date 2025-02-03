@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### Project Specific ###
-!**/src/main/resources/application.properties
+!**/src/main/resources/application.properties!/.idea/misc.xml
