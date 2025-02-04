@@ -103,7 +103,10 @@
           duplicate_pedido.setAttribute('disabled',true);
           event.target.after(duplicate_pedido);
           //aplico estilos al duplicado, para que sea vea debajo del que estoy arrastrando, que este gris y no desplace los pedidos siguientes
-          duplicate_pedido.style.cssText = 'z-index:5;transform:translateY(-'+(12+duplicate_pedido.offsetHeight)+'px);margin-bottom:-'+(8+duplicate_pedido.offsetHeight)+'px !important;filter:brightness(50%)';
+          duplicate_pedido.style.cssText = 'z-index:5;filter:brightness(50%)';
+          if(last_maquina_tipo !== 'pendientes') {
+            duplicate_pedido.style.transform = 'translateY(-' + (12 + duplicate_pedido.offsetHeight) + 'px)';
+          }
           dragging = true;
           event.target.style.zIndex = '9999';
           if(event.target.closest('.maquina') !== null){
@@ -112,7 +115,9 @@
           if(event.target.closest('.container-pedidos') !== null){
             event.target.closest('.container-pedidos').style.zIndex = '999';
           }
-          document.querySelector('.container-pedidos #pedidosList').style.overflow = 'unset';
+          document.querySelector('.container-pedidos #pedidosList').style.overflowX = 'unset';
+          document.querySelector('.container-pedidos #pedidosList').style.overflowY = 'unset';
+          document.querySelector('.container-pedidos #pedidosList').style.overflow = 'hidden';
         }
         let target = event.target;
 
@@ -128,17 +133,18 @@
         target.setAttribute('data-y', y)
       }
       function setInitialCoords(event){
-          event.target.setAttribute('data-x', parseFloat(0));
-          event.target.setAttribute('data-y', parseFloat(0));
           last_maquina = event.target.parentNode.parentNode.parentNode;
           last_maquina_tipo = event.target.parentNode.dataset.tipo;
+          event.target.setAttribute('data-x', parseFloat(0));
+          event.target.setAttribute('data-y', parseFloat(0));
+          if(last_maquina_tipo === 'pendientes'){
+            event.target.style.position = 'absolute';
+            event.target.style.top  = (event.clientY - (event.target.offsetHeight/2)).toString()+'px';
+            event.target.style.left = (event.clientX - (event.target.offsetWidth/2)).toString()+'px';
+          }
       }
       function onDropCheck(event){
         if(dragging){ // si no se soltó dentro de una máquina, el duplicado reemplaza el original y borro el original
-          duplicate_pedido.style.transform = ''
-          duplicate_pedido.style.position = '';
-          duplicate_pedido.style.marginBottom = '';
-          duplicate_pedido.removeAttribute('disabled');
           interact(duplicate_pedido) // activo la acción draggable para el duplicado
           .draggable({
             listeners: {
@@ -156,8 +162,17 @@
           if(event.target.closest('.container-pedidos') !== null){
             event.target.closest('.container-pedidos').style.zIndex = '0';
           }
-          document.querySelector('.container-pedidos #pedidosList').style.overflow = 'scroll';
         }
+        duplicate_pedido.style.left = ''
+        duplicate_pedido.style.top = ''
+        duplicate_pedido.style.transform = ''
+        duplicate_pedido.style.position = '';
+        duplicate_pedido.style.marginBottom = '';
+        duplicate_pedido.style.filter = '';
+        duplicate_pedido.removeAttribute('disabled');
+        document.querySelector('.container-pedidos #pedidosList').style.overflowX = 'hidden';
+        document.querySelector('.container-pedidos #pedidosList').style.overflowY = 'scroll';
+        document.querySelector('.container-pedidos #pedidosList').style.overflow = '';
       }
       interact('.pedido')
       .draggable({
@@ -195,6 +210,10 @@
           dragging = false;
           event.relatedTarget.style.transform = ''
           event.relatedTarget.style.position = '';
+          event.relatedTarget.style.left = ''
+          event.relatedTarget.style.top = ''
+          event.relatedTarget.style.marginBottom = '';
+          event.relatedTarget.style.filter = '';
           duplicate_pedido.remove();// cuando se suelta dentro de una maquina, elimino el duplicado que esta en el listado/máquina anterior
 
           let misma_maquina = last_maquina === event.target;
@@ -227,6 +246,7 @@
                 type: 'success',
                 message: 'Pedido asignado correctamente.'
               });
+              last_maquina.classList.remove('activa');
             }
           ).catch(
             (error)=>{
@@ -237,8 +257,6 @@
               });
             }
           );
-
-          last_maquina.classList.remove('activa');
 
           // si no hay mas pedidos por realizar muestro texto dentro del contenedor de pedidos
           if($(".container-pedidos #pedidosList").children().length > 0){
@@ -279,6 +297,10 @@
             // event.relatedTarget es el pedido arrastrado
             event.relatedTarget.style.transform = ''
             event.relatedTarget.style.position = '';
+            event.relatedTarget.style.marginBottom = '';
+            event.relatedTarget.style.filter = '';
+            event.relatedTarget.style.top = '';
+            event.relatedTarget.style.left = '';
 
             // cuando se suelta en el listado, elimino el duplicado que esta dentro de una maquina
             duplicate_pedido.remove();
@@ -302,8 +324,8 @@
               }else{
                 $(".container-pedidos #sinPedidos").removeClass("d-none");
               }
+              last_maquina.classList.remove('activa');
             }
-            last_maquina.classList.remove('activa');
           },
           ondropdeactivate: function (event) {
             event.target.classList.remove('drop-active');
@@ -351,11 +373,12 @@
               cambiarEstadoPedido(pedidoId, "FINALIZADO")
                 .then(()=>{
                   // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                  duplicate_pedido.remove();
-                  notyf.open({
-                    type: 'success',
-                    message: 'Pedido finalizado correctamente.'
-                  });
+                    duplicate_pedido.remove();
+                    notyf.open({
+                      type: 'success',
+                      message: 'Pedido finalizado correctamente.'
+                    });
+                    last_maquina.classList.remove('activa');
                   }
                 ).catch(
                   (error)=>{
@@ -366,8 +389,6 @@
                     });
                   }
                 );
-
-              last_maquina.classList.remove('activa');
             }
 
           })
@@ -419,6 +440,7 @@
                     type: 'success',
                     message: 'Pedido cancelado correctamente.'
                   });
+                  last_maquina.classList.remove('activa');
                 }).catch(
                   (error)=>{
                     console.log(error);
@@ -428,7 +450,6 @@
                     });
                   }
               );
-              last_maquina.classList.remove('activa');
             }
           });
         },
