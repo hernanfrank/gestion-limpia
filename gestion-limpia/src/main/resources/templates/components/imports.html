@@ -52,12 +52,18 @@
       --black: #193532;
       background-color: #ABB3B6A8;
       overflow: hidden;
+      font-size: 0.95em;
     }
     .navbar{
       background-color: steelblue !important;
     }
     h5{
       color: #173331;
+    }
+    .dataTableWindow{
+      border-radius: var(--bs-border-radius-lg) !important;
+      padding: .5rem 1rem .25rem !important;
+      border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
     }
     .dataTables_wrapper .dataTables_filter{
       margin-bottom: 10px;
@@ -75,6 +81,22 @@
       text-align:center;
       vertical-align: middle;
       border: black 1px solid;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button{
+      padding: .05em .25em !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      color: white !important;
+      border: 1px solid rgb(5, 25, 44);
+      background: rgb(48, 133, 214);
+    }
+    .dataTables_wrapper .dataTables_info{
+      clear: both;
+      float: left;
+      padding-top: .5em;
+    }
+    .dataTables_wrapper .dataTables_filter{
+      margin-bottom: 5px !important;
     }
     .container-pedidos{
       min-height: 132px;
@@ -374,7 +396,7 @@
   <script src="/webjars/sweetalert2/11.12.1/dist/sweetalert2.all.min.js"></script>
   <script th:inline="javascript">
     const translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
-    const createTable = (tableName, pageLength = 5, scrollY = '54vh') => {
+    const createTable = (tableName, pageLength = 5, scrollY = '60.5vh') => {
       let tabla = new DataTable('#'+tableName,{
         responsive: true,
         language: {
