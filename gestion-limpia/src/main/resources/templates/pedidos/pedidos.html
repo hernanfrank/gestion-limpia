@@ -54,16 +54,23 @@
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).SECADO ? 'bg-secondary' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO ? 'bg-danger' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO ? 'bg-success' :
-                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO ? 'bg-info' : ''
-                        )))))}"
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO ? 'bg-info' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO ? 'bg-dark' : ''
+                        ))))))}"
                     ></h4>
                 </td>
                 <td>
-                    <button th:if="${pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO}" type="button" class="btn btn-sm btn-success text-dark fs-6" data-bs-toggle="modal" data-bs-target="#modalCobranza" th:data-pedidoid="${pedido.id}" onclick="setPedidoACobrar(this)">
+                    <button title="Marcar como cobrado" th:if="${pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO}" type="button" class="btn btn-sm btn-success text-dark fs-6" data-bs-toggle="modal" data-bs-target="#modalCobranza" th:data-pedidoid="${pedido.id}" onclick="$('#modalCobranza #btn-cobro').on('click',()=>{cobrarPedido()});setPedidoACobrar(this)">
                         <i class="bi bi-coin"></i>
                     </button>
-                    <a th:if="${   pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO
-                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO  }"
+                    <button title="Marcar como entregado" th:if="${pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO}" type="button" class="btn btn-sm btn-dark text-light fs-6" th:data-pedidoid="${pedido.id}" onclick="setPedidoEntregado(this)">
+                        <i class="bi bi-handbag"></i>
+                    </button>
+                    <a th:if="${   pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO
+                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO
+                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO
+                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO
+                               }"
                        title="Editar" class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
                         <button class="btn btn-sm btn-warning text-dark fs-6">
                             <i class="bi bi-pencil-square"></i>
@@ -81,38 +88,14 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalCobranza" tabindex="-1" role="dialog" aria-labelledby="modalCobranzaLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalCobranzaLabel">Cobranza de Pedido</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="d-flex justify-content-center input-group mb-3">
-                    <label class="input-group-text" for="inputGroupCaja">Caja</label>
-                    <select class="form-select" id="inputGroupCaja">
-                        <option value="EFECTIVO">Efectivo</option>
-                        <option value="BANCO">Banco</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="cobrarPedido()">Cobrar</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
-            </div>
-        </div>
-    </div>
-</div>
+<div th:replace="~{components/imports :: modalCobranzaPedido}"></div>
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
     var pedidoACobrar = null;
     var pedidos_table = createTable('pedidos_table', pageLength=10);
     function eliminarPedido(pedidoId, elem){
-        sweet_confirm("Eliminar pedido", "¿Desea eliminar el pedido?", "Si, eliminar", "Volver").
+        sweet_confirm("¿Desea eliminar el pedido?", "<b style='color:red'>ATENCIÓN:<br/>Se eliminará también el movimiento de caja asociado su cobro.</b>", "Si, eliminar", "Volver").
         then( (result)=>{
             if(result.isConfirmed){
                 return new Promise((resolve, reject) => {
@@ -160,7 +143,6 @@
         }
         let tipoCaja = $("#inputGroupCaja").val();
         let pedidoId = pedidoACobrar.dataset.pedidoid;
-        console.log(pedidoId);
         if(tipoCaja !== 'EFECTIVO' && tipoCaja !== 'BANCO'){
             notyf.open({
                 type: 'error',
@@ -173,7 +155,7 @@
             if(result.isConfirmed){
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         contentType: "application/json",
                         url: "/cobrar/" + pedidoId + "/caja/"+tipoCaja,
                         dataType: 'json',
@@ -195,15 +177,41 @@
                 }).catch((err)=>{
                     notyf.open({
                         type: 'error',
-                        message: err.msg
+                        message: err
                     });
-                    console.log(err)}
-                ).finally(()=>{
+                    console.log(err)
+                }).finally(()=>{
                     $('#modalCobranza').modal('hide');
                 });
             }
         });
     }
+
+    function setPedidoEntregado(elem){
+        let pedidoId = elem.dataset.pedidoid;
+        sweet_confirm("Entrega de pedido", "¿Desea marcar el pedido como entregado?", "Si, entregar", "Volver").
+        then( (result)=>{
+            if(result.isConfirmed){
+                cambiarEstadoPedido(pedidoId, "ENTREGADO")
+                    .then(()=>{
+                        notyf.open({
+                            type: 'success',
+                            message: 'Pedido entregado correctamente.'
+                        });
+                        let estadoBadge = $(elem.parentNode.parentNode).find(".estado");
+                        estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-dark").text('Entregado');
+                        $(elem).remove();
+                    }).catch((err)=>{
+                        notyf.open({
+                            type: 'error',
+                            message: err
+                        });
+                        console.log(err)
+                    })
+            }
+        });
+    }
+
     $(document).ready(()=>{
         $('#modalCobranza').on('hidden.bs.modal', function () {
             unsetPedidoACobrar()

@@ -85,14 +85,15 @@
       </div>
     </div>
   </div>
+<div th:replace="~{components/imports :: modalCobranzaPedido}"></div>
 </div>
-
 <div th:fragment="pedidos_js">
   <script src="webjars/interactjs/1.10.17/dist/interact.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function(evt){
       // hago pedidos draggables
       var dragging = false;
+      var pedidoACobrar = null;
       var duplicate_pedido;
       var last_maquina_tipo;
       var last_maquina;
@@ -333,6 +334,53 @@
           }
       });
 
+      function cobrarPedido(){
+        if(pedidoACobrar === null){
+          notyf.open({
+            type: 'error',
+            message: 'Error al registrar el cobro. Intente nuevamente desde el listado de pedidos.'
+          });
+          return;
+        }
+        let tipoCaja = $("#inputGroupCaja").val();
+
+        if(tipoCaja !== 'EFECTIVO' && tipoCaja !== 'BANCO'){
+          notyf.open({
+            type: 'error',
+            message: 'Error: debe seleccionar una caja para registrar la cobranza.'
+          });
+          return;
+        }
+
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/cobrar/" + pedidoACobrar + "/caja/" + tipoCaja,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          duplicate_pedido.remove();
+          notyf.open({
+            type: 'success',
+            message: 'Se registró correctamente la cobranza del pedido.'
+          })
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.msg
+          });
+        }).finally(()=>{
+          $('#modalCobranza').modal('hide');
+        });
+      }
+
       interact('.finalizar').dropzone({
         accept: '.pedido',
         overlap: 0.5,
@@ -347,49 +395,70 @@
           event.target.classList.remove('drop-target');
         },
         ondrop: function (event) {
-          sweet_confirm("Finalizar Pedido", "¿Desea finalizar el pedido?", "Si, finalizar", "Volver").
+          sweet_confirm("Finalizar Pedido", "Puede marcarlo sólo como finalizado, o también cobrarlo.", "Finalizar y cobrar", "Cancelar", "Solo finalizar").
              then((result)=>{
-            // event.target es la máquina de finalización
-            // event.relatedTarget es el pedido arrastrado
-            dragging = false;
+                // event.target es la máquina de finalización
+                // event.relatedTarget es el pedido arrastrado
+                dragging = false;
 
-            // event.target es la máquina de cancelación
-            // event.relatedTarget es el pedido arrastrado
-            duplicate_pedido.style.transform = ''
-            duplicate_pedido.style.position = '';
-            duplicate_pedido.style.marginBottom = '';
-            duplicate_pedido.style.filter = '';
+                // event.target es la máquina de cancelación
+                // event.relatedTarget es el pedido arrastrado
+                duplicate_pedido.style.transform = ''
+                duplicate_pedido.style.position = '';
+                duplicate_pedido.style.marginBottom = '';
+                duplicate_pedido.style.filter = '';
 
-            // y el que se estaba arrastrando tmb
-            event.relatedTarget.remove();
 
-            event.relatedTarget.style.transform = ''
-            event.relatedTarget.style.position = '';
+                event.relatedTarget.style.transform = ''
+                event.relatedTarget.style.position = '';
+                let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
 
-            if(result.isConfirmed){
-              let pedidoId = event.relatedTarget.querySelector(".pedidoId").value;
+                // borro el pedido que se estaba arrastrando tmb
+                event.relatedTarget.remove();
 
-              // trigger del cambio de estado en el pedido
-              cambiarEstadoPedido(pedidoId, "FINALIZADO")
-                .then(()=>{
-                  // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
-                    duplicate_pedido.remove();
-                    notyf.open({
-                      type: 'success',
-                      message: 'Pedido finalizado correctamente.'
-                    });
-                    last_maquina.classList.remove('activa');
-                  }
-                ).catch(
-                  (error)=>{
-                    console.log(error);
-                    notyf.open({
-                      type: 'error',
-                      message: error.responseJSON.msg
-                    });
-                  }
-                );
-            }
+                if(result.isConfirmed){
+                  // cambiamos a finalizado y luego a cobrado
+                  cambiarEstadoPedido(pedidoId, "FINALIZADO")
+                    .then(()=>{
+                      notyf.open({
+                        type: 'success',
+                        message: 'Pedido finalizado correctamente. Proceda con la cobranza.'
+                      });
+                      last_maquina.classList.remove('activa');
+                      pedidoACobrar = pedidoId;
+                      $('#modalCobranza').modal('show');
+                      $('#modalCobranza #btn-cobro').on('click',()=>{cobrarPedido()});
+                    }).catch(
+                    (error)=>{
+                      console.log(error);
+                      notyf.open({
+                        type: 'error',
+                        message: 'Ha ocurrido un error. Intente nuevamente desde el listado de pedidos.'
+                      });
+                    })
+                }else if(result.isDenied){
+                  // cambiamos sólo a finalizado
+                  cambiarEstadoPedido(pedidoId, "FINALIZADO")
+                    .then(()=>{
+                        // cuando se finaliza, elimino el duplicado que esta dentro de una maquina
+                        duplicate_pedido.remove();
+                        notyf.open({
+                          type: 'success',
+                          message: 'Pedido finalizado correctamente.'
+                        });
+                        last_maquina.classList.remove('activa');
+                      }
+                    ).catch(
+                    (error)=>{
+                      console.log(error);
+                      notyf.open({
+                        type: 'error',
+                        message: error.responseJSON.msg
+                      });
+                    }
+                  );
+                }
+
 
           })
         },
@@ -493,28 +562,6 @@
         });
       });
     }
-
-    const cambiarEstadoPedido = (pedidoId, estado) => {
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          type: "POST",
-          contentType: "application/json",
-          url: "/pedidos/" + pedidoId + "/estado/" + estado,
-          dataType: 'json',
-          success: function(result) {
-            if (result.status !== "OK") {
-              // si hay error, mostrarlo por pantalla y volver a poner el pedido en el listado de pendientes
-              reject(result.msg);
-            } else {
-              resolve();
-            }
-          },
-          error: function(err) {
-            reject(err.responseJSON.msg);
-          }
-        });
-      });
-    };
 
   </script>
 <script>

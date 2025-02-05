@@ -37,10 +37,10 @@ public class PedidoServiceImpl implements IPedidoService{
         // ordenamos por estado > prioridad > fecha, mandando los ya cobrados al final, asi los primeros son los próximos a cobrar
         List<Pedido> pedidos = this.pedidoRepository.findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
         pedidos.sort((p1, p2) -> {
-            if (p1.getEstadoActual().equals(EstadoPedido.COBRADO) && !p2.getEstadoActual().equals(EstadoPedido.COBRADO)) return 1;
-            if (!p1.getEstadoActual().equals(EstadoPedido.COBRADO) && p2.getEstadoActual().equals(EstadoPedido.COBRADO)) return -1;
-            return 0;
-        });;
+            int prioridadP1 = p1.getEstadoActual().obtenerPrioridad();
+            int prioridadP2 = p2.getEstadoActual().obtenerPrioridad();
+            return Integer.compare(prioridadP1, prioridadP2);
+        });
         return pedidos;
     }
 
@@ -74,12 +74,16 @@ public class PedidoServiceImpl implements IPedidoService{
         }
     }
 
-    private boolean realizarAsignacion(Optional<Pedido> pedido, Optional<Maquina> maquina, EstadoPedido estado) {
+    private boolean realizarAsignacion(Optional<Pedido> pedido, Optional<Maquina> maquina, EstadoPedido estado) throws Exception {
         if(pedido.isPresent() && maquina.isPresent()) {
-            pedido.get().setMaquinaActual(maquina.get());
-            pedido.get().setEstadoActual(estado);
-            this.save(pedido.get());
-            return true;
+            try{
+                pedido.get().setMaquinaActual(maquina.get());
+                pedido.get().setEstadoActual(estado);
+                this.save(pedido.get());
+                return true;
+            }catch (Exception e){
+                throw new Exception("-> realizarAsignación"+e);
+            }
         }else{
             // si falla la asignación retorno false
             return false;
@@ -139,11 +143,11 @@ public class PedidoServiceImpl implements IPedidoService{
                 case "PENDIENTE" -> estado_pedido = EstadoPedido.PENDIENTE;
                 case "CANCELADO" -> estado_pedido = EstadoPedido.CANCELADO;
                 case "FINALIZADO" -> estado_pedido = EstadoPedido.FINALIZADO;
+                case "ENTREGADO" -> estado_pedido = EstadoPedido.ENTREGADO;
             }
-
             return realizarAsignacion(pedido, maquina, estado_pedido);
         } catch (Exception e){
-            System.out.println("Error en asignarAMaquina: "+e);
+            System.out.println("-> error en asignarAMaquina "+e);
             return false;
         }
     }
@@ -159,7 +163,7 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
-    public void save(Pedido pedido) {
+    public void save(Pedido pedido) throws Exception {
         try {
             Timestamp ahora = new Timestamp(System.currentTimeMillis()); // para que haya consistencia en los historiales, uso la misma instancia de timestamp
 
@@ -181,10 +185,14 @@ public class PedidoServiceImpl implements IPedidoService{
                 estadoAnterior = pedido.getHistorialEstadoPedido().get(pedido.getHistorialEstadoPedido().size() - 1).getEstadoNuevo();
             }
 
+            // analizamos si el cambio de estado corresponde a la lógica del negocio, y sino lanzamos excepcion
             EstadoPedido estadoNuevo = pedido.getEstadoActual();
             if(estadoNuevo.equals(EstadoPedido.COBRADO) && !estadoAnterior.equals(EstadoPedido.FINALIZADO)){
                 // a estado cobrado solo puede pasar si el anterior es finalizado, sino hay algún error
-                throw new Exception("Ha ocurrido un error con los estados del pedido ID " + pedido.getId());
+                throw new Exception("-> Ha ocurrido un error al pasar de FINALIZADO a COBRADO en el pedido ID " + pedido.getId());
+            }else if(estadoNuevo.equals(EstadoPedido.ENTREGADO) && !estadoAnterior.equals(EstadoPedido.COBRADO)){
+                // a estado entregado solo puede pasar si el anterior es cobrado, sino hay algún error
+                throw new Exception("-> Ha ocurrido un error al pasar de COBRADO a ENTREGADO en el pedido ID " + pedido.getId());
             }
 
             if(!estadoAnterior.equals(estadoNuevo)) {
@@ -195,7 +203,7 @@ public class PedidoServiceImpl implements IPedidoService{
 
             this.pedidoRepository.save(pedido);
         }catch (Exception e){
-            System.out.println("Excepción capturada al guardar un pedido: "+e);
+            throw new Exception("-> Excepción capturada al guardar un pedido: "+e);
         }
     }
 

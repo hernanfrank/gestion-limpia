@@ -28,7 +28,7 @@ public interface IPedidoService {
 
     public Pedido findByMaquinaActualId(Long id);
 
-    public void save(Pedido pedido);
+    public void save(Pedido pedido) throws Exception;
 
     public void deleteById(Long id);
 

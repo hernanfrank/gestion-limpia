@@ -89,7 +89,7 @@
                    type="hidden" />
             <input class="form-control border-warning"  th:field="*{estadoActual.displayValue}"
                    type="text" disabled />
-            <small class="text-warning" th:if="${pedido.estadoActual != null}">El estado del pedido solo se puede cambiar desde la pantalla de inicio.</small>
+            <small class="text-warning" th:if="${pedido.estadoActual != null}">El estado del pedido solo se puede cambiar mediante las acciones correspondientes.</small>
           </td>
         </tr>
       </table>

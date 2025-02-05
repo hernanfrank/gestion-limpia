@@ -90,40 +90,46 @@ public class PedidoController {
 
     @PostMapping(value = "/pedidos/guardar")
     public String guardar(@Valid Pedido pedido, BindingResult result, Model model, RedirectAttributes flashmsg) {
-        if (result.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
-            model.addAttribute("titulo", model.getAttribute("titulo"));
+        try {
+            if (result.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
+                model.addAttribute("titulo", model.getAttribute("titulo"));
 
-            List<Cliente> clientes = clienteService.findAll();
-            List<TipoPedido> tiposPedido = tipoPedidoService.findAll();
+                List<Cliente> clientes = clienteService.findAll();
+                List<TipoPedido> tiposPedido = tipoPedidoService.findAll();
 
-            model.addAttribute("clientes", clientes);
-            model.addAttribute("tiposPedido", tiposPedido);
-            return "pedidos/pedido";
-        }
-        if(pedido.getId() != null) {// sólo si el pedido no es nuevo
-            // recién acá busco el historial de estados porque sino debería buscarlo cada ves que entra a la edición el pedido, de esta forma solo lo busca cuando se guarda...
-            List<HistorialEstadoPedido> historialEstadosPedido = pedidoService.getHistorialEstadosByPedidoId(pedido.getId());
-            if (historialEstadosPedido != null) {
-                pedido.setHistorialEstadoPedido(historialEstadosPedido);
+                model.addAttribute("clientes", clientes);
+                model.addAttribute("tiposPedido", tiposPedido);
+                return "pedidos/pedido";
             }
-        }else{
-            List<HistorialEstadoPedido> historialInicial = new ArrayList<>();
-            historialInicial.add(new HistorialEstadoPedido(pedido, EstadoPedido.INGRESADO, EstadoPedido.PENDIENTE, new Timestamp(System.currentTimeMillis())));
-            pedido.setHistorialEstadoPedido(historialInicial);
+            if (pedido.getId() != null) {// sólo si el pedido no es nuevo
+                // recién acá busco el historial de estados porque sino debería buscarlo cada ves que entra a la edición el pedido, de esta forma solo lo busca cuando se guarda...
+                List<HistorialEstadoPedido> historialEstadosPedido = pedidoService.getHistorialEstadosByPedidoId(pedido.getId());
+                if (historialEstadosPedido != null) {
+                    pedido.setHistorialEstadoPedido(historialEstadosPedido);
+                }
+            } else {
+                List<HistorialEstadoPedido> historialInicial = new ArrayList<>();
+                historialInicial.add(new HistorialEstadoPedido(pedido, EstadoPedido.INGRESADO, EstadoPedido.PENDIENTE, new Timestamp(System.currentTimeMillis())));
+                pedido.setHistorialEstadoPedido(historialInicial);
+            }
+
+            // cuando se edita un pedido la descripción queda como string vacío en vez de null, asi que lo evitamos acá
+            if (pedido.getDescripcion().equals("")) {
+                pedido.setDescripcion(null);
+            }
+
+            // recibimos el objeto pedido del formulario y lo persistimos
+            pedidoService.save(pedido);
+            flashmsg.addFlashAttribute("messageType", "success");
+            flashmsg.addFlashAttribute("message", "Listado de pedidos actualizado");
+
+            // redirigimos al listado
+            return "redirect:/";
+        }catch (Exception e){
+            flashmsg.addFlashAttribute("messageType", "error");
+            flashmsg.addFlashAttribute("message", "Ha ocurrido un error. Intente nuevamente.");
+            return "redirect:/";
         }
-
-        // cuando se edita un pedido la descripción queda como string vacío en vez de null, asi que lo evitamos acá
-        if(pedido.getDescripcion().equals("")){
-            pedido.setDescripcion(null);
-        }
-
-        // recibimos el objeto pedido del formulario y lo persistimos
-        pedidoService.save(pedido);
-        flashmsg.addFlashAttribute("messageType", "success");
-        flashmsg.addFlashAttribute("message", "Listado de pedidos actualizado");
-
-        // redirigimos al listado
-        return "redirect:/";
     }
 
     @GetMapping(value = "/pedidos/listar")
@@ -212,14 +218,18 @@ public class PedidoController {
     }
 
     @PostMapping(value = "/pedidos/{idPedido}/estado/{estado}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> asignarPedidoAMaquina(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "estado") String estado){
-        if(!pedidoService.asignarAMaquina(idPedido, 0, estado)){
+    public ResponseEntity<Object> cambiarEstadoPedido(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "estado") String estado){
+        try{
+            if(!pedidoService.asignarAMaquina(idPedido, 0, estado)){
+                return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al cambiar el estado del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El estado del pedido ha sido cambiado correctamente.\"}", HttpStatus.OK);
+        }catch (Exception e){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al cambiar el estado del pedido. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El estado del pedido ha sido cambiado correctamente.\"}", HttpStatus.OK);
     }
 
-    @GetMapping(value = "/cobrar/{idPedido}/caja/{caja}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cobrar/{idPedido}/caja/{caja}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> cobrar(@PathVariable(name = "idPedido") Long idPedido, @PathVariable(name = "caja") TipoCaja caja){
         try{
             // genero el movimiento y lo asocio al pedido
