@@ -53,8 +53,8 @@
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).LAVADO ? 'bg-primary' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).SECADO ? 'bg-secondary' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO ? 'bg-danger' :
-                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO ? 'bg-success' :
-                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO ? 'bg-info' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO ? 'bg-info' :
+                        (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO ? 'bg-success' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO ? 'bg-dark' : ''
                         ))))))}"
                     ></h4>
@@ -172,7 +172,7 @@
                         message: 'Se registró correctamente la cobranza del pedido.'
                     })
                     let estadoBadge = $(pedidoACobrar.parentNode.parentNode).find(".estado");
-                    estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-info").text('Cobrado');
+                    estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-success").text('Cobrado');
                     $(pedidoACobrar).remove();
                 }).catch((err)=>{
                     notyf.open({

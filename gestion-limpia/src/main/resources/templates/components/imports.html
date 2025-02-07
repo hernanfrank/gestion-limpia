@@ -5,7 +5,7 @@
   <meta charset="UTF-8"/>
   <title th:text="${titulo != null ? titulo : @environment.getProperty('environment.nombreLavanderia')}"></title>
   <link rel="icon" type="image/x-icon" th:href="@{/images/logo.png}">
-  <link rel="stylesheet" href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/webjars/datatables/1.13.5/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="/webjars/notyf/3.10.0/notyf.min.css">
@@ -143,6 +143,9 @@
     .secadora{
       background-color: #F1B86F57;
       transition: background-color 0.3s;
+    }
+    .bg-urgente{
+      background: #e26a6a;
     }
     .maquina > .card-header{
       height: 40px;
@@ -430,8 +433,18 @@
         ripple: false,
         types: [
           {
+            type: 'success',
+            background: '#49b376',
+            icon: {
+              className: 'bi bi-exclamation-triangle',
+              tagName: 'i',
+              text: '',
+              color: 'white'
+            },
+          },
+          {
             type: 'warning',
-            background: '#e7a937',
+            background: '#fcb444',
             icon: {
               className: 'bi bi-exclamation-triangle',
               tagName: 'i',
@@ -441,7 +454,7 @@
           },
           {
             type: 'error',
-            background: 'indianred',
+            background: '#e25865',
             icon: {
               className: 'bi bi-exclamation-triangle',
               tagName: 'i',
@@ -460,7 +473,7 @@
         showCancelButton: true,
         showDenyButton: denyButton !== null,
         confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
+        cancelButtonColor: "#e25865",
         denyButtonColor: "#6e7881",
         denyButtonText: denyButton,
         confirmButtonText: acceptBtnText,
