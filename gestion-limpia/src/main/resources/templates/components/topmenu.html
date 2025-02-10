@@ -5,8 +5,8 @@
     <div th:fragment="navbar">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
             <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/images/logo.png}" width="40" height="40" class="d-inline-block ms-3" alt="🫧">
-                <span class="align-middle" th:text="${@environment.getProperty('environment.nombreLavanderia')}"></span>
+                <img th:src="'data:image/png;base64,' + ${logoLavanderia}" width="40" height="40" class="d-inline-block ms-3" alt="🫧">
+                <span class="align-middle" th:text="${nombreLavanderia}"></span>
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -19,7 +19,7 @@
                     <a class="nav-item nav-link" th:href="@{/clientes}">Clientes</a>
                     <a class="nav-item nav-link" th:href="@{/caja/movimientosCaja}">Caja</a>
                     <a class="nav-item nav-link disabled" th:href="@{/reportes}">Reportes</a>
-                    <a class="nav-item nav-link disabled" th:href="@{/administracion}">Administración</a>
+                    <a class="nav-item nav-link" th:href="@{/administracion}">Administración</a>
                 </div>
             </div>
         </nav>

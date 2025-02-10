@@ -3,8 +3,8 @@
 <!--header-->
 <head th:fragment="head">
   <meta charset="UTF-8"/>
-  <title th:text="${titulo != null ? titulo : @environment.getProperty('environment.nombreLavanderia')}"></title>
-  <link rel="icon" type="image/x-icon" th:href="@{/images/logo.png}">
+  <title th:text="${titulo != null ? titulo : nombreLavanderia}"></title>
+  <link rel="icon" type="image/x-icon" th:href="'data:image/png;base64,' + ${logoLavanderia}">
   <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/webjars/datatables/1.13.5/css/jquery.dataTables.min.css">

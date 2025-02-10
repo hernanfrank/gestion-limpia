@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-4 border-secondary border-1 rounded px-4 pt-4 pb-2 bg-light">
+      <form enctype="multipart/form-data" method="post" th:action="@{/administracion/guardar}" th:object="${config}">
+      <input type="hidden" th:field="*{id}">
+      <label class="h5 text-body">Sobre la lavandería:</label>
+      <div class="input-group mb-3 mt-2">
+        <span class="input-group-text bg-secondary text-white" id="nombre-text">Nombre</span>
+        <input type="text" class="form-control" aria-label="nombreLavanderia" aria-describedby="nombre-text" th:field="*{nombreLavanderia}" required>
+        <small class="text-danger" th:errors="*{nombreLavanderia}"
+               th:if="${#fields.hasErrors('nombreLavanderia')}"></small>
+      </div>
+      <div class="d-flex justify-content-center">
+        <img th:src="'data:image/png;base64,' + ${logoBlob}" alt="Logo de la lavandería" width="150px"/>
+      </div>
+      <div class="input-group mb-3">
+        <label class="input-group-text bg-secondary text-white" for="logo">Logo</label>
+        <input type="file" accept="image/*" class="form-control" id="logo" th:field="*{logoLavanderia}">
+        <small class="text-danger" th:errors="*{logoLavanderia}"
+               th:if="${#fields.hasErrors('logoLavanderia')}"></small>
+      </div>
+      <div class="d-flex justify-content-center">
+        <button type="submit" class="float-end btn btn-primary">Guardar</button>
+      </div>
+      </form>
+    </div>
+    <div class="col"></div>
+    <div class="col-4 border-secondary border-1 rounded px-4 pt-4 pb-2 bg-light">
+      <label class="h5 text-body">Administración de productos:</label>
+    </div>
+    <div class="col"></div>
+  </div>
+  <div class="row mt-2">
+    <div class="col"></div>
+    <div class="col-4 border-secondary border-1 rounded px-4 pt-3 pb-3 bg-light">
+      <label class="h5 text-body mb-3">Entrega de pedidos automática:</label>
+      <div class="form-check form-switch">
+        <input class="form-check-input border border-primary" type="checkbox" id="switchEntregaAutomatica">
+        <label class="form-check-label" for="switchEntregaAutomatica"><i>Al habilitar esta función, los pedidos cobrados serán marcados automáticamente como entregados.</i></label>
+      </div>
+
+    </div>
+    <div class="col"></div>
+    <div class="col-4 border-secondary border-1 rounded px-3 pt-3 pb-2 bg-light">
+      <label class="h5 text-body mb-3">Copia de seguridad:</label>
+      <br class="mb-3"/>
+      <div class="btn btn-info rounded me-1">Crear copia de seguridad</div>
+      <div class="btn btn-secondary rounded">Restablecer desde copia</div>
+    </div>
+    <div class="col"></div>
+  </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<div th:replace="~{components/topmenu :: messages}"></div>
+</html>
