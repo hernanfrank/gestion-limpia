@@ -55,6 +55,11 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
+    public List<Pedido> findAllByTipoPedido(TipoPedido tipoPedido) {
+        return this.pedidoRepository.findAllByTipo(tipoPedido);
+    }
+
+    @Override
     public List<HistorialEstadoPedido> getHistorialEstadosByPedidoId(Long id) {
         // si no existe el pedido retorno null
         try {

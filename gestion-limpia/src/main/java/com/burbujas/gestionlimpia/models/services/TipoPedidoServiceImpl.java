@@ -28,8 +28,9 @@ public class TipoPedidoServiceImpl implements ITipoPedidoService{
     }
 
     @Override
-    public void save(TipoPedido tipoPedido) {
+    public TipoPedido save(TipoPedido tipoPedido) {
         this.tipoPedidoRepository.save(tipoPedido);
+        return tipoPedido;
     }
 
     @Override

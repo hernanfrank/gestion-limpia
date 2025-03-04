@@ -3,7 +3,11 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.Cliente;
 import com.burbujas.gestionlimpia.models.entities.Config;
+import com.burbujas.gestionlimpia.models.entities.TipoPedido;
 import com.burbujas.gestionlimpia.models.repositories.IConfigRepository;
+import com.burbujas.gestionlimpia.models.repositories.ITipoPedidoRepository;
+import com.burbujas.gestionlimpia.models.services.IConfigService;
+import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +23,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -26,21 +31,23 @@ import java.util.Optional;
 @RequestMapping("/administracion")
 public class AdminController {
 
-    private final IConfigRepository configService;
+    private final IConfigService configService;
+    private final ITipoPedidoService tipoPedidoService;
 
-    public AdminController(IConfigRepository configService) {
+    public AdminController(IConfigService configService, ITipoPedidoService tipoPedidoService) {
         this.configService = configService;
+        this.tipoPedidoService = tipoPedidoService;
     }
 
     @ModelAttribute
     // este método se inyecta antes de cada respuesta a petición http para devolver el nombre y logo de la lavandería a todas las vistas
     public void addGlobalAttributes(Model model) {
-        Optional<Config> config = this.configService.findById(1L);
+        Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
-        if(config.isPresent()){
-            model.addAttribute("nombreLavanderia", config.get().getNombreLavanderia());
+        if(config != null){
+            model.addAttribute("nombreLavanderia", config.getNombreLavanderia());
 
-            byte[] encodeBase64 = Base64.getEncoder().encode(config.get().getLogoLavanderia());
+            byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
             String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
             model.addAttribute("logoLavanderia", base64Encoded);
         }
@@ -49,16 +56,18 @@ public class AdminController {
     @GetMapping(value = {"/", ""})
     public String listarConfiguraciones(Model model) throws UnsupportedEncodingException {
         model.addAttribute("titulo", "Administración del Sistema");
-        Optional<Config> config = this.configService.findById(1L);
+        Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
-        if(config.isEmpty()){
+        if(config == null){
             Config emptyConfig = new Config(1L, "", new byte[0]);
             model.addAttribute("config", emptyConfig);
         }else{
-            byte[] encodeBase64 = Base64.getEncoder().encode(config.get().getLogoLavanderia());
+            byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
             String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
             model.addAttribute("logoBlob", base64Encoded);
         }
+        List<TipoPedido> tipoPedidoList = this.tipoPedidoService.findAll();
+        model.addAttribute("tipoPedidos", tipoPedidoList);
         return "administracion";
     }
 

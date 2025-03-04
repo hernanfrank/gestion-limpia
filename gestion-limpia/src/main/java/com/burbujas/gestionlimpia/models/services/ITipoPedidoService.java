@@ -5,12 +5,11 @@ import com.burbujas.gestionlimpia.models.entities.TipoPedido;
 import com.burbujas.gestionlimpia.models.entities.TipoPedidoProductoMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ITipoPedidoService {
     public List<TipoPedido> findAll();
 
-    public void save(TipoPedido tipoPedido);
+    public TipoPedido save(TipoPedido tipoPedido);
 
     public TipoPedido findById(Long id);
 

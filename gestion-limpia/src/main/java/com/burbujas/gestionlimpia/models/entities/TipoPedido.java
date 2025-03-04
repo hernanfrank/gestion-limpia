@@ -1,5 +1,7 @@
 package com.burbujas.gestionlimpia.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -29,5 +31,6 @@ public class TipoPedido implements Serializable {
     private Integer minutosDuracionSecado;
 
     @OneToMany(mappedBy = "tipoPedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<TipoPedidoProductoMapping> tipoPedidoProductoMapping;
 }
