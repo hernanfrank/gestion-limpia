@@ -64,7 +64,7 @@
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  var proveedores_table = createTable('proveedores_table');
+  var proveedores_table = createTable('proveedores_table', pageLength = 7);
   function eliminarProveedor(proveedorId, elem){
     sweet_confirm("Eliminar proveedor", "¿Desea eliminar el proveedor?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los reabastecimientos asociados</b>.", "Si, eliminar", "Volver").
     then( (result)=>{

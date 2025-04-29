@@ -97,7 +97,7 @@
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  let movimientos_table = createTable('movimientos_table', pageLength=10, scrollY='47.5vh');
+  let movimientos_table = createTable('movimientos_table', pageLength=5, scrollY='47.5vh');
   function eliminarMovimiento(movimientoId,elem,fromPedido){
     let texto_advertencia = fromPedido ? '<b style="color:red">ATENCIÓN:<br/>Se eliminará también el pedido lo que generó</b>':'';
     sweet_confirm("¿Desea eliminar el movimiento?", texto_advertencia, "Si, eliminar", "Volver").

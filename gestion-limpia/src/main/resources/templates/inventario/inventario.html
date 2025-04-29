@@ -38,7 +38,7 @@
                     <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}"></td>
                     <td>
                         <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-sm btn-primary">
                                 <i class="bi bi-node-plus"></i>
                                 Cargar Reabastecimiento
                             </button>

@@ -93,7 +93,7 @@
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
     var pedidoACobrar = null;
-    var pedidos_table = createTable('pedidos_table', pageLength=10);
+    var pedidos_table = createTable('pedidos_table');
     function eliminarPedido(pedidoId, elem){
         sweet_confirm("¿Desea eliminar el pedido?", "<b style='color:red'>ATENCIÓN:<br/>Se eliminará también el movimiento de caja asociado su cobro.</b>", "Si, eliminar", "Volver").
         then( (result)=>{
