@@ -28,15 +28,17 @@ public class PedidoController {
     private final IProductoService productoService;
     private final IMaquinaService maquinaService;
     private final ICajaService cajaService;
+    private final IConfigService configService;
 
     @Autowired
-    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService, IMaquinaService maquinaService, ICajaService cajaService) {
+    public PedidoController(IPedidoService pedidoService, ITipoPedidoService tipoPedidoService, IClienteService clienteService, IProductoService productoService, IMaquinaService maquinaService, ICajaService cajaService, IConfigService configService) {
         this.pedidoService = pedidoService;
         this.tipoPedidoService = tipoPedidoService;
         this.clienteService = clienteService;
         this.productoService = productoService;
         this.maquinaService = maquinaService;
         this.cajaService = cajaService;
+        this.configService = configService;
     }
 
     @GetMapping(value = {"/", ""})
@@ -242,7 +244,16 @@ public class PedidoController {
             pedido.setEstadoActual(EstadoPedido.COBRADO);
             this.pedidoService.save(pedido);
 
-            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Se ha registrado la cobranza correctamente.\"}", HttpStatus.OK);
+            if(this.configService.findById(1L).getEntregaPedidosAutomatica()){
+                // buscamos la única configuración que debería existir
+                // si está seteada como true la entrega automática de pedidos, cambiamos el estado
+                // no lo seteo directamente en entregado porque se estaría salteando un estado
+                pedido.setEstadoActual(EstadoPedido.ENTREGADO);
+                this.pedidoService.save(pedido);
+                return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Se ha registrado la cobranza y entrega del pedido correctamente.\"}", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Se ha registrado la cobranza correctamente.\"}", HttpStatus.OK);
+            }
 
         }catch (Exception e){
             System.out.println("Excepción capturada al cobrar un pedido: "+e);

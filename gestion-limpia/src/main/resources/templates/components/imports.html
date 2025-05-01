@@ -398,6 +398,7 @@
   <script src="/webjars/notyf/3.10.0/notyf.min.js"></script>
   <script src="/webjars/sweetalert2/11.12.1/dist/sweetalert2.all.min.js"></script>
   <script th:inline="javascript">
+    const entregaPedidosAutomatica = /*[[${entregaPedidosAutomatica}]]*/ 'false';
     const translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
     const createTable = (tableName, pageLength = 8, scrollY = '60.5vh') => {
       let tabla = new DataTable('#'+tableName,{
@@ -468,7 +469,7 @@
     const sweet_confirm = (title, text, acceptBtnText, cancelBtnText = "Cancelar", denyButton = null) => {
       return Swal.fire({
         title: title,
-        html: '<pre style="white-space: pre-wrap;">'+text+'</pre>',
+        html: '<pre style="white-space: pre-wrap; overflow:hidden;">'+text+'</pre>',
         icon: "warning",
         showCancelButton: true,
         showDenyButton: denyButton !== null,

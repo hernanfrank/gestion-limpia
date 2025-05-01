@@ -23,4 +23,6 @@ public class Config {
     @Column(length=100000)
     private byte[] logoLavanderia;
 
+    private Boolean entregaPedidosAutomatica;
+
 }

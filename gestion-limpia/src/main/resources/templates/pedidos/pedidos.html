@@ -150,7 +150,8 @@
             });
             return;
         }
-        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?", "Si, cobrar", "Volver").
+        const entregarText = entregaPedidosAutomatica ? "<br/><br/><b class='text-warning'>Recuerde que también se marcará como entregado.</b> <small>Puede desactivarlo en <a href='/administracion'>Administración</a></small>":'';
+        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?"+entregarText, "Si, cobrar", "Volver").
         then( (result)=>{
             if(result.isConfirmed){
                 return new Promise((resolve, reject) => {
@@ -172,8 +173,26 @@
                         message: 'Se registró correctamente la cobranza del pedido.'
                     })
                     let estadoBadge = $(pedidoACobrar.parentNode.parentNode).find(".estado");
-                    estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-success").text('Cobrado');
+                    if(entregaPedidosAutomatica){
+                        estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-dark").text('Entregado');
+                    }else{
+                        estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-success").text('Cobrado');
+
+                        //cambio el boton de cobrar a entregar
+                        const entregarBtn = document.createElement('button');
+                        entregarBtn.setAttribute('title', 'Marcar como entregado');
+                        entregarBtn.setAttribute('type', 'button');
+                        entregarBtn.classList.add('btn', 'btn-sm', 'btn-dark', 'text-light', 'fs-6');
+                        entregarBtn.setAttribute('data-pedidoid', pedidoACobrar.dataset.pedidoid);
+                        entregarBtn.onclick = function() { setPedidoEntregado(this); };
+                        const icono = document.createElement('i');
+                        icono.classList.add('bi', 'bi-handbag');
+                        entregarBtn.appendChild(icono);
+
+                        $(pedidoACobrar).after(entregarBtn);
+                    }
                     $(pedidoACobrar).remove();
+
                 }).catch((err)=>{
                     notyf.open({
                         type: 'error',

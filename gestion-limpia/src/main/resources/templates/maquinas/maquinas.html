@@ -427,7 +427,16 @@
                       last_maquina.classList.remove('activa');
                       pedidoACobrar = pedidoId;
                       $('#modalCobranza').modal('show');
-                      $('#modalCobranza #btn-cobro').on('click',()=>{cobrarPedido()});
+                      $('#modalCobranza #btn-cobro').on('click',()=>{
+                        const entregarText = entregaPedidosAutomatica ? "<br/><br/><b class='text-warning'>Recuerde que también se marcará como entregado.</b> <small>Puede desactivarlo en <a href='/administracion'>Administración</a></small>":'';
+                        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?"+entregarText, "Si, cobrar", "Volver").
+                        then( (result)=>{
+                          if(result.isConfirmed){
+                            cobrarPedido()
+                          }
+                        });
+
+                      });
                     }).catch(
                     (error)=>{
                       console.log(error);

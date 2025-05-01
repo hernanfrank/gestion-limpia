@@ -1,11 +1,8 @@
 package com.burbujas.gestionlimpia.controllers;
 
 
-import com.burbujas.gestionlimpia.models.entities.Cliente;
 import com.burbujas.gestionlimpia.models.entities.Config;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
-import com.burbujas.gestionlimpia.models.repositories.IConfigRepository;
-import com.burbujas.gestionlimpia.models.repositories.ITipoPedidoRepository;
 import com.burbujas.gestionlimpia.models.services.IConfigService;
 import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
 import jakarta.validation.Valid;
@@ -24,17 +21,16 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @ControllerAdvice
 @RequestMapping("/administracion")
-public class AdminController {
+public class ConfigController {
 
     private final IConfigService configService;
     private final ITipoPedidoService tipoPedidoService;
 
-    public AdminController(IConfigService configService, ITipoPedidoService tipoPedidoService) {
+    public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService) {
         this.configService = configService;
         this.tipoPedidoService = tipoPedidoService;
     }
@@ -50,6 +46,8 @@ public class AdminController {
             byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
             String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
             model.addAttribute("logoLavanderia", base64Encoded);
+
+            model.addAttribute("entregaPedidosAutomatica", config.getEntregaPedidosAutomatica());
         }
     }
 
@@ -59,7 +57,7 @@ public class AdminController {
         Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
         if(config == null){
-            Config emptyConfig = new Config(1L, "", new byte[0]);
+            Config emptyConfig = new Config(1L, "", new byte[0], false);
             model.addAttribute("config", emptyConfig);
         }else{
             byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
@@ -78,11 +76,12 @@ public class AdminController {
                           @RequestPart(value = "logoLavanderia", required = false) MultipartFile logo,
                           RedirectAttributes flashmsg) throws IOException {
 
-        //casteamos el logo de MultipartFile a un array de bytes
-        byte [] byteArr = logo.getBytes();
-        InputStream logoInputStream = new ByteArrayInputStream(byteArr);
-        config.setLogoLavanderia(logoInputStream.readAllBytes());
-
+        if(logo.getBytes().length > 0){
+            //casteamos el logo de MultipartFile a un array de bytes
+            byte [] byteArr = logo.getBytes();
+            InputStream logoInputStream = new ByteArrayInputStream(byteArr);
+            config.setLogoLavanderia(logoInputStream.readAllBytes());
+        }
         BindingResult auxValidation = new BeanPropertyBindingResult(config, "config");
         result.getFieldErrors().forEach(fieldError -> {
             if(!fieldError.getField().equals("logoLavanderia")){
