@@ -27,16 +27,18 @@
                 <tr>
                     <th>Tipo</th>
                     <th>Disponible</th>
+                    <th style="width:200px">Umbral aviso reabastecimiento</th>
                     <th>Último reabastecimiento</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="producto: ${productos}">
-                    <td th:text="${producto.tipo}"></td>
-                    <td th:class="${producto.cantidadActual <= 0.2 ? 'text-danger fw-bold' : ''}" th:text="${producto.cantidadActual == null ? '0.00' : #numbers.formatDecimal(producto.cantidadActual, 1, 2)} + ' litro/s'"></td>
-                    <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}"></td>
-                    <td>
+                    <td th:text="${producto.tipo}" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-danger' : ''}"></td>
+                    <td th:text="${producto.cantidadActual == null ? '0.00' : #numbers.formatDecimal(producto.cantidadActual, 1, 2)} + ' litro/s'" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-danger' : ''}"></td>
+                    <td th:text="${producto.umbralAvisoReabastecimiento == null ? 'Sin aviso' : #numbers.formatDecimal(producto.umbralAvisoReabastecimiento, 1, 2)} + ' litro/s'" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-danger' : ''}"></td>
+                    <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-danger' : ''}"></td>
+                    <td th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-danger' : ''}">
                         <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
                             <button class="btn btn-sm btn-primary">
                                 <i class="bi bi-node-plus"></i>

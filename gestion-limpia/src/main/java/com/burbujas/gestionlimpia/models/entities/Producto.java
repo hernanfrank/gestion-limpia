@@ -30,6 +30,8 @@ public class Producto implements Serializable {
     @NotNull(message = "El nivel del producto no puede estar vacío")
     private Double cantidadActual;
 
+    private Double umbralAvisoReabastecimiento;
+
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
 
@@ -41,6 +43,7 @@ public class Producto implements Serializable {
 
     public Producto() {
         this.cantidadActual = 0.d;
+        this.umbralAvisoReabastecimiento = 5.d;
         this.tipoPedidoProductoMapping = new ArrayList<>();
     }
 

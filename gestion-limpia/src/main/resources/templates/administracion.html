@@ -4,153 +4,213 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-  <div class="row">
-    <div class="col"></div>
-    <div class="col-4 border-secondary border-1 rounded px-4 pt-4 pb-2 bg-light">
-      <form enctype="multipart/form-data" method="post" th:action="@{/administracion/guardar}" th:object="${config}">
-      <input type="hidden" th:field="*{id}">
-      <label class="h5 text-body">Sobre la lavandería:</label>
-      <div class="input-group mb-3 mt-2">
-        <span class="input-group-text bg-secondary text-white" id="nombre-text">Nombre</span>
-        <input type="text" class="form-control" aria-label="nombreLavanderia" aria-describedby="nombre-text" th:field="*{nombreLavanderia}" required>
-        <small class="text-danger" th:errors="*{nombreLavanderia}"
-               th:if="${#fields.hasErrors('nombreLavanderia')}"></small>
-      </div>
-      <div class="d-flex justify-content-center">
-        <img th:src="'data:image/png;base64,' + ${logoBlob}" alt="Logo de la lavandería" width="150px"/>
-      </div>
-      <div class="input-group mb-3">
-        <label class="input-group-text bg-secondary text-white" for="logo">Logo</label>
-        <input type="file" accept="image/*" class="form-control" id="logo" th:field="*{logoLavanderia}">
-        <small class="text-danger" th:errors="*{logoLavanderia}"
-               th:if="${#fields.hasErrors('logoLavanderia')}"></small>
-      </div>
-      <hr style="border-top: dashed 2px;" />
-      <div class="input-group mb-3 mt-3">
-        <label class="h5 text-body mb-3">Marcar entrega de pedidos automaticamente:</label>
-        <div class="form-check form-switch">
-          <input class="form-check-input border border-primary" type="checkbox" id="switchEntregaAutomatica" th:field="*{entregaPedidosAutomatica}">
-          <label class="form-check-label" for="switchEntregaAutomatica"><i>Al habilitar esta función, los pedidos cobrados serán marcados automáticamente como entregados.</i></label>
+    <div class="row">
+        <div class="col-4 border-secondary border-1 rounded px-3 pt-3 pb-2 bg-light">
+            <form enctype="multipart/form-data" method="post" th:action="@{/administracion/guardar}"
+                  th:object="${config}">
+                <input type="hidden" th:field="*{id}">
+                <label class="h5 text-body">Sobre la lavandería:</label>
+                <div class="input-group input-group-sm mb-3 mt-2">
+                    <span class="input-group-text bg-dark text-white" id="nombre-text">Nombre</span>
+                    <input type="text" class="form-control" aria-label="nombreLavanderia" aria-describedby="nombre-text"
+                           th:field="*{nombreLavanderia}" required>
+                    <small class="text-danger" th:errors="*{nombreLavanderia}"
+                           th:if="${#fields.hasErrors('nombreLavanderia')}"></small>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <img th:src="'data:image/png;base64,' + ${logoBlob}" alt="Logo de la lavandería" width="150px"/>
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <label class="input-group-text bg-dark text-white" for="logo">Logo</label>
+                    <input type="file" accept="image/*" class="form-control" id="logo" th:field="*{logoLavanderia}">
+                    <small class="text-danger" th:errors="*{logoLavanderia}"
+                           th:if="${#fields.hasErrors('logoLavanderia')}"></small>
+                </div>
+
+                <hr style="border-top: dashed 2px;"/>
+
+                <div class="input-group input-group-sm mb-3 mt-2">
+                    <label class="h5 text-body mb-3">Marcar entrega de pedidos automaticamente:</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input border border-primary" type="checkbox"
+                               id="switchEntregaAutomatica" th:field="*{entregaPedidosAutomatica}">
+                        <label class="form-check-label" for="switchEntregaAutomatica"><i>Al habilitar esta función, los
+                            pedidos cobrados serán marcados automáticamente como entregados.</i></label>
+                    </div>
+                </div>
+
+                <hr style="border-top: dashed 2px;"/>
+
+                <div class="input-group mb-2 mt-2">
+                    <label class="h5 text-body mb-3" for="timeoutAlertaRabastecimiento">Tiempo entre alertas de
+                        reabastecimiento:</label>
+                    <div class="row">
+                        <div class="col-2 p-0 m-0">
+                            <input id="timeoutAlertaRabastecimiento" type="number" class="form-control" min="0" step="1"
+                                   th:field="*{timeoutAlertaRabastecimiento}">
+                        </div>
+                        <div class="col p-0 m-0 ps-3">
+                            <i>Tiempo entre cada alerta de reabastecimiento de productos (en minutos). Para
+                                desactivarlas deje en 0 este campo.</i>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mb-2">
+                    <button type="submit" class="float-end btn btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
-      </div>
+        <div style="width: 30% !important;max-height: 450px;margin-top: 6%;" class="col-4 border-secondary border-1 mx-3 rounded px-4 pt-4 pb-2 bg-light">
+            <div class="row">
+                <form enctype="multipart/form-data" method="post" th:action="@{/administracion/guardar}"
+                      th:object="${config}">
+                    <div class="col">
+                        <label class="h5 text-body mb-3">Clave de acceso al sistema:</label>
+                        <br class="mb-3"/>
+                        <div class="input-group input-group-sm mb-3 mt-2">
+                            <span class="input-group-text bg-secondary text-white"
+                                  id="claveActual-text">Clave actual</span>
+                            <input type="text" class="form-control" aria-label="claveActual"
+                                   aria-describedby="claveActual-text">
+                        </div>
+                        <div class="input-group input-group-sm mb-3 mt-2">
+                            <span class="input-group-text bg-dark text-white" id="claveAcceso-text">Clave nueva</span>
+                            <input type="text" class="form-control" aria-label="claveAcceso"
+                                   aria-describedby="claveAcceso-text">
+                        </div>
+                        <div class="input-group input-group-sm mb-3 mt-2">
+                            <span class="input-group-text bg-dark text-white" id="claveAcceso2-text">Confirme su clave nueva</span>
+                            <input type="text" class="form-control" aria-label="claveAcceso2"
+                                   aria-describedby="claveAcceso2-text">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mb-2">
+                        <button type="submit" class="float-end btn btn-primary">Cambiar Clave</button>
+                    </div>
+                </form>
 
-      <div class="d-flex justify-content-center mb-2">
-        <button type="submit" class="float-end btn btn-primary">Guardar</button>
-      </div>
-      </form>
-    </div>
-    <div class="col"></div>
-    <div class="col-4 border-secondary border-1 rounded px-4 pt-4 pb-2 bg-light">
-      <label class="h5 text-body">Tipos de pedidos actuales:</label>
-      <button title="Crear nuevo tipo de pedido" type="button" class="btn btn-primary" onclick="abrirCrearTipoPedido()" style="float: right">
-        <i class="bi bi-patch-plus"></i> Nuevo Tipo
-      </button>
-      <div style="border:1px solid lightgray; border-radius: 5px;max-height: 300px; overflow-y: scroll;margin-bottom:10px;margin-top: 10px">
-      <ol id="listadoTipoPedidos" class="list-group list-group-numbered">
-        <li th:each="tipoPedido: ${tipoPedidos}" class="list-group-item d-flex justify-content-between align-items-start">
-          <div style="display: inline-grid;  position: absolute;  right: 5px;">
-            <button title="Editar tipo de pedido" type="button" class="ms-2 mb-1 btn btn-warning" th:data-tipoPedidoId="${tipoPedido.id}" onclick="abrirEditarTipoPedido(this)">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button title="Eliminar tipo de pedido" type="button" class="ms-2 btn btn-danger" th:data-tipoPedidoId="${tipoPedido.id}" onclick="eliminarTipoPedido(this)">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-          <div class="ms-2 me-auto" style="min-height: 5rem;">
-            <div class="fw-bold"><span th:id="${'descripcionTipoPedido'+tipoPedido.id}" th:text="${tipoPedido.descripcion}"></span></div>
-            <span th:id="${'minutosDuracionLavadoTipoPedido'+tipoPedido.id}" th:text="${'Lavado: ' + tipoPedido.minutosDuracionLavado + ' minutos.'}"></span>
-            <br/>
-            <span th:id="${'minutosDuracionSecadoTipoPedido'+tipoPedido.id}"  th:text="${'Secado: ' + tipoPedido.minutosDuracionSecado +' minutos.'}"></span>
-          </div>
-        </li>
-      </ol>
-      </div>
-    </div>
-    <div class="col"></div>
-  </div>
-  <div class="row mt-2">
-    <div class="col"></div>
-    <div class="col-4 border-secondary border-1 rounded px-4 pt-3 pb-3 bg-light">
+                <hr class="mt-4 mb-3" style="border-top: dashed 2px;"/>
 
+                <label class="h5 text-body mb-1">Copia de seguridad:</label>
+                <div class="justify-content-center">
+                    <div class="btn btn-info rounded w-75 ms-5 my-2">Crear copia de seguridad</div>
+                    <br/>
+                    <div class="btn btn-secondary rounded w-75 ms-5 my-2">Restablecer desde copia</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4 border-secondary border-1 rounded px-4 pt-4 pb-2 bg-light">
+            <div class="row">
+                <div class="col">
+                    <label class="h5 text-body">Tipos de pedidos actuales:</label>
+                    <button title="Crear nuevo tipo de pedido" type="button" class="btn btn-primary"
+                            onclick="abrirCrearTipoPedido()" style="float: right">
+                        <i class="bi bi-patch-plus"></i> Nuevo Tipo
+                    </button>
+                    <div style="border:1px solid lightgray; border-radius: 5px;max-height: 540px; overflow-y: scroll;margin-bottom:10px;margin-top: 10px">
+                        <ol id="listadoTipoPedidos" class="list-group list-group-numbered">
+                            <li th:each="tipoPedido: ${tipoPedidos}"
+                                class="list-group-item d-flex justify-content-between align-items-start">
+                                <div style="display: inline-grid;  position: absolute;  right: 5px;">
+                                    <button title="Editar tipo de pedido" type="button"
+                                            class="ms-2 mb-1 btn btn-warning" th:data-tipoPedidoId="${tipoPedido.id}"
+                                            onclick="abrirEditarTipoPedido(this)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button title="Eliminar tipo de pedido" type="button" class="ms-2 btn btn-danger"
+                                            th:data-tipoPedidoId="${tipoPedido.id}" onclick="eliminarTipoPedido(this)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="ms-2 me-auto" style="min-height: 5rem;">
+                                    <div class="fw-bold"><span th:id="${'descripcionTipoPedido'+tipoPedido.id}"
+                                                               th:text="${tipoPedido.descripcion}"></span></div>
+                                    <span th:id="${'minutosDuracionLavadoTipoPedido'+tipoPedido.id}"
+                                          th:text="${'Lavado: ' + tipoPedido.minutosDuracionLavado + ' minutos.'}"></span>
+                                    <br/>
+                                    <span th:id="${'minutosDuracionSecadoTipoPedido'+tipoPedido.id}"
+                                          th:text="${'Secado: ' + tipoPedido.minutosDuracionSecado +' minutos.'}"></span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col"></div>
-    <div class="col-4 border-secondary border-1 rounded px-3 pt-3 pb-2 bg-light">
-      <label class="h5 text-body mb-3">Copia de seguridad:</label>
-      <br class="mb-3"/>
-      <div class="btn btn-info rounded me-1">Crear copia de seguridad</div>
-      <div class="btn btn-secondary rounded">Restablecer desde copia</div>
-    </div>
-    <div class="col"></div>
-  </div>
 </div>
 <div class="modal fade" id="tipoPedidoModal" tabindex="-1" aria-labelledby="tipoPedidoModalTitle" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="tipoPedidoModalTitle"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="idTipoPedido" name="idTipoPedido">
-        <div class="mb-3">
-          <label for="descripcionTipoPedido" class="form-label">Descripción:</label>
-          <input name="descripcionTipoPedido" type="text" class="form-control" id="descripcionTipoPedido">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tipoPedidoModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="idTipoPedido" name="idTipoPedido">
+                <div class="mb-3">
+                    <label for="descripcionTipoPedido" class="form-label">Descripción:</label>
+                    <input name="descripcionTipoPedido" type="text" class="form-control" id="descripcionTipoPedido">
+                </div>
+                <div class="mb-3">
+                    <label for="minutosLavadoTipoPedido" class="form-label">Duración de lavado (en minutos):</label>
+                    <input name="minutosLavadoTipoPedido" type="number" step="1" min="1" class="form-control"
+                           id="minutosLavadoTipoPedido">
+                </div>
+                <div class="mb-3">
+                    <label for="minutosSecadoTipoPedido" class="form-label">Duración de secado (en minutos):</label>
+                    <input name="minutosSecadoTipoPedido" type="number" step="1" min="1" class="form-control"
+                           id="minutosSecadoTipoPedido">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnAccion" type="button" class="btn btn-primary"></button>
+            </div>
         </div>
-        <div class="mb-3">
-          <label for="minutosLavadoTipoPedido" class="form-label">Duración de lavado (en minutos):</label>
-          <input name="minutosLavadoTipoPedido" type="number" step="1" min="1" class="form-control" id="minutosLavadoTipoPedido">
-        </div>
-        <div class="mb-3">
-          <label for="minutosSecadoTipoPedido" class="form-label">Duración de secado (en minutos):</label>
-          <input name="minutosSecadoTipoPedido" type="number" step="1" min="1" class="form-control" id="minutosSecadoTipoPedido">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button id="btnAccion" type="button" class="btn btn-primary"></button>
-      </div>
     </div>
-  </div>
 </div>
 </body>
 <script>
-  function abrirCrearTipoPedido(){
-    $("#tipoPedidoModal #btnAccion").text('Crear');
-    $("#tipoPedidoModal #btnAccion").on('click',()=>{crearTipoPedido()});
-    $("#tipoPedidoModal #idTipoPedido").val('');
-    $("#tipoPedidoModal #descripcionTipoPedido").val('');
-    $("#tipoPedidoModal #minutosLavadoTipoPedido").val('');
-    $("#tipoPedidoModal #minutosSecadoTipoPedido").val('');
+    function abrirCrearTipoPedido() {
+        $("#tipoPedidoModal #btnAccion").text('Crear');
+        $("#tipoPedidoModal #btnAccion").on('click', () => {
+            crearTipoPedido()
+        });
+        $("#tipoPedidoModal #idTipoPedido").val('');
+        $("#tipoPedidoModal #descripcionTipoPedido").val('');
+        $("#tipoPedidoModal #minutosLavadoTipoPedido").val('');
+        $("#tipoPedidoModal #minutosSecadoTipoPedido").val('');
 
-    $("#tipoPedidoModal").modal('show');
-  }
-  function crearTipoPedido(){
-    sweet_confirm("¿Desea crear el tipo de pedido?", "", "Si, crear", "Volver").
-    then( (result)=>{
-      if(result.isConfirmed){
-        const tipoPedidoData = {
-          "id": null,
-          "descripcion": $("#tipoPedidoModal #descripcionTipoPedido").val(),
-          "minutosDuracionLavado": $("#tipoPedidoModal #minutosLavadoTipoPedido").val(),
-          "minutosDuracionSecado": $("#tipoPedidoModal #minutosSecadoTipoPedido").val(),
-        };
-        return new Promise((resolve, reject) => {
-          $.ajax({
-            type: "POST",
-            contentType: "application/json",
-            url: "/tiposPedidos/nuevo",
-            data: JSON.stringify(tipoPedidoData),
-            dataType: 'json',
-            success: function(result) {
-              resolve(result);
-            },
-            error: function(err) {
-              reject(err);
-            }
-          });
-        }).then((result)=>{
-          console.log(result);
-          const nuevoTipoPedidoElem = `
+        $("#tipoPedidoModal").modal('show');
+    }
+
+    function crearTipoPedido() {
+        sweet_confirm("¿Desea crear el tipo de pedido?", "", "Si, crear", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                const tipoPedidoData = {
+                    "id": null,
+                    "descripcion": $("#tipoPedidoModal #descripcionTipoPedido").val(),
+                    "minutosDuracionLavado": $("#tipoPedidoModal #minutosLavadoTipoPedido").val(),
+                    "minutosDuracionSecado": $("#tipoPedidoModal #minutosSecadoTipoPedido").val(),
+                };
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: "/tiposPedidos/nuevo",
+                        data: JSON.stringify(tipoPedidoData),
+                        dataType: 'json',
+                        success: function (result) {
+                            resolve(result);
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then((result) => {
+                    console.log(result);
+                    const nuevoTipoPedidoElem = `
             <li class="list-group-item d-flex justify-content-between align-items-start">
               <div style="display: inline-grid;  position: absolute;  right: 5px;">
                 <button title="Editar tipo de pedido" type="button" class="ms-2 mb-1 btn btn-warning" data-tipoPedidoId="${result.nuevoTipoPedido.id}" onclick="abrirEditarTipoPedido(this)">
@@ -161,141 +221,146 @@
                 </button>
               </div>
               <div class="ms-2 me-auto" style="min-height: 5rem;">
-                <div class="fw-bold"><span id="${'descripcionTipoPedido'+result.nuevoTipoPedido.id}">${result.nuevoTipoPedido.descripcion}</span></div>
-                <span id="${'minutosDuracionLavadoTipoPedido'+result.nuevoTipoPedido.id}">${'Lavado: ' + result.nuevoTipoPedido.minutosDuracionLavado + ' minutos.'}</span>
+                <div class="fw-bold"><span id="${'descripcionTipoPedido' + result.nuevoTipoPedido.id}">${result.nuevoTipoPedido.descripcion}</span></div>
+                <span id="${'minutosDuracionLavadoTipoPedido' + result.nuevoTipoPedido.id}">${'Lavado: ' + result.nuevoTipoPedido.minutosDuracionLavado + ' minutos.'}</span>
                 <br/>
-                <span id="${'minutosDuracionSecadoTipoPedido'+result.nuevoTipoPedido.id}">${'Secado: ' + result.nuevoTipoPedido.minutosDuracionSecado +' minutos.'}</span>
+                <span id="${'minutosDuracionSecadoTipoPedido' + result.nuevoTipoPedido.id}">${'Secado: ' + result.nuevoTipoPedido.minutosDuracionSecado + ' minutos.'}</span>
               </div>
             </li>`;
-          $("#listadoTipoPedidos").append(nuevoTipoPedidoElem);
-          $("#tipoPedidoModal").modal('hide');
-          notyf.open({
-            type: 'success',
-            message: 'El tipo de pedido fue creado correctamente.'
-          });
-        }).catch((err)=>{
-          notyf.open({
-            type: 'error',
-            message: err
-          });
-          console.log(err)}
-        );
+                    $("#listadoTipoPedidos").append(nuevoTipoPedidoElem);
+                    $("#tipoPedidoModal").modal('hide');
+                    notyf.open({
+                        type: 'success',
+                        message: 'El tipo de pedido fue creado correctamente.'
+                    });
+                }).catch((err) => {
+                        notyf.open({
+                            type: 'error',
+                            message: err
+                        });
+                        console.log(err)
+                    }
+                );
 
-      }
-    });
-  }
-  function abrirEditarTipoPedido(elem){
-    let tipoPedidoId = elem.dataset.tipopedidoid;
-    $("#tipoPedidoModal #btnAccion").text('Editar');
-    $("#tipoPedidoModal #btnAccion").on('click',()=>{editarTipoPedido()});
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        type: "GET",
-        contentType: "application/json",
-        url: "/tiposPedidos/" + tipoPedidoId,
-        dataType: 'json',
-        success: function(result) {
-          resolve(result);
-        },
-        error: function(err) {
-          reject(err);
-        }
-      });
-    }).then((response)=>{
-      $("#tipoPedidoModal #idTipoPedido").val(tipoPedidoId);
-      $("#tipoPedidoModal #descripcionTipoPedido").val(response.tipoPedido.descripcion);
-      $("#tipoPedidoModal #minutosLavadoTipoPedido").val(response.tipoPedido.minutosDuracionLavado);
-      $("#tipoPedidoModal #minutosSecadoTipoPedido").val(response.tipoPedido.minutosDuracionSecado);
-
-      $("#tipoPedidoModal").modal('show');
-    }).catch((err)=>{
-      notyf.open({
-        type: 'error',
-        message: err
-      });
-      console.log(err)}
-    );
-  }
-
-  function editarTipoPedido(){
-    sweet_confirm("¿Desea editar el tipo de pedido?", "", "Si, editar", "Volver").
-    then( (result)=>{
-      if(result.isConfirmed){
-        const tipoPedidoData = {
-          "id": $("#tipoPedidoModal #idTipoPedido").val(),
-          "descripcion": $("#tipoPedidoModal #descripcionTipoPedido").val(),
-          "minutosDuracionLavado": $("#tipoPedidoModal #minutosLavadoTipoPedido").val(),
-          "minutosDuracionSecado": $("#tipoPedidoModal #minutosSecadoTipoPedido").val(),
-        };
-        return new Promise((resolve, reject) => {
-          $.ajax({
-            type: "PUT",
-            contentType: "application/json",
-            url: "/tiposPedidos/editar/" + tipoPedidoData.id,
-            data: JSON.stringify(tipoPedidoData),
-            dataType: 'json',
-            success: function(result) {
-              resolve("OK");
-            },
-            error: function(err) {
-              reject(err);
             }
-          });
-        }).then(()=>{
-          $("#descripcionTipoPedido"+tipoPedidoData.id).text(tipoPedidoData.descripcion)
-          $("#minutosDuracionLavadoTipoPedido"+tipoPedidoData.id).text('Lavado: ' + tipoPedidoData.minutosDuracionLavado + ' minutos.')
-          $("#minutosDuracionSecadoTipoPedido"+tipoPedidoData.id).text('Secado: ' + tipoPedidoData.minutosDuracionSecado + ' minutos.')
-          $("#tipoPedidoModal").modal('hide');
-          notyf.open({
-            type: 'success',
-            message: 'El tipo de pedido fue editado correctamente.'
-          });
-        }).catch((err)=>{
-          notyf.open({
-            type: 'error',
-            message: err
-          });
-          console.log(err)}
-        );
+        });
+    }
 
-      }
-    });
-  }
-
-  function eliminarTipoPedido(elem){
-    let tipoPedidoId = elem.dataset.tipopedidoid;
-    sweet_confirm("¿Desea eliminar el tipo de pedido?", "", "Si, eliminar", "Volver").
-    then( (result)=>{
-      if(result.isConfirmed){
+    function abrirEditarTipoPedido(elem) {
+        let tipoPedidoId = elem.dataset.tipopedidoid;
+        $("#tipoPedidoModal #btnAccion").text('Editar');
+        $("#tipoPedidoModal #btnAccion").on('click', () => {
+            editarTipoPedido()
+        });
         return new Promise((resolve, reject) => {
-          $.ajax({
-            type: "DELETE",
-            contentType: "application/json",
-            url: "/tiposPedidos/eliminar/" + tipoPedidoId,
-            dataType: 'json',
-            success: function(result) {
-              resolve("OK");
-            },
-            error: function(err) {
-              reject(err);
+            $.ajax({
+                type: "GET",
+                contentType: "application/json",
+                url: "/tiposPedidos/" + tipoPedidoId,
+                dataType: 'json',
+                success: function (result) {
+                    resolve(result);
+                },
+                error: function (err) {
+                    reject(err);
+                }
+            });
+        }).then((response) => {
+            $("#tipoPedidoModal #idTipoPedido").val(tipoPedidoId);
+            $("#tipoPedidoModal #descripcionTipoPedido").val(response.tipoPedido.descripcion);
+            $("#tipoPedidoModal #minutosLavadoTipoPedido").val(response.tipoPedido.minutosDuracionLavado);
+            $("#tipoPedidoModal #minutosSecadoTipoPedido").val(response.tipoPedido.minutosDuracionSecado);
+
+            $("#tipoPedidoModal").modal('show');
+        }).catch((err) => {
+                notyf.open({
+                    type: 'error',
+                    message: err
+                });
+                console.log(err)
             }
-          });
-        }).then(()=>{
-          $(elem.parentNode.parentNode).remove();
-          notyf.open({
-            type: 'success',
-            message: 'El tipo de pedido fue eliminado correctamente.'
-          });
-        }).catch((err)=>{
-          notyf.open({
-            type: 'error',
-            message: err.responseJSON.msg
-          });
-          console.log(err)}
         );
-      }
-    });
-  }
+    }
+
+    function editarTipoPedido() {
+        sweet_confirm("¿Desea editar el tipo de pedido?", "", "Si, editar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                const tipoPedidoData = {
+                    "id": $("#tipoPedidoModal #idTipoPedido").val(),
+                    "descripcion": $("#tipoPedidoModal #descripcionTipoPedido").val(),
+                    "minutosDuracionLavado": $("#tipoPedidoModal #minutosLavadoTipoPedido").val(),
+                    "minutosDuracionSecado": $("#tipoPedidoModal #minutosSecadoTipoPedido").val(),
+                };
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "PUT",
+                        contentType: "application/json",
+                        url: "/tiposPedidos/editar/" + tipoPedidoData.id,
+                        data: JSON.stringify(tipoPedidoData),
+                        dataType: 'json',
+                        success: function (result) {
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    $("#descripcionTipoPedido" + tipoPedidoData.id).text(tipoPedidoData.descripcion)
+                    $("#minutosDuracionLavadoTipoPedido" + tipoPedidoData.id).text('Lavado: ' + tipoPedidoData.minutosDuracionLavado + ' minutos.')
+                    $("#minutosDuracionSecadoTipoPedido" + tipoPedidoData.id).text('Secado: ' + tipoPedidoData.minutosDuracionSecado + ' minutos.')
+                    $("#tipoPedidoModal").modal('hide');
+                    notyf.open({
+                        type: 'success',
+                        message: 'El tipo de pedido fue editado correctamente.'
+                    });
+                }).catch((err) => {
+                        notyf.open({
+                            type: 'error',
+                            message: err
+                        });
+                        console.log(err)
+                    }
+                );
+
+            }
+        });
+    }
+
+    function eliminarTipoPedido(elem) {
+        let tipoPedidoId = elem.dataset.tipopedidoid;
+        sweet_confirm("¿Desea eliminar el tipo de pedido?", "", "Si, eliminar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "DELETE",
+                        contentType: "application/json",
+                        url: "/tiposPedidos/eliminar/" + tipoPedidoId,
+                        dataType: 'json',
+                        success: function (result) {
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    $(elem.parentNode.parentNode).remove();
+                    notyf.open({
+                        type: 'success',
+                        message: 'El tipo de pedido fue eliminado correctamente.'
+                    });
+                }).catch((err) => {
+                        notyf.open({
+                            type: 'error',
+                            message: err.responseJSON.msg
+                        });
+                        console.log(err)
+                    }
+                );
+            }
+        });
+    }
 </script>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <div th:replace="~{components/topmenu :: messages}"></div>

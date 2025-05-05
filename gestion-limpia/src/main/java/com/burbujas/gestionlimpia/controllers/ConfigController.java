@@ -3,6 +3,7 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.Config;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
+import com.burbujas.gestionlimpia.models.services.IAlertaReabastecimientoService;
 import com.burbujas.gestionlimpia.models.services.IConfigService;
 import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 
@@ -29,10 +31,12 @@ public class ConfigController {
 
     private final IConfigService configService;
     private final ITipoPedidoService tipoPedidoService;
+    private final IAlertaReabastecimientoService alertaReabastecimientoService;
 
-    public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService) {
+    public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService, IAlertaReabastecimientoService alertaReabastecimientoService) {
         this.configService = configService;
         this.tipoPedidoService = tipoPedidoService;
+        this.alertaReabastecimientoService = alertaReabastecimientoService;
     }
 
     @ModelAttribute
@@ -57,7 +61,7 @@ public class ConfigController {
         Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
         if(config == null){
-            Config emptyConfig = new Config(1L, "", new byte[0], false);
+            Config emptyConfig = new Config(1L, "", new byte[0], false, 0);
             model.addAttribute("config", emptyConfig);
         }else{
             byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
@@ -75,33 +79,43 @@ public class ConfigController {
                           Model model,
                           @RequestPart(value = "logoLavanderia", required = false) MultipartFile logo,
                           RedirectAttributes flashmsg) throws IOException {
-
-        if(logo.getBytes().length > 0){
-            //casteamos el logo de MultipartFile a un array de bytes
-            byte [] byteArr = logo.getBytes();
-            InputStream logoInputStream = new ByteArrayInputStream(byteArr);
-            config.setLogoLavanderia(logoInputStream.readAllBytes());
-        }
-        BindingResult auxValidation = new BeanPropertyBindingResult(config, "config");
-        result.getFieldErrors().forEach(fieldError -> {
-            if(!fieldError.getField().equals("logoLavanderia")){
-                auxValidation.addError(fieldError);
+        try{
+            if(logo.getBytes().length > 0){
+                //casteamos el logo de MultipartFile a un array de bytes
+                byte [] byteArr = logo.getBytes();
+                InputStream logoInputStream = new ByteArrayInputStream(byteArr);
+                config.setLogoLavanderia(logoInputStream.readAllBytes());
             }
-        });
+            BindingResult auxValidation = new BeanPropertyBindingResult(config, "config");
+            result.getFieldErrors().forEach(fieldError -> {
+                if(!fieldError.getField().equals("logoLavanderia")){
+                    auxValidation.addError(fieldError);
+                }
+            });
 
-        if (auxValidation.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
-            model.addAttribute("titulo", model.getAttribute("titulo"));
-            System.out.println("error");
-            return "administracion";
+            if (auxValidation.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
+                model.addAttribute("titulo", model.getAttribute("titulo"));
+                return "administracion";
+            }
+
+            // recibimos el objeto config del formulario y lo persistimos
+            configService.save(config);
+
+            // tiempo entre alertas de reabastecimiento
+            if(config.getTimeoutAlertaRabastecimiento() != 0){
+                alertaReabastecimientoService.actualizarIntervalo();
+            }else{
+            // si el tiempo entre alertas se deja en 0, se desactiva
+                alertaReabastecimientoService.cancelarYEliminar();
+            }
+
+            flashmsg.addFlashAttribute("messageType", "success");
+            flashmsg.addFlashAttribute("message", "Configuración actualizada correctamente");
+
+            // redirigimos a la view
+            return "redirect:/administracion";
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar la configuración: "+e);
         }
-
-        // recibimos el objeto config del formulario y lo persistimos
-        configService.save(config);
-
-        flashmsg.addFlashAttribute("messageType", "success");
-        flashmsg.addFlashAttribute("message", "Configuraciones actualizadas correctamente");
-
-        // redirigimos a la view
-        return "redirect:/administracion";
     }
 }
