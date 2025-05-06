@@ -61,7 +61,7 @@ public class ConfigController {
         Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
         if(config == null){
-            Config emptyConfig = new Config(1L, "", new byte[0], false, 0);
+            Config emptyConfig = new Config(null, "", new byte[0], false, 0);
             model.addAttribute("config", emptyConfig);
         }else{
             byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
@@ -103,7 +103,7 @@ public class ConfigController {
 
             // tiempo entre alertas de reabastecimiento
             if(config.getTimeoutAlertaRabastecimiento() != 0){
-                alertaReabastecimientoService.actualizarIntervalo();
+                alertaReabastecimientoService.programarAlerta();
             }else{
             // si el tiempo entre alertas se deja en 0, se desactiva
                 alertaReabastecimientoService.cancelarYEliminar();

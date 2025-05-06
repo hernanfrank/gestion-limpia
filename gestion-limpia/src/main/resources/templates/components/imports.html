@@ -220,6 +220,13 @@
     .notyf{
       padding-top:5rem;
     }
+    .reabastecimiento-notyf{
+      max-width: 55em !important;
+      .notyf__ripple {
+        height: 60em;
+        width: 60em;
+      }
+    }
     .readonly-text{
       pointer-events: none;
       user-select: none;
@@ -397,6 +404,7 @@
   <script src="/webjars/datatables/1.13.5/js/jquery.dataTables.min.js"></script>
   <script src="/webjars/notyf/3.10.0/notyf.min.js"></script>
   <script src="/webjars/sweetalert2/11.12.1/dist/sweetalert2.all.min.js"></script>
+  <script src="/js/NotificacionEventSourceManager.js"></script>
   <script th:inline="javascript">
     const entregaPedidosAutomatica = /*[[${entregaPedidosAutomatica}]]*/ 'false';
     const translationUrl = /*[[@{~/vendor/datatables/datatables_spanish.json}]]*/'';
@@ -445,7 +453,7 @@
           },
           {
             type: 'warning',
-            background: '#fcb444',
+            background: '#d09f55',
             icon: {
               className: 'bi bi-exclamation-triangle',
               tagName: 'i',
@@ -458,6 +466,17 @@
             background: '#e25865',
             icon: {
               className: 'bi bi-exclamation-triangle',
+              tagName: 'i',
+              text: '',
+              color: 'white'
+            },
+          },
+          {
+            type: 'reabastecimiento',
+            background: '#d09f55',
+            className: 'reabastecimiento-notyf',
+            icon: {
+              className: 'bi bi-box-seam',
               tagName: 'i',
               text: '',
               color: 'white'
@@ -510,6 +529,14 @@
         });
       });
     };
+
+    window.onload = ()=>{
+      NotificacionEventSourceManager.getInstance(window.location.origin + "/notificaciones/bajo-stock");
+    }
+    window.onbeforeunload = () =>{
+      NotificacionEventSourceManager.closeConnection();
+    }
+
   </script>
 </footer>
 </html>
