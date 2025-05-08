@@ -60,7 +60,7 @@
                 </div>
             </form>
         </div>
-        <div style="width: 30% !important;max-height: 450px;margin-top: 6%;" class="col-4 border-secondary border-1 mx-3 rounded px-4 pt-4 pb-2 bg-light">
+        <div style="width: 30% !important;max-height: 510px;margin-top: 5%;" class="col-4 border-secondary border-1 mx-3 rounded px-4 pt-4 pb-2 bg-light">
             <div class="row">
                 <form enctype="multipart/form-data" method="post" th:action="@{/administracion/guardar}"
                       th:object="${config}">
@@ -93,9 +93,12 @@
 
                 <label class="h5 text-body mb-1">Copia de seguridad:</label>
                 <div class="justify-content-center">
-                    <div class="btn btn-info rounded w-75 ms-5 my-2">Crear copia de seguridad</div>
-                    <br/>
-                    <div class="btn btn-secondary rounded w-75 ms-5 my-2">Restablecer desde copia</div>
+                    <a href="/administracion/backup/crear" class="btn btn-primary rounded w-75 ms-5 my-2" download="backup.sql">Crear copia de seguridad</a>
+                    <br/><br/>
+                    <form action="#" method="POST" id="formRestaurarBackup">
+                        <input type="file" class="form-control" id="archivoBackup" name="archivoBackup" accept="application/sql" required>
+                        <button type="button" class="btn btn-secondary rounded w-75 ms-5 my-2" onclick="restaurarBackup()">Restaurar desde archivo</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -356,6 +359,57 @@
                             message: err.responseJSON.msg
                         });
                         console.log(err)
+                    }
+                );
+            }
+        });
+    }
+
+    function restaurarBackup(){
+        const archivo = $("#archivoBackup")[0].files[0];
+
+        // validar si se seleccionó un archivo
+        if (!archivo) {
+            notyf.open({
+                type: 'warning',
+                message: "Por favor, selecciona un archivo en formato SQL primero."
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("archivoBackup", archivo);
+
+        sweet_confirm("Restaurar base de datos", "¿Está seguro que quiere restaurar el sistema al estado que poseía cuando se creó este archivo? <br/><br/> <b style='color:red'>Atención: esta acción es irreversible.</b>", "Si, restaurar", "Volver").
+        then( (result)=>{
+            if(result.isConfirmed){
+
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: "/administracion/backup/restaurar",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    notyf.open({
+                        type: 'success',
+                        message: 'La base de datos fue restaurada correctamente.'
+                    });
+                }).catch((err) => {
+                        console.log(err)
+                        notyf.open({
+                            type: 'error',
+                            message: err.responseJSON.msg
+                        });
                     }
                 );
             }
