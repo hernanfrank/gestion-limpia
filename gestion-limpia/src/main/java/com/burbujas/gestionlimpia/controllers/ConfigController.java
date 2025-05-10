@@ -67,7 +67,7 @@ public class ConfigController {
         Config config = this.configService.findById(1L);
         model.addAttribute("config", config);
         if (config == null) {
-            Config emptyConfig = new Config(null, "", new byte[0], false, 0);
+            Config emptyConfig = new Config();
             model.addAttribute("config", emptyConfig);
         } else {
             byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
@@ -149,15 +149,15 @@ public class ConfigController {
 
                     return response;
                 } else {
-                    System.out.println("Excepción capturada al generar la copia de seguridad. No se encontró el archivo temporal.");
+                    System.out.println("ConfigController: Excepción capturada al generar la copia de seguridad. No se encontró el archivo temporal.");
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo generar la copia de seguridad.");
                 }
             } else {
-                System.out.println("Error al ejecutar el proceso para generar la copia de seguridad. Código de error: " + processStatus.keySet().toArray()[0]);
+                System.out.println("ConfigController: Error al ejecutar el proceso para generar la copia de seguridad. Código de error: " + processStatus.keySet().toArray()[0]);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo generar la copia de seguridad.");
             }
         } catch (Exception e) {
-            System.out.println("Excepción capturada al generar la copia de seguridad: " + e);
+            System.out.println("ConfigController: Excepción capturada al generar la copia de seguridad: " + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo generar la copia de seguridad.");
         }
     }
@@ -168,15 +168,32 @@ public class ConfigController {
             int resultCode = databaseBackupService.restaurarBackup(archivoBackup);
             databaseBackupService.deleteTempFile(archivoBackup.getOriginalFilename());
             if (resultCode == 0) {
-                return ResponseEntity.ok("La base de datos fue restaurada correctamente.");
+                return ResponseEntity.ok("ConfigController: La base de datos fue restaurada correctamente.");
             } else {
-                System.out.println("Error al restaurar la base de datos. Código de salida: " + resultCode);
+                System.out.println("ConfigController: Error al restaurar la base de datos. Código de salida: " + resultCode);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al restaurar la base de datos.");
             }
 
         } catch (Exception e) {
-            System.out.println("Error al restaurar la base de datos: " + e);
+            System.out.println("ConfigController: Error al restaurar la base de datos: " + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al restaurar la base de datos.");
+        }
+    }
+
+    @PostMapping("/clave/cambiar")
+    public ResponseEntity<?> cambiarClave(@RequestParam("claveActual") String claveActual,
+                                          @RequestParam("nuevaClave") String nuevaClave) {
+        try {
+            if (this.configService.verificarClaveAcceso(claveActual)) {
+                this.configService.cambiarClaveAcceso(nuevaClave);
+                this.configService.save(this.configService.findById(1L));
+                return ResponseEntity.ok("La clave se cambió correctamente.");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La clave actual no es correcta.");
+            }
+        } catch (Exception e) {
+            System.out.println("ConfigController: Excepción capturada al intentar cambio de clave " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al cambiar la clave. Intente nuevamente.");
         }
     }
 

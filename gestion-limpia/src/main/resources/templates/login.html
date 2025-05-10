@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}">
+</head>
+<body class="d-flex align-items-center py-4" style="height: 90vh">
+    <main class="m-auto" style="width: 400px;">
+        <form th:action="@{/login}" method="post" style="width: 400px;  padding: 1rem;">
+            <div class="px-5">
+                <img th:src="'data:image/png;base64,' + ${logoLavanderia}" width="60" height="60" class="d-inline-block" alt="🫧" style="margin-left: 2.5rem;">
+                <h2 class="d-inline h2 fw-normal align-text-top" th:text="${nombreLavanderia}"></h2>
+            </div>
+            <h2 class="h2 mt-2 mb-3 fw-normal d-flex justify-content-center">Acceso al sistema</h2>
+            <div class="form-floating my-2">
+                <input id="email" type="email" name="email" class="form-control"/>
+                <label for="email">Email de acceso</label>
+            </div>
+            <div class="form-floating my-2">
+                <input id="password" type="password" name="password" class="form-control"/><label for="password">Clave
+                de acceso</label>
+            </div>
+            <div class="d-flex justify-content-center alert alert-danger mt-2 mb-0" role="alert" th:if="${param.error}">
+                Email o clave de acceso incorrectos. Por favor, inténtelo de nuevo.
+            </div>
+            <div class="d-flex justify-content-center alert alert-info mt-2 mb-0" role="alert" th:if="${param.logout}">
+                Se ha cerrado su sesión.
+            </div>
+            <input type="submit" value="Acceder" class="btn btn-primary w-100 py-2 mt-3"/>
+        </form>
+    </main>
+</body>
+</html>
