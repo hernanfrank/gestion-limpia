@@ -163,12 +163,15 @@ public class ConfigController {
     }
 
     @PostMapping("/backup/restaurar")
-    public ResponseEntity<?> restoreDatabase(@RequestParam("archivoBackup") MultipartFile archivoBackup) {
+    public ResponseEntity<?> restoreDatabase(@RequestParam("archivoBackup") MultipartFile archivoBackup, @RequestParam("claveAccesoRestaurar") String claveAcceso) {
         try {
+            if(!this.configService.verificarClaveAcceso(claveAcceso)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La clave de acceso no es correcta.");
+            }
             int resultCode = databaseBackupService.restaurarBackup(archivoBackup);
             databaseBackupService.deleteTempFile(archivoBackup.getOriginalFilename());
             if (resultCode == 0) {
-                return ResponseEntity.ok("ConfigController: La base de datos fue restaurada correctamente.");
+                return ResponseEntity.ok("La base de datos fue restaurada correctamente.");
             } else {
                 System.out.println("ConfigController: Error al restaurar la base de datos. Código de salida: " + resultCode);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al restaurar la base de datos.");

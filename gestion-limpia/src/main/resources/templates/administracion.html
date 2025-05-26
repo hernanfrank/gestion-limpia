@@ -415,7 +415,7 @@
         });
     }
 
-    function restaurarBackup(){
+    function restaurarBackup() {
         const archivo = $("#archivoBackup")[0].files[0];
 
         // validar si se seleccionó un archivo
@@ -430,10 +430,16 @@
         const formData = new FormData();
         formData.append("archivoBackup", archivo);
 
-        sweet_confirm("Restaurar base de datos", "¿Está seguro que quiere restaurar el sistema al estado que poseía cuando se creó este archivo? <br/><br/> <b style='color:red'>Atención: esta acción es irreversible.</b>", "Si, restaurar", "Volver").
-        then( (result)=>{
-            if(result.isConfirmed){
-
+        sweet_confirm("Restaurar base de datos", "<b style='color:red'>Atención: esta acción es irreversible.</b><br/><br/><br/><div class='d-inline-block' style='width:38%'>*Clave de acceso:</div><input type='password' class='form-control m-auto my-1 d-inline-block' style='width:50%' id='claveAccesoRestaurar' placeholder='Ingrese su clave' required/>", "Restaurar", "Volver").then((result) => {
+            if($("#claveAccesoRestaurar").val() === ""){
+                notyf.open({
+                    type: 'warning',
+                    message: "Por favor, ingrese su clave de acceso."
+                });
+                return;
+            }
+            if (result.isConfirmed) {
+                formData.append("claveAccesoRestaurar", $("#claveAccesoRestaurar").val());
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         url: "/administracion/backup/restaurar",
@@ -442,7 +448,6 @@
                         processData: false,
                         contentType: false,
                         success: function (result) {
-                            console.log(result);
                             resolve("OK");
                         },
                         error: function (err) {
@@ -458,7 +463,7 @@
                         console.log(err)
                         notyf.open({
                             type: 'error',
-                            message: err.responseJSON.msg
+                            message: err.responseText
                         });
                     }
                 );
