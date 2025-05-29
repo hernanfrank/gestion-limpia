@@ -2,8 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{components/imports :: head}"></head>
 <style>
-    .form-error{
-        color:red;
+    .form-error {
+        color: red;
         line-height: 1.5;
         display: block;
         margin-bottom: 10px;
@@ -69,35 +69,42 @@
                 </div>
             </form>
         </div>
-        <div style="width: 31% !important;" class="col-4 border-secondary border-1 mx-3 rounded px-4 pt-4 pb-2 bg-light">
+        <div style="width: 31% !important;"
+             class="col-4 border-secondary border-1 mx-3 rounded px-4 pt-4 pb-2 bg-light">
             <div class="row">
-                <form enctype="multipart/form-data" method="post" th:action="@{/administracion/cambiar-clave}"
+                <form enctype="multipart/form-data" method="post" th:action="@{/administracion/clave/cambiar}"
                       th:object="${config}">
                     <div class="col">
                         <label class="h5 text-body mb-1">Clave de acceso al sistema:</label>
                         <div class="input-group input-group-sm mb-2 mt-2">
                             <span class="input-group-text bg-secondary text-white"
-                                  id="claveActual-text">Clave actual</span>
-                            <input type="password" class="form-control" aria-label="claveActual"
+                                  id="claveActual-text">*Clave actual</span>
+                            <input type="password" name="claveActual" class="form-control" aria-label="claveActual"
                                    aria-describedby="claveActual-text" id="claveActual">
-                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveActual')"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveActual')">
+                                <i class="bi bi-eye"></i></button>
                         </div>
                         <div class="input-group input-group-sm mb-2 mt-2">
-                            <span class="input-group-text bg-dark text-white" id="claveNueva-text">Clave nueva</span>
-                            <input type="password" class="form-control" aria-label="claveNueva"
-                                   aria-describedby="claveNueva-text" id="claveNueva">
-                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveNueva')"><i class="bi bi-eye"></i></button>
+                            <span class="input-group-text bg-dark text-white" id="claveNueva-text">*Clave nueva</span>
+                            <input type="password" name="claveNueva" class="form-control" aria-label="claveNueva"
+                                   aria-describedby="claveNueva-text" id="claveNueva" onkeyup="comprobarClaves()">
+                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveNueva')"><i
+                                    class="bi bi-eye"></i></button>
                         </div>
                         <div class="input-group input-group-sm mb-2 mt-2">
-                            <span class="input-group-text bg-dark text-white" id="claveNueva2-text">Confirme su clave nueva</span>
+                            <span class="input-group-text bg-dark text-white" id="claveNueva2-text">*Confirme su clave nueva</span>
                             <input type="password" class="form-control" aria-label="claveNueva2"
-                                   aria-describedby="claveNueva2-text" id="claveNueva2">
-                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveNueva2')"><i class="bi bi-eye"></i></button>
+                                   aria-describedby="claveNueva2-text" id="claveNueva2" onkeyup="comprobarClaves()">
+                            <button class="btn btn-outline-dark" type="button" onclick="changeClaveVis('claveNueva2')">
+                                <i class="bi bi-eye"></i></button>
                         </div>
                     </div>
-                    <small class="form-error" th:errors="*{claveAcceso}" th:if="${#fields.hasErrors('claveAcceso')}"></small>
+                    <small id="clavesError"
+                           class="form-error d-flex justify-content-center text-center border rounded border-danger w-auto mb-2 m-auto invisible"></small>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="float-end btn btn-sm btn-primary">Cambiar Clave</button>
+                        <button id="btnSubmitCambioClave" type="button" class="float-end btn btn-sm btn-primary" onclick="cambiarClave()"
+                                disabled>Cambiar Clave
+                        </button>
                     </div>
                 </form>
 
@@ -106,27 +113,28 @@
                 <form enctype="multipart/form-data" method="post" th:action="@{/administracion/cambiar-mail}"
                       th:object="${config}">
                     <div class="col">
-                        <label class="h5 text-body mb-1">Email de recuperación de clave:</label>
+                        <label class="h5 text-body mb-1">Email de acceso al sistema:</label>
                         <div class="input-group input-group-sm mb-2 mt-2">
                             <span class="input-group-text bg-secondary text-white"
-                                  id="emailActual-text">Email actual</span>
-                            <input type="email" class="form-control" aria-label="mailActual"
-                                   aria-describedby="emailActual-text">
+                                  id="emailActual-text">*Email actual</span>
+                            <input id="emailActual" type="email" class="form-control" aria-label="mailActual"
+                                   aria-describedby="emailActual-text" >
                         </div>
                         <div class="input-group input-group-sm mb-2 mt-2">
-                            <span class="input-group-text bg-dark text-white" id="emailAcceso-text">Email nuevo</span>
-                            <input type="email" class="form-control" aria-label="emailAcceso"
-                                   aria-describedby="emailAcceso-text">
+                            <span class="input-group-text bg-dark text-white" id="emailAcceso-text">*Email nuevo</span>
+                            <input id="emailNuevo" type="email" class="form-control" aria-label="emailAcceso"
+                                   aria-describedby="emailAcceso-text" onkeyup="comprobarMails()">
                         </div>
                         <div class="input-group input-group-sm mb-2 mt-2">
-                            <span class="input-group-text bg-dark text-white" id="emailAcceso2-text">Confirme su email nuevo</span>
-                            <input type="email" class="form-control" aria-label="emailAcceso2"
-                                   aria-describedby="emailAcceso2-text">
+                            <span class="input-group-text bg-dark text-white" id="emailAcceso2-text">*Confirme su email nuevo</span>
+                            <input id="emailNuevo2" type="email" class="form-control" aria-label="emailAcceso2"
+                                   aria-describedby="emailAcceso2-text" onkeyup="comprobarMails()">
                         </div>
                     </div>
-                    <small class="form-error" th:errors="*{emailAcceso}" th:if="${#fields.hasErrors('emailAcceso')}"></small>
+                    <small id="emailsError"
+                           class="form-error d-flex justify-content-center text-center border rounded border-danger w-auto mb-2 m-auto invisible"></small>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="float-end btn btn-sm btn-primary">Cambiar Email</button>
+                        <button id="btnSubmitCambioMail" type="button" class="float-end btn btn-sm btn-primary" onclick="cambiarMail()" disabled>Cambiar Email</button>
                     </div>
                 </form>
 
@@ -134,11 +142,15 @@
 
                 <label class="h5 text-body mb-1">Copia de seguridad:</label>
                 <div class="justify-content-center">
-                    <a href="/administracion/backup/crear" class="btn btn-primary rounded w-75 ms-5 my-2" download="backup.sql">Crear copia de seguridad</a>
+                    <a href="/administracion/backup/crear" class="btn btn-primary rounded w-75 ms-5 my-2"
+                       download="backup.sql">Crear copia de seguridad</a>
                     <br/><br/>
                     <form action="#" method="POST" id="formRestaurarBackup">
-                        <input type="file" class="form-control" id="archivoBackup" name="archivoBackup" accept="application/sql" required>
-                        <button type="button" class="btn btn-secondary rounded w-75 ms-5 my-2" onclick="restaurarBackup()">Restaurar desde archivo</button>
+                        <input type="file" class="form-control" id="archivoBackup" name="archivoBackup"
+                               accept="application/sql" required>
+                        <button type="button" class="btn btn-secondary rounded w-75 ms-5 my-2"
+                                onclick="restaurarBackup()">Restaurar desde archivo
+                        </button>
                     </form>
                 </div>
             </div>
@@ -216,6 +228,9 @@
 </div>
 </body>
 <script>
+    const regexClaves = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
+    const regexMails = /.+@.+[.].+/;
+
     function changeClaveVis(elemId) {
         let clave = document.getElementById(elemId);
         if (clave.type === "password") {
@@ -431,7 +446,7 @@
         formData.append("archivoBackup", archivo);
 
         sweet_confirm("Restaurar base de datos", "<b style='color:red'>Atención: esta acción es irreversible.</b><br/><br/><br/><div class='d-inline-block' style='width:38%'>*Clave de acceso:</div><input type='password' class='form-control m-auto my-1 d-inline-block' style='width:50%' id='claveAccesoRestaurar' placeholder='Ingrese su clave' required/>", "Restaurar", "Volver").then((result) => {
-            if($("#claveAccesoRestaurar").val() === ""){
+            if ($("#claveAccesoRestaurar").val() === "") {
                 notyf.open({
                     type: 'warning',
                     message: "Por favor, ingrese su clave de acceso."
@@ -465,6 +480,152 @@
                             type: 'error',
                             message: err.responseText
                         });
+                    }
+                );
+            }
+        });
+    }
+
+    function comprobarClaves() {
+        $("#claveNueva").val($("#claveNueva").val().trim());
+        $("#claveNueva2").val($("#claveNueva2").val().trim());
+
+        let claveNueva = $("#claveNueva").val();
+        let claveNueva2 = $("#claveNueva2").val();
+
+        if(!regexClaves.test(claveNueva)) {
+            $("#clavesError").text("La clave debe tener más de 8 caracteres y contener al menos una mayúscula, una minúscula y un número.").removeClass("invisible").addClass("p-1");
+            $("#claveNueva").css("border-color", "red");
+            $("#btnSubmitCambioClave").attr("disabled", true);
+        } else if (claveNueva !== claveNueva2) {
+            $("#clavesError").text("Las claves no coinciden.").removeClass("invisible").addClass("p-1");
+            $("#claveNueva2").css("border-color", "red");
+            $("#btnSubmitCambioClave").attr("disabled", true);
+        } else {
+            $("#clavesError").text("").addClass("invisible").removeClass("p-1");
+            $("#claveNueva").css("border-color", "rgb(222, 226, 230)");
+            $("#claveNueva2").css("border-color", "rgb(222, 226, 230)");
+            if(claveNueva !== "" && claveNueva2 !== "") {
+                $("#btnSubmitCambioClave").attr("disabled", false);
+            }
+        }
+    }
+
+    function cambiarClave(){
+        if($("#claveActual").val() === "" || $("#claveNueva").val() === "" || $("#claveNueva2").val() === "" ||
+           $("#claveNueva").val() !== $("#claveNueva2").val() || !regexClaves.test($("#claveNueva").val()) || !regexClaves.test($("#claveNueva2").val())){
+            return;
+        }
+        const formData = new FormData();
+        formData.append("claveActual", $("#claveActual").val());
+        formData.append("claveNueva", $("#claveNueva").val());
+        sweet_confirm("Cambiar clave de acceso", "¿Está seguro que desea cambiar su clave de acceso al sistema?", "Cambiar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: "/administracion/clave/cambiar",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    $("#clavesError").text("").addClass("invisible").removeClass("p-1");
+                    $("#claveActual").val("");
+                    $("#claveNueva").val("");
+                    $("#claveNueva2").val("");
+                    notyf.open({
+                        type: 'success',
+                        duration: 5000,
+                        message: 'La clave de acceso se cambió correctamente.'
+                    });
+                }).catch((err) => {
+                        console.log(err)
+                        notyf.open({
+                            type: 'error',
+                            duration: 3000,
+                            message: err.responseText
+                        });
+                        $("#clavesError").text(err.responseText).removeClass("invisible").addClass("p-1");
+                    }
+                );
+            }
+        });
+    }
+
+    function comprobarMails() {
+        $("#emailNuevo").val($("#emailNuevo").val().trim());
+        $("#emailNuevo2").val($("#emailNuevo2").val().trim());
+
+        let emailNuevo = $("#emailNuevo").val();
+        let emailNuevo2 = $("#emailNuevo2").val();
+
+        if(!regexMails.test(emailNuevo)) {
+            $("#emailsError").text("El email de debe seguir el formato mi@email.com").removeClass("invisible").addClass("p-1");
+            $("#emailNuevo").css("border-color", "red");
+            $("#btnSubmitCambioMail").attr("disabled", true);
+        } else if (emailNuevo !== emailNuevo2) {
+            $("#emailsError").text("Los emails no coinciden.").removeClass("invisible").addClass("p-1");
+            $("#emailNuevo2").css("border-color", "red");
+            $("#btnSubmitCambioMail").attr("disabled", true);
+        } else {
+            $("#emailsError").text("").addClass("invisible").removeClass("p-1");
+            $("#emailNuevo").css("border-color", "rgb(222, 226, 230)");
+            $("#emailNuevo2").css("border-color", "rgb(222, 226, 230)");
+            if(emailNuevo !== "" && emailNuevo2 !== ""){
+                $("#btnSubmitCambioMail").attr("disabled", false);
+            }
+        }
+    }
+
+    function cambiarMail(){
+        if($("#emailActual").val() === "" || $("#emailNuevo").val() === "" || $("#emailNuevo2").val() === "" ||
+           $("#emailNuevo").val() !== $("#emailNuevo2").val()){
+            return;
+        }
+        const formData = new FormData();
+        formData.append("emailActual", $("#emailActual").val());
+        formData.append("emailNuevo", $("#emailNuevo").val());
+        sweet_confirm("Cambiar email de acceso", "¿Está seguro que desea cambiar su email de acceso al sistema?", "Cambiar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: "/administracion/email/cambiar",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    $("#emailsError").text("").addClass("invisible").removeClass("p-1");
+                    $("#emailActual").val("");
+                    $("#emailNuevo").val("");
+                    $("#emailNuevo2").val("");
+                    notyf.open({
+                        type: 'success',
+                        duration: 5000,
+                        message: 'El email de acceso se cambió correctamente.'
+                    });
+                }).catch((err) => {
+                        console.log(err)
+                        notyf.open({
+                            type: 'error',
+                            duration: 3000,
+                            message: err.responseText
+                        });
+                        $("#emailsError").text(err.responseText).removeClass("p-1 invisible").addClass("p-1");
                     }
                 );
             }

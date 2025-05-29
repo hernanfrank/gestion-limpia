@@ -9,7 +9,7 @@ public interface IConfigService {
 
     public boolean verificarClaveAcceso(String claveIngresada);
 
-    public void cambiarClaveAcceso(String claveNueva);
+    public int cambiarEmail(String emailActual, String emailNuevo);
 
     void save(@Valid Config config);
 }

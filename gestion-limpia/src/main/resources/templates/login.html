@@ -4,10 +4,19 @@
 </head>
 <body class="d-flex align-items-center py-4" style="height: 90vh">
     <main class="m-auto" style="width: 400px;">
-        <form th:action="@{/login}" method="post" style="width: 400px;  padding: 1rem;">
+
+        <div style="margin-left:48%" class="enviando-mail spinner-border d-none" role="status">
+            <span class="sr-only"></span>
+        </div>
+        <div style="margin-left:38%" class="enviando-mail d-none">
+            Enviando correo...
+        </div>
+
+
+        <form id="loginForm" th:action="@{/login}" method="post" style="width: 400px;  padding: 1rem;">
             <div class="px-5">
                 <img th:src="'data:image/png;base64,' + ${logoLavanderia}" width="60" height="60" class="d-inline-block" alt="🫧" style="margin-left: 2.5rem;">
-                <h2 class="d-inline h2 fw-normal align-text-top" th:text="${nombreLavanderia}"></h2>
+                <h2 class="d-inline h2 fw-normal align-text-top" th:text="${nombreLavanderia}">Gestión Limpia</h2>
             </div>
             <h2 class="h2 mt-2 mb-3 fw-normal d-flex justify-content-center">Acceso al sistema</h2>
             <div class="form-floating my-2">
@@ -24,8 +33,55 @@
             <div class="d-flex justify-content-center alert alert-info mt-2 mb-0" role="alert" th:if="${param.logout}">
                 Se ha cerrado su sesión.
             </div>
-            <input type="submit" value="Acceder" class="btn btn-primary w-100 py-2 mt-3"/>
+            <input type="submit" value="Acceder" class="btn btn-primary w-100 py-2 mt-3 mb-2"/>
+            <div class="text-center">
+                <a href="#" onclick="mostrarFormularioRecuperacion()">¿Olvidó su clave de acceso?</a>
+            </div>
         </form>
     </main>
 </body>
+<script>
+    function mostrarFormularioRecuperacion() {
+        sweet_confirm("Cambio de clave de acceso",
+            "<div class='p-1'>Le enviaremos un correo con los pasos a seguir.<br/><br/>Ingrese su email de acceso:</div>" +
+            "<input type='email' id='emailAcceso' class='form-control w-75 my-1 m-auto' required>",
+            "Solicitar cambio", "Cancelar")
+            .then((result) => {
+                if (result.isConfirmed) {
+                    const email = $("#emailAcceso").val();
+                    $.ajax({
+                        type: "POST",
+                        url: "/administracion/clave/cambiar/enviarMail",
+                        data: { email: email },
+                        beforeSend: function() {
+                            $("#loginForm").addClass("d-none");
+                            $(".enviando-mail").removeClass("d-none");
+                        },
+                        success: function(response) {
+                            notyf.open({
+                                type: 'success',
+                                message: response,
+                                duration: 15000
+                            });
+                        },
+                        error: function(err) {
+                            notyf.open({
+                                type: 'error',
+                                message: err.responseText,
+                                duration: 15000
+                            });
+                            mostrarFormularioRecuperacion();
+                            $("#emailAcceso").focus();
+                        },
+                        complete: function() {
+                            $("#loginForm").removeClass("d-none");
+                            $(".enviando-mail").addClass("d-none");
+                        }
+                    });
+                }
+            });
+    }
+
+</script>
+<footer th:replace="~{components/imports :: footer}"></footer>
 </html>

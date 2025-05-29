@@ -3,10 +3,7 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.Config;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
-import com.burbujas.gestionlimpia.models.services.IAlertaReabastecimientoService;
-import com.burbujas.gestionlimpia.models.services.IConfigService;
-import com.burbujas.gestionlimpia.models.services.IDatabaseBackupService;
-import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
+import com.burbujas.gestionlimpia.models.services.*;
 import jakarta.validation.Valid;
 import org.springframework.core.io.InputStreamResource;
 
@@ -37,12 +34,14 @@ public class ConfigController {
     private final ITipoPedidoService tipoPedidoService;
     private final IAlertaReabastecimientoService alertaReabastecimientoService;
     private final IDatabaseBackupService databaseBackupService;
+    private final IClaveResetService claveResetService;
 
-    public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService, IAlertaReabastecimientoService alertaReabastecimientoService, IDatabaseBackupService databaseBackupService) {
+    public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService, IAlertaReabastecimientoService alertaReabastecimientoService, IDatabaseBackupService databaseBackupService, IClaveResetService claveResetService) {
         this.configService = configService;
         this.tipoPedidoService = tipoPedidoService;
         this.alertaReabastecimientoService = alertaReabastecimientoService;
         this.databaseBackupService = databaseBackupService;
+        this.claveResetService = claveResetService;
     }
 
     @ModelAttribute
@@ -185,19 +184,83 @@ public class ConfigController {
 
     @PostMapping("/clave/cambiar")
     public ResponseEntity<?> cambiarClave(@RequestParam("claveActual") String claveActual,
-                                          @RequestParam("nuevaClave") String nuevaClave) {
+                                          @RequestParam("claveNueva") String claveNueva) {
         try {
-            if (this.configService.verificarClaveAcceso(claveActual)) {
-                this.configService.cambiarClaveAcceso(nuevaClave);
-                this.configService.save(this.configService.findById(1L));
-                return ResponseEntity.ok("La clave se cambió correctamente.");
-            } else {
+            int result = this.claveResetService.cambiarClave(claveActual, claveNueva);
+            if(result == 0){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: no se encontró la configuración del sistema.");
+            }else if (result == 2){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La clave actual no es correcta.");
+            }else if(result == 3){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La clave debe contener al menos una letra mayúscula, una letra minúscula y un número.");
             }
         } catch (Exception e) {
             System.out.println("ConfigController: Excepción capturada al intentar cambio de clave " + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al cambiar la clave. Intente nuevamente.");
         }
+        return ResponseEntity.ok("La clave se cambió correctamente.");
+    }
+
+    @PostMapping("/clave/cambiar/enviarMail")
+    public ResponseEntity<?> solicitarCambioClave(@RequestParam String email) {
+        try {
+            this.claveResetService.solicitarCambioClave(email);
+            return ResponseEntity.ok("En los próximos minutos recibirá un email con las instrucciones para cambiar su clave");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/clave/cambiar/{token}")
+    public String formularioCambiarClave(@PathVariable("token") String token, Model model) {
+        Config config = this.configService.findById(1L);
+        if (config != null) {
+            model.addAttribute("nombreLavanderia", config.getNombreLavanderia());
+            byte[] encodeBase64 = Base64.getEncoder().encode(config.getLogoLavanderia());
+            String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+            model.addAttribute("logoLavanderia", base64Encoded);
+        }
+        model.addAttribute("token", token);
+        return "cambiarClave";
+    }
+
+    @PostMapping("/clave/cambiar/desdeMail")
+    public ResponseEntity<?> cambiarClaveConToken(@RequestParam String token, @RequestParam String nuevaClave) {
+        try {
+            int result = this.claveResetService.cambiarClaveConToken(token, nuevaClave);
+            if(result == 0){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: no se encontró la configuración del sistema.");
+            }else if (result == 2){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ha ocurrido un error en el proceso. Intente enviando el correo de recuperación nuevamente.");
+            }else if(result == 3){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La clave debe contener al menos una letra mayúscula, una letra minúscula y un número.");
+            }
+            return ResponseEntity.ok("La clave ha sido actualizada correctamente");
+        } catch (Exception e) {
+            System.out.println("ConfigController: Excepción capturada al intentar cambio de clave con token " + e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/email/cambiar")
+    public ResponseEntity<?> cambiarEmail(@RequestParam("emailActual") String emailActual,
+                                          @RequestParam("emailNuevo") String emailNuevo) {
+        try {
+            int result = this.configService.cambiarEmail(emailActual, emailNuevo);
+            if(result == 0){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: no se encontró la configuración del sistema.");
+            }else if (result == 2){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("El email actual es incorrecto.");
+            } else if (result == 3) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El email de acceso debe seguir el formato mi@email.com");
+            } else if (result == 4) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El email nuevo ingresado es el mismo que el email actual.");
+            }
+        } catch (Exception e) {
+            System.out.println("ConfigController: Excepción capturada al intentar cambio de email " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al cambiar el email. Intente nuevamente.");
+        }
+        return ResponseEntity.ok("El email se cambió correctamente.");
     }
 
 }

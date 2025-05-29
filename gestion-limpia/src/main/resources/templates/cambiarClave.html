@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}">
+</head>
+<body class="d-flex align-items-center py-4" style="height: 90vh">
+    <main class="m-auto" style="width: 400px;">
+        <div id="alertSuccess" class="d-flex justify-content-center alert alert-success d-none" role="alert">
+            La clave de acceso ha sido cambiada correctamente. <br/> Lo redirigiremos al inicio de sesión.
+        </div>
+        <form id="form" th:action="@{/administracion/clave/cambiar/desdeMail}" method="post" style="width: 400px;  padding: 1rem;">
+            <div class="px-5">
+                <img th:src="'data:image/png;base64,' + ${logoLavanderia}" width="60" height="60" class="d-inline-block" alt="🫧" style="margin-left: 2.5rem;">
+                <h2 class="d-inline h2 fw-normal align-text-top" th:text="${nombreLavanderia}">Gestión Limpia</h2>
+            </div>
+            <h2 class="h2 mt-2 mb-3 fw-normal d-flex justify-content-center">Cambio de clave de acceso al sistema</h2>
+            <div class="form-floating my-2">
+                <input id="nuevaClave" type="password" name="nuevaClave" class="form-control" onkeyup="comprobarClaves()"/><label for="nuevaClave">Nueva clave
+                de acceso</label>
+            </div>
+            <div class="form-floating my-2">
+                <input id="nuevaClave2" type="password" name="nuevaClave2" class="form-control" onkeyup="comprobarClaves()"/><label for="nuevaClave2">Ingrese su clave de acceso nuevamente</label>
+            </div>
+            <input type="hidden" id="token" name="token" th:value="${token}" />
+            <small id="clavesError"
+                   class="form-error d-flex justify-content-center text-center border rounded border-danger w-auto mb-2 m-auto p-1 text-danger fw-bold invisible"></small>
+            <input id="cambiarClaveBtn" type="button" value="Cambiar Clave" onclick="cambiarClave()" class="btn btn-primary w-100 py-2 mt-3"/>
+        </form>
+    </main>
+</body>
+<script>
+    const regexClaves = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
+
+    function comprobarClaves() {
+        $("#nuevaClave").val($("#nuevaClave").val().trim());
+        $("#nuevaClave2").val($("#nuevaClave2").val().trim());
+
+        let nuevaClave = $("#nuevaClave").val();
+        let nuevaClave2 = $("#nuevaClave2").val();
+
+        if(!regexClaves.test(nuevaClave)) {
+            $("#clavesError").text("La clave debe tener más de 8 caracteres y contener al menos una mayúscula, una minúscula y un número.").removeClass("invisible").addClass("p-1");
+            $("#nuevaClave").css("border-color", "red");
+            $("#cambiarClaveBtn").attr("disabled", true);
+        } else if (nuevaClave !== nuevaClave2) {
+            $("#clavesError").text("Las claves no coinciden.").removeClass("invisible").addClass("p-1");
+            $("#nuevaClave2").css("border-color", "red");
+            $("#cambiarClaveBtn").attr("disabled", true);
+        } else {
+            $("#clavesError").text("").addClass("invisible").removeClass("p-1");
+            $("#nuevaClave").css("border-color", "rgb(222, 226, 230)");
+            $("#nuevaClave2").css("border-color", "rgb(222, 226, 230)");
+            if(nuevaClave !== "" && nuevaClave2 !== "") {
+                $("#cambiarClaveBtn").attr("disabled", false);
+            }
+        }
+    }
+
+    function cambiarClave(){
+        if($("#nuevaClave").val() === "" || $("#nuevaClave2").val() === "" ||
+            $("#nuevaClave").val() !== $("#nuevaClave2").val() ||
+            !regexClaves.test($("#nuevaClave").val()) || !regexClaves.test($("#nuevaClave2").val())){
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/administracion/clave/cambiar/desdeMail",
+            data: { nuevaClave: $("#nuevaClave").val(), token: $("#token").val()},
+            beforeSend: function() {
+                $("#cambiarClaveBtn").attr("disabled", true);
+            },
+            success: function(response) {
+                $("#form").remove();
+                $("#alertSuccess").removeClass("d-none");
+                setTimeout(function(){
+                    window.location.href = "/login";
+                }, 4000);
+            },
+            error: function(err) {
+                notyf.open({
+                    type: 'error',
+                    message: err.responseText,
+                    duration: 15000
+                });
+                $("#cambiarClaveBtn").attr("disabled", false);
+            },
+        });
+    }
+</script>
+<footer th:replace="~{components/imports :: footer}"></footer>
+</html>

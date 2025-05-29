@@ -64,6 +64,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/notificaciones/bajo-stock").setViewName(null);
 
         registry.addViewController("/login").setViewName("login");
+        registry.addViewController("/cambiarClave").setViewName("cambiarClave");
         registry.addViewController("/logout").setViewName("redirect:/login?logout");
     }
 }

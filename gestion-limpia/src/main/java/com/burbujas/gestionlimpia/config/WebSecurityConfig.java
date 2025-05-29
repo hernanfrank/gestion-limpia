@@ -34,7 +34,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/vendor/**", "/js/**", "/webjars/**").permitAll()
+                        .requestMatchers("/vendor/**", "/js/**", "/webjars/**", "/administracion/clave/cambiar/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
