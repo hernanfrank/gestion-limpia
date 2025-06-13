@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<style>
+    .stat-card-border {
+        border: 1px solid #c2c2ca;
+    }
+
+    .main-container {
+        max-height: 80vh;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        border-radius: 7px;
+    }
+
+    .chart-container{
+        height: 250px;
+        padding-bottom:15px;
+        cursor: default;
+    }
+
+    .smaller {
+        font-size: 0.9rem;
+    }
+</style>
+<link rel="stylesheet" href="/webjars/morrisjs/0.5.1/morris.css" type="text/css"/>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="container-fluid p-1 pb-0">
+    <div id="menu-superior" class="row pb-2">
+        <div class="col-1"></div>
+        <div class="col">
+          <span class="float-start ms-n25 bg-white p-2 ps-3 pe-0 border rounded" style="min-width: 18rem;">
+            <label for="fechaBusqueda">
+              Buscar en mes:
+            </label><br/>
+              <select id="fechaBusqueda" name="fechaBusqueda" class="form-select d-inline-block" style="width:70%">
+                  <option
+                      th:each="mes : ${mesesConDatos}"
+                      th:value="${mes}"
+                      th:text="${#strings.capitalize(#dates.format(mes,'MMMM yyyy'))}"
+                      th:selected="${#dates.format(mes,'yyyy-MM-dd') == fechaBusqueda}"
+                  ></option>
+              </select>
+            <a class="d-inline-block w-25 ms-2" href="#" onclick="establecerMes()">
+              <button class="btn btn-outline-secondary" title="Buscar entre fechas">
+                <i class="bi bi-search"></i>
+              </button>
+            </a>
+          </span>
+<!--            <a class="float-end me-n25 mt-2" th:href="@{/estadisticas/exportar}">-->
+            <a class="float-end me-n25 mt-2" onclick="printEstadisticas()">
+                <button class="btn btn-primary">
+                    <i class="bi bi-file-earmark-arrow-down"></i>
+                    Imprimir datos
+                </button>
+            </a>
+        </div>
+        <div class="col-1"></div>
+    </div>
+    <div class="row">
+        <div class="col-1"></div>
+        <div id="main-container" class="col-10 main-container">
+            <!--resumen--><div class="row mb-2">
+                <div class="col p-4 py-3 bg-white stat-card-border rounded">
+                    <div class="row">
+                        <h4 class="float-start mb-0">Resumen Mensual <span id="mes-seleccionado" style="font-size: 20px"></span></h4><span class="smaller text-muted mb-2">(solo los pedidos entregados)</span>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-3">
+                            <div class="card stat-card-border">
+                                <div class="card-body py-2">
+                                    <p class="card-text mb-2">Total ingresos</p>
+                                    <h3 class="card-title d-inline-block" th:text="${#numbers.formatCurrency(totalIngresos.valor)}"></h3>
+                                    <span th:class="'fw-bold mb-0 '+${totalIngresos.porcentaje > 0 ? 'text-success': (totalIngresos.porcentaje < 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(totalIngresos.porcentaje,1,2)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="card stat-card-border">
+                                <div class="card-body py-2">
+                                    <p class="card-text mb-2">Pedidos Completados</p>
+                                    <h3 class="card-title d-inline-block" th:text="${pedidosCompletados.valor}"></h3>
+                                    <span th:class="'fw-bold mb-0 '+${pedidosCompletados.porcentaje > 0 ? 'text-success': (pedidosCompletados.porcentaje < 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(pedidosCompletados.porcentaje,1,2)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="card stat-card-border">
+                                <div class="card-body py-2">
+                                    <p class="card-text mb-2">Cantidad de Clientes</p>
+                                    <h3 class="card-title d-inline-block" th:text="${cantidadClientes.valor}"></h3>
+                                    <span th:class="'fw-bold mb-0 '+${cantidadClientes.porcentaje > 0 ? 'text-success': (cantidadClientes.porcentaje < 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(cantidadClientes.porcentaje,1,2)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card stat-card-border">
+                                <div class="card-body py-2">
+                                    <p class="card-text mb-2">Costos de Inventario</p>
+                                    <h3 class="card-title d-inline-block" th:text="${#numbers.formatCurrency(costosInventario.valor)}"></h3>
+                                    <span th:class="'fw-bold mb-0 '+${costosInventario.porcentaje < 0 ? 'text-success': (costosInventario.porcentaje > 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(costosInventario.porcentaje,1,2)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="card stat-card-border">
+                                <div class="card-body py-2">
+                                    <p class="card-text mb-2">Tiempo por Pedido</p>
+                                    <h3 class="card-title d-inline-block" th:text="${tiempoPorPedido.valor+' días'}"></h3>
+                                    <span th:class="'fw-bold mb-0 '+${tiempoPorPedido.porcentaje > 0 ? 'text-success': (tiempoPorPedido.porcentaje < 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(tiempoPorPedido.porcentaje,1,2)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--ingresos--><div class="row mb-n3">
+                <div class="col p-4 py-3 bg-white stat-card-border rounded">
+                    <div class="row">
+                        <h4 class="float-start">Análisis de Ingresos</h4>
+                    </div>
+                    <div class="row mb-2 d-flex justify-content-center">
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Ingresos por mes <span class="smaller text-muted">(6 meses atrás)</span></p>
+                                    <span class="text-success fw-bold mb-0"></span>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="ingresos-por-mes-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Ingresos por día <span class="smaller text-muted">(mes seleccionado)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="ingresos-por-dia-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Ingresos por tipo de caja <span class="smaller text-muted">(mes seleccionado)</span></p>
+                                    <span class="text-success fw-bold mb-0"></span>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="ingresos-por-tipocaja-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Ingresos por tipo de pedido <span class="smaller text-muted">(mes seleccionado)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="ingresos-por-tipopedido-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><br style="page-break-after: always;margin-top:-10px;padding:0;">
+            <!--clientes--><div class="row mb-2">
+                <div class="col p-4 py-3 bg-white stat-card-border rounded">
+                    <div class="row">
+                        <h4 class="float-start">Análisis de Clientes</h4>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Clientes por cantidad de pedidos <span class="smaller text-muted">(histórico)</span></p>
+                                    <span class="text-success fw-bold mb-0"></span>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="clientes-por-pedidos-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Clientes por ingresos <span class="smaller text-muted">(histórico)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="clientes-por-ingresos-chart" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--pedidos--><div class="row mb-n3">
+                <div class="col p-4 py-3 bg-white stat-card-border rounded">
+                    <div class="row">
+                        <h4 class="float-start">Análisis de Pedidos</h4>
+                    </div>
+                    <div class="row mb-2 d-flex justify-content-center">
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Completados por día de la semana<span class="smaller text-muted">(mes seleccionado)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="pedidos-por-dia-chart" style="height: 250px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <span class="h5 card-text mb-2">Completados por mes <span class="smaller text-muted">(6 meses)</span></span>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="pedidos-por-mes-chart" style="height: 250px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Tiempo por estado <span class="smaller text-muted">(histórico)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="tiempo-por-estado-chart" style="height: 250px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card stat-card-border">
+                                <div class="card-body">
+                                    <p class="h5 card-text mb-2">Tiempo por tipo de pedido <span class="smaller text-muted">(histórico)</span></p>
+                                    <div class="d-flex justify-content-center">
+                                        <div id="tiempo-por-tipopedido-chart" style="height: 250px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><br style="page-break-after: always;margin-top:-10px;padding:0;">
+            <!--inventario--><div class="row mb-4">
+            <div class="col p-4 py-3 bg-white stat-card-border rounded">
+                <div class="row">
+                    <h4 class="float-start">Análisis de Inventario</h4>
+                </div>
+                <div class="row mb-2 d-flex justify-content-center">
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Cantidad de reabastecimientos por mes <span class="smaller text-muted">(6 meses)</span></p>
+                                <div class="d-flex justify-content-center">
+                                    <div id="cantidad-reabastecimientos-por-mes-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Costo de reabastecimientos por mes <span class="smaller text-muted">(6 meses)</span></p>
+                                <span class="text-success fw-bold mb-0"></span>
+                                <div class="d-flex justify-content-center">
+                                    <div id="costo-reabastecimiento-por-mes-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2 d-flex justify-content-center">
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Uso por tipo de producto <span class="smaller text-muted">(histórico)</span></p>
+                                <span class="text-success fw-bold mb-0"></span>
+                                <div class="d-flex justify-content-center">
+                                    <div id="uso-por-producto-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Costo por tipo de producto <span class="smaller text-muted">(histórico)</span></p>
+                                <div class="d-flex justify-content-center">
+                                    <div id="costo-por-producto-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Proveedores por cantidad de reabastecimientos <span class="smaller text-muted">(histórico)</span></p>
+                                <span class="text-success fw-bold mb-0"></span>
+                                <div class="d-flex justify-content-center">
+                                    <div id="proveedores-por-reabastecimiento-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card stat-card-border">
+                            <div class="card-body">
+                                <p class="h5 card-text mb-2">Proveedores por gasto en producto <span class="smaller text-muted">(histórico)</span></p>
+                                <div class="d-flex justify-content-center">
+                                    <div id="proveedores-por-gasto-chart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<script src="/webjars/raphaeljs/2.1.4/raphael-min.js"></script>
+<script src="/webjars/morrisjs/0.5.1/morris.min.js"></script>
+<script th:utext="'const ingresosPorMesData='+${ingresosPorMes}"></script>
+<script th:utext="'const ingresosPorDiaData='+${ingresosPorDia}"></script>
+<script th:utext="'const ingresosPorTipoCajaData='+${ingresosPorTipoCaja}"></script>
+<script th:utext="'const ingresosPorTipoPedidoData='+${ingresosPorTipoPedido}"></script>
+<script th:utext="'const clientesPorPedidosData='+${clientesPorPedidos}"></script>
+<script th:utext="'const clientesPorIngresosData='+${clientesPorIngresos}"></script>
+<script th:utext="'const pedidosPorMesData='+${pedidosPorMes}"></script>
+<script th:utext="'const pedidosPorDiaDeSemanaData='+${pedidosPorDiaDeSemana}"></script>
+<script th:utext="'const tiempoPorEstadoData='+${tiempoPorEstado}"></script>
+<script th:utext="'const tiempoPorTipoPedidoData='+${tiempoPorTipoPedido}"></script>
+<script th:utext="'const cantidadReabastecimientoPorMesData='+${cantidadReabastecimientoPorMes}"></script>
+<script th:utext="'const costoReabastecimientoPorMesData='+${costoReabastecimientoPorMes}"></script>
+<script th:utext="'const usoPorTipoProductoData='+${usoPorTipoProducto}"></script>
+<script th:utext="'const costoPorTipoProductoData='+${costoPorTipoProducto}"></script>
+<script th:utext="'const proveedoresPorCantidadReabastecimientosData='+${proveedoresPorCantidadReabastecimientos}"></script>
+<script th:utext="'const proveedoresPorCostoReabastecimientosData='+${proveedoresPorCostoReabastecimientos}"></script>
+<script>
+    const monthNames = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const dayNames = ["","Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const colorList = [
+        "#041628",
+        "#062947",
+        "#083c66",
+        "#094f85",
+        "#0b62a4",
+        "#8cbee4",
+        "#a3cbe9",
+        "#bad8ef",
+        "#d1e5f4",
+        "#e8f2fa",
+    ];
+    function establecerMes(){
+        window.location.href = '/estadisticas/'+$('#fechaBusqueda').val();
+    }
+
+    function printEstadisticas(){
+        $($(".navbar")[0]).hide();
+        $("#menu-superior").hide();
+        $("#main-container").removeClass('main-container');
+        window.print();
+        $($(".navbar")[0]).show();
+        $("#menu-superior").show();
+        $("#main-container").addClass('main-container');
+    }
+
+    $(document).ready(() => {
+        $("#mes-seleccionado").html('('+$("#fechaBusqueda option:selected")[0].text+')');
+        //Ingresos
+        if(ingresosPorMesData.length === 0){
+            $("#ingresos-por-mes-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        }else{
+            new Morris.Line({
+                element: 'ingresos-por-mes-chart',
+                data: ingresosPorMesData,
+                xkey: 'x',
+                parseTime: false,
+                xLabelFormat: (x) => {
+                    return monthNames.at(x.label.substring(5, 7));
+                },
+                xLabels: 'month',
+                ykeys: ['y'],
+                yLabelFormat: (y)=>{return '$'+y.toLocaleString();},
+                labels: ['Ingresos por mes'],
+                hideHover: 'auto'
+            });
+        }
+
+        if(ingresosPorDiaData.length === 0){
+            $("#ingresos-por-dia-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Line({
+            element: 'ingresos-por-dia-chart',
+            data: ingresosPorDiaData,
+            xkey: 'x',
+            parseTime: false,
+            xLabelFormat: (x) => {
+                return x.label.substring(8,10)+'/'+x.label.substring(5,7);
+            },
+            xLabels: 'month',
+            ykeys: ['y'],
+            yLabelFormat: (y)=>{return '$'+y.toLocaleString();},
+            labels: ['Ingresos'],
+            hideHover: 'auto'
+        });}
+
+        if(ingresosPorTipoCajaData.length === 0){
+            $("#ingresos-por-tipocaja-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Donut({
+                element: 'ingresos-por-tipocaja-chart',
+                data: ingresosPorTipoCajaData,
+                formatter: (y, data) => {
+                    return '$' + y.toLocaleString()
+                },
+                colors: colorList.slice(4, 6)
+            });
+        }
+
+        if(ingresosPorTipoPedidoData.length === 0){
+            $("#ingresos-por-tipopedido-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'ingresos-por-tipopedido-chart',
+                data: ingresosPorTipoPedidoData,
+                xkey: 'x',
+                xLabelAngle: '45',
+                ykeys: ['y'],
+                yLabelFormat: (y) => {
+                    return '$' + y.toLocaleString();
+                },
+                labels: ['Ingresos por tipo de pedido'],
+                hideHover: 'auto'
+            });
+        }
+
+        //Clientes
+        if(clientesPorPedidosData.length === 0){
+            $("#clientes-por-pedidos-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'clientes-por-pedidos-chart',
+                data: clientesPorPedidosData,
+                xkey: 'x',
+                xLabelAngle: '45',
+                ykeys: ['y'],
+                labels: ['Cantidad de pedidos'],
+                hideHover: 'auto',
+            });
+        }
+
+        if(clientesPorIngresosData.length === 0){
+            $("#clientes-por-ingresos-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'clientes-por-ingresos-chart',
+                data: clientesPorIngresosData,
+                xkey: 'x',
+                xLabelAngle: '45',
+                ykeys: ['y'],
+                yLabelFormat: (y) => {
+                    return '$' + y.toLocaleString();
+                },
+                labels: ['Ingresos'],
+                hideHover: 'auto',
+            });
+        }
+
+        //Pedidos
+        if(pedidosPorDiaDeSemanaData.length === 0){
+            $("#pedidos-por-dia-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'pedidos-por-dia-chart',
+                data: pedidosPorDiaDeSemanaData,
+                xkey: 'x',
+                xLabelAngle: '45',
+                xLabelFormat:(x)=>{return dayNames.at(x.label)},
+                ykeys: ['y'],
+                labels: ['Cantidad'],
+                hideHover: 'auto'
+            });
+        }
+
+        if(pedidosPorMesData.length === 0){
+            $("#pedidos-por-mes-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Line({
+                element: 'pedidos-por-mes-chart',
+                data: pedidosPorMesData,
+                xkey: 'x',
+                parseTime: false,
+                xLabelFormat: (x) => {
+                    return monthNames.at(x.label.substring(5, 7));
+                },
+                xLabels: 'month',
+                ykeys: ['y'],
+                labels: ['Cantidad de pedidos'],
+                hideHover: 'auto'
+            });
+        }
+
+        if(tiempoPorEstadoData.length === 0){
+            $("#tiempo-por-estado-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Donut({
+                element: 'tiempo-por-estado-chart',
+                data: tiempoPorEstadoData,
+                formatter: (y, data) => {
+                    return (Math.round(y * 100) / 100).toFixed(2) + ' min'
+                },
+                colors: colorList
+            });
+        }
+
+        if(tiempoPorTipoPedidoData.length === 0){
+            $("#tiempo-por-tipopedido-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Donut({
+                element: 'tiempo-por-tipopedido-chart',
+                data: tiempoPorTipoPedidoData,
+                formatter: (y, data) => {
+                    return (Math.round(y * 100) / 100).toFixed(2) + ' min'
+                },
+                colors: colorList
+            });
+        }
+
+        //Inventario
+        if(cantidadReabastecimientoPorMesData.length === 0){
+            $("#costo-reabastecimiento-por-mes-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Line({
+                element: 'cantidad-reabastecimientos-por-mes-chart',
+                data: cantidadReabastecimientoPorMesData,
+                xkey: 'x',
+                parseTime: false,
+                xLabelFormat: (x) => {
+                    return monthNames.at(x.label.substring(5, 7));
+                },
+                xLabels: 'month',
+                ykeys: ['y'],
+                labels: ['Cantidad reabastecimientos por mes'],
+                hideHover: 'auto'
+            });
+        }
+
+        if(costoReabastecimientoPorMesData.length === 0){
+            $("#costo-reabastecimiento-por-mes-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Line({
+                element: 'costo-reabastecimiento-por-mes-chart',
+                data: costoReabastecimientoPorMesData,
+                xkey: 'x',
+                parseTime: false,
+                xLabelFormat: (x) => {
+                    return monthNames.at(x.label.substring(5, 7));
+                },
+                xLabels: 'month',
+                ykeys: ['y'],
+                labels: ['Costo reabastecimiento por mes'],
+                hideHover: 'auto'
+            });
+        }
+
+        if(usoPorTipoProductoData.length === 0){
+            $("#uso-por-producto-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'uso-por-producto-chart',
+                data: usoPorTipoProductoData,
+                xkey: 'x',
+                xLabelAngle: '60',
+                ykeys: ['y'],
+                yLabelFormat: (y) => {
+                    return y.toLocaleString() + 'l';
+                },
+                labels: ['Uso (en litros) por tipo producto'],
+                hideHover: 'auto',
+            });
+            $('#uso-por-producto-chart > svg').height(300);
+            $('#uso-por-producto-chart').height(280);
+        }
+
+        if(costoPorTipoProductoData.length === 0){
+            $("#costo-por-producto-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'costo-por-producto-chart',
+                data: costoPorTipoProductoData,
+                xkey: 'x',
+                xLabelAngle: '60',
+                ykeys: ['y'],
+                yLabelFormat: (y) => {
+                    return '$' + y.toLocaleString();
+                },
+                labels: ['Costo reabastecimiento de este tipo de producto'],
+                hideHover: 'auto',
+            });
+            $('#costo-por-producto-chart > svg').height(300);
+            $('#costo-por-producto-chart').height(280);
+        }
+
+        if(proveedoresPorCantidadReabastecimientosData.length === 0){
+            $("#proveedores-por-reabastecimiento-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'proveedores-por-reabastecimiento-chart',
+                data: proveedoresPorCantidadReabastecimientosData,
+                xkey: 'x',
+                xLabelAngle: '60',
+                ykeys: ['y'],
+                labels: ['Cantidad de reabastecimientos'],
+                hideHover: 'auto',
+            });
+            $('#proveedores-por-reabastecimiento-chart > svg').height(300);
+            $('#proveedores-por-reabastecimiento-chart').height(280);
+        }
+
+        if(proveedoresPorCostoReabastecimientosData.length === 0){
+            $("#proveedores-por-gasto-chart").html("<div style='text-decoration:underline;margin-top: 7em;color:gray'>No existen datos para el mes seleccionado.</div>");
+        } else {
+            new Morris.Bar({
+                element: 'proveedores-por-gasto-chart',
+                data: proveedoresPorCostoReabastecimientosData,
+                xkey: 'x',
+                xLabelAngle: '60',
+                ykeys: ['y'],
+                yLabelFormat: (y) => {
+                    return '$' + y.toLocaleString();
+                },
+                labels: ['Sumatoria de gasto en reabastecimientos'],
+                hideHover: 'auto',
+            });
+            $('#proveedores-por-gasto-chart > svg').height(300);
+            $('#proveedores-por-gasto-chart').height(280);
+        }
+
+    })
+</script>
+<div th:replace="~{components/topmenu :: messages}"></div>
+</html>

@@ -2,18 +2,20 @@ package com.burbujas.gestionlimpia.models.services;
 
 import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
-import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
-import com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja;
 import com.burbujas.gestionlimpia.models.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
+
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 @Service
 public class PedidoServiceImpl implements IPedidoService{
@@ -60,6 +62,59 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
+    public List<Date> findAllMonthsWithPedidosEntregados() {
+        return this.pedidoRepository.findAllMonthsWithPedidosEntregados();
+    }
+
+    @Override
+    public Double avgTiempoPorPedidoGroupByMes(String fecha) {
+        LocalDate fechaDesde = LocalDate.parse(fecha).withDayOfMonth(1);
+        LocalDate fechaHasta = fechaDesde.with(lastDayOfMonth());
+        Double val = this.pedidoRepository.avgTiempoPorPedidoByMes(Timestamp.valueOf(fechaDesde.atStartOfDay()), Timestamp.valueOf(fechaHasta.atTime(23, 59, 59)));
+        return val == null ? 0 : val;
+    }
+
+    @Override
+    public Integer countAllInMes(String fecha) {
+        LocalDate fechaDesde = LocalDate.parse(fecha).withDayOfMonth(1);
+        LocalDate fechaHasta = fechaDesde.with(lastDayOfMonth());
+        Integer val = this.pedidoRepository.countAllByFechaAfterAndFechaBefore(Timestamp.valueOf(fechaDesde.atStartOfDay()), Timestamp.valueOf(fechaHasta.atTime(23, 59, 59)));
+        return val == null ? 0 : val;
+    }
+
+    @Override
+    public List<Object[]> countAllGroupByCliente() {
+        return this.pedidoRepository.countAllGroupByCliente();
+    }
+
+    @Override
+    public List<Object[]> sumAllGroupByCliente() {
+        return this.pedidoRepository.sumAllGroupByCliente();
+    }
+
+    @Override
+    public List<Object[]> countAllGroupByMes(String fecha) {
+        LocalDate fechaBusqueda = LocalDate.parse(fecha);
+        return this.pedidoRepository.countAllGroupByMes(Timestamp.valueOf(fechaBusqueda.atTime(23,59,59)));
+    }
+
+    @Override
+    public List<Object[]> avgTiempoByEstadoPedido() {
+        return this.pedidoRepository.avgTiempoByEstadoPedido();
+    }
+
+    @Override
+    public List<Object[]> avgTiempoByTipoPedido() {
+        return this.pedidoRepository.avgTiempoByTipoPedido();
+    }
+
+    @Override
+    public List<Object[]> countAllGroupByDiaDeSemana(String fecha) {
+        LocalDate fechaBusqueda = LocalDate.parse(fecha);
+        return this.pedidoRepository.countAllGroupByDiaDeSemana(Timestamp.valueOf(fechaBusqueda.atTime(23,59,59)));
+    }
+
+    @Override
     public List<HistorialEstadoPedido> getHistorialEstadosByPedidoId(Long id) {
         // si no existe el pedido retorno null
         try {
@@ -84,6 +139,9 @@ public class PedidoServiceImpl implements IPedidoService{
             try{
                 pedido.get().setMaquinaActual(maquina.get());
                 pedido.get().setEstadoActual(estado);
+                if(estado.equals(EstadoPedido.ENTREGADO)){
+                    pedido.get().setFechaHoraEntrega(Timestamp.valueOf(LocalDateTime.now()));
+                }
                 this.save(pedido.get());
                 return true;
             }catch (Exception e){
@@ -173,7 +231,7 @@ public class PedidoServiceImpl implements IPedidoService{
             Timestamp ahora = new Timestamp(System.currentTimeMillis()); // para que haya consistencia en los historiales, uso la misma instancia de timestamp
 
             Maquina maquinaAnterior = null;
-            if(pedido.getHistorialMaquinaPedido().size() > 0){
+            if(!pedido.getHistorialMaquinaPedido().isEmpty()){
                 // del último cambio de maquina, obtengo la maquina nueva (osea el anterior al cambio actual), si no hay cambio es pq es un pedido nuevo y por lo tanto no tiene máquina anterior
                 maquinaAnterior = pedido.getHistorialMaquinaPedido().get(pedido.getHistorialMaquinaPedido().size() - 1).getMaquinaNueva();
             }
@@ -186,7 +244,7 @@ public class PedidoServiceImpl implements IPedidoService{
 
             // También cambio el estado asociado a la maquina
             EstadoPedido estadoAnterior = EstadoPedido.INGRESADO;
-            if(pedido.getHistorialEstadoPedido().size() > 0) { // si no había otro estado antes es pq es un pedido nuevo, por lo tanto el estado anterior es ingresado
+            if(!pedido.getHistorialEstadoPedido().isEmpty()) { // si no había otro estado antes es pq es un pedido nuevo, por lo tanto el estado anterior es ingresado
                 estadoAnterior = pedido.getHistorialEstadoPedido().get(pedido.getHistorialEstadoPedido().size() - 1).getEstadoNuevo();
             }
 

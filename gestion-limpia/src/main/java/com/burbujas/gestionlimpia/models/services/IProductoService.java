@@ -24,6 +24,16 @@ public interface IProductoService {
 
     public List<HistorialProductoPedido> getHistorialProductoPedidoByProductoId(Long id);
 
+    public Double sumAllReabastecimientosInMes(String fecha);
+
+    public List<Object[]> sumAllReabastecimientosGroupByMes(String fecha);
+
+    public List<Object[]> countAllReabastecimientosGroupByMes(String fecha);
+
+    public List<Object[]> sumAllUsoGroupByTipo();
+
+    public List<Object[]> countAllUsoGroupByTipo();
+
     /* vuelve a calcular la cantidad como la suma de reabastecimientos menos la suma de usos porque si
      modifico un reabastecimiento se suma más de una vez a la cantidad actual...*/
     public void updateCantidadActual(Producto producto);

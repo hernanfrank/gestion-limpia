@@ -59,6 +59,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/pedido").setViewName("pedidos/pedido");
         registry.addViewController("/pedidos").setViewName("pedidos/pedidos");
 
+        registry.addViewController("/estadisticas").setViewName("estadisticas");
+
         registry.addViewController("/administracion").setViewName("administracion");
 
         registry.addViewController("/notificaciones/bajo-stock").setViewName(null);

@@ -8,7 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
+
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 @Service("ClienteServiceImpl")
 public class ClienteServiceImpl implements IClienteService{
@@ -42,6 +46,14 @@ public class ClienteServiceImpl implements IClienteService{
     @Transactional(readOnly = true)
     public List<Cliente> findByNombreApellido(String nombreApellido) {
         return this.clienteRepository.findByNombreApellidoLike("%"+nombreApellido+"%");
+    }
+
+    @Override
+    public Integer countAllByMes(String fecha) {
+        LocalDate fechaDesde = LocalDate.parse(fecha).withDayOfMonth(1);
+        LocalDate fechaHasta = fechaDesde.with(lastDayOfMonth());
+        Integer val = this.clienteRepository.countAllByFechaAfterAndFechaBefore(Timestamp.valueOf(fechaDesde.atStartOfDay()), Timestamp.valueOf(fechaHasta.atTime(23, 59, 59)));
+        return val == null ? 0 : val;//si es null, no hubo pedidos entregados entre las fechas
     }
 
     @Override

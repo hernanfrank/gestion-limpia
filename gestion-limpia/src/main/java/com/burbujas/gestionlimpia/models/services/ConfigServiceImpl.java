@@ -4,32 +4,38 @@ import com.burbujas.gestionlimpia.models.entities.Config;
 import com.burbujas.gestionlimpia.models.repositories.IConfigRepository;
 import com.burbujas.gestionlimpia.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("ConfigServiceImpl")
 public class ConfigServiceImpl implements IConfigService{
     private final IConfigRepository configRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final InMemoryUserDetailsManager userDetailsManager;
-    private final AuthenticationProvider authenticationProvider;
 
     @Autowired
-    public ConfigServiceImpl(IConfigRepository configRepository, BCryptPasswordEncoder passwordEncoder, InMemoryUserDetailsManager userDetailsManager, AuthenticationProvider authenticationProvider) {
+    public ConfigServiceImpl(IConfigRepository configRepository, BCryptPasswordEncoder passwordEncoder, InMemoryUserDetailsManager userDetailsManager) {
         this.configRepository = configRepository;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsManager = userDetailsManager;
-        this.authenticationProvider = authenticationProvider;
 
     }
 
     @Override
+    @Cacheable("configCache")
+    @Transactional(readOnly = true)
     public Config findById(Long id) {
-        return this.configRepository.findById(id).orElse(null);
+        try {
+            return this.configRepository.findById(id).orElse(null);
+        } catch (Exception e) {
+            System.out.printf("Excepción capturada en ConfigServiceImpl: Error al obtener la configuración: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override

@@ -7,8 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 @Service
 public class ProductoServiceImpl implements IProductoService{
@@ -77,6 +81,38 @@ public class ProductoServiceImpl implements IProductoService{
         }catch(NullPointerException e){
             return null;
         }
+    }
+
+    @Override
+    public Double sumAllReabastecimientosInMes(String fecha) {
+        LocalDate fechaDesde = LocalDate.parse(fecha).withDayOfMonth(1);
+        LocalDate fechaHasta = fechaDesde.with(lastDayOfMonth());
+        Double val = this.reabastecimientoRepository.sumAllByFechaAfterAndFechaBefore(Timestamp.valueOf(fechaDesde.atStartOfDay()), Timestamp.valueOf(fechaHasta.atStartOfDay()));
+        return val == null ? 0.0 : val;//si es null, no hay gastos de inventario entre las fechas
+    }
+
+    @Override
+    public List<Object[]> sumAllReabastecimientosGroupByMes(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha);
+        return this.reabastecimientoRepository.sumAllReabastecimientosGroupByMes(Timestamp.valueOf(fechaHasta.atStartOfDay()));
+
+    }
+
+    @Override
+    public List<Object[]> countAllReabastecimientosGroupByMes(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha);
+        return this.reabastecimientoRepository.countAllReabastecimientosGroupByMes(Timestamp.valueOf(fechaHasta.atStartOfDay()));
+
+    }
+
+    @Override
+    public List<Object[]> sumAllUsoGroupByTipo() {
+        return this.productoRepository.sumAllUsoGroupByTipo();
+    }
+
+    @Override
+    public List<Object[]> countAllUsoGroupByTipo() {
+        return this.productoRepository.countAllUsoGroupByTipo();
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 
+import java.sql.Date;
 import java.util.List;
 
 public interface IPedidoService {
@@ -22,6 +23,24 @@ public interface IPedidoService {
     public List<HistorialEstadoPedido> getHistorialEstadosByPedidoId(Long id);
 
     public List<HistorialMaquinaPedido> getHistorialMaquinasByPedidoId(Long id);
+
+    public List<Date> findAllMonthsWithPedidosEntregados();
+
+    public Double avgTiempoPorPedidoGroupByMes(String fecha);
+
+    public Integer countAllInMes(String fecha);
+
+    public List<Object[]> countAllGroupByCliente();
+
+    public List<Object[]> sumAllGroupByCliente();
+
+    public List<Object[]> countAllGroupByMes(String fecha);
+
+    public List<Object[]> avgTiempoByEstadoPedido();
+
+    public List<Object[]> avgTiempoByTipoPedido();
+
+    public List<Object[]> countAllGroupByDiaDeSemana(String fecha);
 
     public String asignarAMaquina(Long pedidoId, Integer maquinaNumero, boolean force);
 

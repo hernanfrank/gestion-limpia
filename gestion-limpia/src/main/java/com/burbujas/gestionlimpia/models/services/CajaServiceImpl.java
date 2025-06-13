@@ -10,9 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import static java.time.temporal.TemporalAdjusters.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service("CajaServiceImpl")
 public class CajaServiceImpl implements ICajaService{
@@ -33,6 +39,38 @@ public class CajaServiceImpl implements ICajaService{
     @Override
     public List<MovimientoCaja> findAllByFechaAfterAndFechaBeforeOrderByFechaDesc(Date fechaDesde, Date fechaHasta) {
         return this.movimientoCajaRepository.findAllByFechaAfterAndFechaBeforeOrderByFechaDesc(fechaDesde, fechaHasta);
+    }
+
+    @Override
+    public Double sumAllByMes(String fecha) {
+        LocalDate fechaDesde = LocalDate.parse(fecha).withDayOfMonth(1);
+        LocalDate fechaHasta = fechaDesde.with(lastDayOfMonth());
+        Double val = this.movimientoCajaRepository.sumAllByFechaAfterAndFechaBefore(Timestamp.valueOf(fechaDesde.atStartOfDay()), Timestamp.valueOf(fechaHasta.atTime(23,59,59)));
+        return val == null ? 0.0 : val;//si es null, no hay movimientos entre las fechas
+    }
+
+    @Override
+    public List<Object[]> sumAllGroupByMes(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha).with(lastDayOfMonth());
+        return this.movimientoCajaRepository.sumAllGroupByMes(Timestamp.valueOf(fechaHasta.atTime(23,59,59)));
+    }
+
+    @Override
+    public List<Object[]> sumAllGroupByDia(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha);
+        return this.movimientoCajaRepository.sumAllGroupByDia(Timestamp.valueOf(fechaHasta.atStartOfDay()));
+    }
+
+    @Override
+    public List<Object[]> sumAllGroupByTipoCaja(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha);
+        return this.movimientoCajaRepository.sumAllGroupByTipoCaja(Timestamp.valueOf(fechaHasta.atStartOfDay()));
+    }
+
+    @Override
+    public List<Object[]> sumAllGroupByTipoPedido(String fecha) {
+        LocalDate fechaHasta = LocalDate.parse(fecha);
+        return this.movimientoCajaRepository.sumAllGroupByTipoPedido(Timestamp.valueOf(fechaHasta.atStartOfDay()));
     }
 
     @Override

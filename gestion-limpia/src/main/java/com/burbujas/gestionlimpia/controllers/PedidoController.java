@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -249,6 +251,7 @@ public class PedidoController {
                 // si está seteada como true la entrega automática de pedidos, cambiamos el estado
                 // no lo seteo directamente en entregado porque se estaría salteando un estado
                 pedido.setEstadoActual(EstadoPedido.ENTREGADO);
+                pedido.setFechaHoraEntrega(Timestamp.valueOf(LocalDateTime.now()));
                 this.pedidoService.save(pedido);
                 return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"Se ha registrado la cobranza y entrega del pedido correctamente.\"}", HttpStatus.OK);
             }else{

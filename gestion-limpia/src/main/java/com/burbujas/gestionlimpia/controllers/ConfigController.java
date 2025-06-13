@@ -5,6 +5,7 @@ import com.burbujas.gestionlimpia.models.entities.Config;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
 import com.burbujas.gestionlimpia.models.services.*;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 
 import org.springframework.http.HttpHeaders;
@@ -36,6 +37,7 @@ public class ConfigController {
     private final IDatabaseBackupService databaseBackupService;
     private final IClaveResetService claveResetService;
 
+    @Autowired
     public ConfigController(IConfigService configService, ITipoPedidoService tipoPedidoService, IAlertaReabastecimientoService alertaReabastecimientoService, IDatabaseBackupService databaseBackupService, IClaveResetService claveResetService) {
         this.configService = configService;
         this.tipoPedidoService = tipoPedidoService;

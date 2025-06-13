@@ -5,13 +5,26 @@ import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface ICajaService {
     public List<MovimientoCaja> findAllMovimientosCajaOrderByFechaDesc();
 
     public List<MovimientoCaja> findAllByFechaAfterAndFechaBeforeOrderByFechaDesc(Date fechaDesde, Date fechaHasta);
+
+    public Double sumAllByMes(String fecha);
+
+    public List<Object[]> sumAllGroupByMes(String fecha);
+
+    public List<Object[]> sumAllGroupByDia(String fecha);
+
+    public List<Object[]> sumAllGroupByTipoCaja(String fecha);
+
+    public List<Object[]> sumAllGroupByTipoPedido(String fecha);
 
     public MovimientoCaja findMovimientoCajaById(Long id);
 
