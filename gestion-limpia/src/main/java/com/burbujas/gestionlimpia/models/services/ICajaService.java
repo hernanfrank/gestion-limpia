@@ -5,6 +5,7 @@ import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Date;
@@ -37,4 +38,6 @@ public interface ICajaService {
     public void deleteMovimientoCaja(MovimientoCaja movimientoCaja);
 
     public MovimientoCaja findMovimientoCajaByReabastecimiento(Reabastecimiento reabastecimiento);
+
+    public File exportarMovimientosCaja(Date fechaDesde, Date fechaHasta, String nombreArchivo) throws Exception;
 }

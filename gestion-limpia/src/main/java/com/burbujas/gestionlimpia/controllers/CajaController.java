@@ -10,7 +10,10 @@ import com.burbujas.gestionlimpia.models.services.IPedidoService;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,12 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/caja")
@@ -93,7 +99,7 @@ public class CajaController {
                         .filter(movimientoCajaEfectivo -> movimientoCajaEfectivo.getTipoCaja() == TipoCaja.EFECTIVO)
                         .mapToDouble(movimientoCaja -> {
                             return switch (movimientoCaja.getTipoMovimientoCaja()) {
-                                case NOTADEBITO, EGRESO -> -movimientoCaja.getMonto();
+                                case NOTACREDITO, EGRESO -> -movimientoCaja.getMonto();
                                 default -> movimientoCaja.getMonto();
                             };
                         }).sum()
@@ -104,7 +110,7 @@ public class CajaController {
                         .filter(movimientoCajaBanco -> movimientoCajaBanco.getTipoCaja() == TipoCaja.BANCO)
                         .mapToDouble(movimientoCaja -> {
                             return switch (movimientoCaja.getTipoMovimientoCaja()) {
-                                case NOTADEBITO, EGRESO -> -movimientoCaja.getMonto();
+                                case NOTACREDITO, EGRESO -> -movimientoCaja.getMonto();
                                 default -> movimientoCaja.getMonto();
                             };
                         }).sum()
@@ -187,6 +193,30 @@ public class CajaController {
             }
         }catch (Exception e){
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar el movimiento. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/descargarReporte/{fechaDesde}/{fechaHasta}")
+    public ResponseEntity<?> descargarReporteCaja(@PathVariable(name = "fechaDesde") String fechaDesde, @PathVariable(name = "fechaHasta") String fechaHasta) {
+        try {
+            String nombreArchivo = "movimientos_caja_" + fechaDesde + "_a_" + fechaHasta + ".xlsx";
+            Date fechaDesdeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(fechaDesde+" 00:00:00");
+            Date fechaHastaDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(fechaHasta+" 23:59:59");
+            File archivo = cajaService.exportarMovimientosCaja(fechaDesdeDate, fechaHastaDate, nombreArchivo);
+
+            if (!archivo.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se pudo generar el reporte de caja.");
+            }
+
+            InputStreamResource recurso = new InputStreamResource(new FileInputStream(archivo));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + archivo.getName())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .contentLength(archivo.length())
+                    .body(recurso);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al generar el reporte de caja: " + e.getMessage());
         }
     }
 

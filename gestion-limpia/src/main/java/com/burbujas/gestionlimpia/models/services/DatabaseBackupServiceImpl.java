@@ -18,14 +18,14 @@ public class DatabaseBackupServiceImpl implements IDatabaseBackupService {
     private String databasePassword;
     @Value("${app.database.name}")
     private String databaseName;
-    @Value("${app.database.backup_path}")
-    private String backupPath; // termina en /
+    @Value("${app.database.tmp_path}")
+    private String tmpPath; // termina en /
 
     @Override
     public Map<Integer, String> crearBackup() throws IOException, InterruptedException {
         // Ruta del archivo de respaldo generado
         Instant ahora = Instant.now();
-        String backupFilePath = this.backupPath + "db_burbujas_backup_" + ahora.toString() + ".sql";
+        String backupFilePath = this.tmpPath + "db_burbujas_backup_" + ahora.toString() + ".sql";
         File tempFile = new File(backupFilePath);
 
         String[] comando = new String[]{"sh", "-c", "mysqldump --user " + databaseUsername + " --password=" + databasePassword + " --opt " + databaseName + " > " + backupFilePath};
@@ -45,13 +45,13 @@ public class DatabaseBackupServiceImpl implements IDatabaseBackupService {
     public void deleteTempFile(String backupFilePath) {
         // eliminar el archivo temporal
         System.out.println(backupFilePath);
-        new File(this.backupPath + backupFilePath).delete();
+        new File(this.tmpPath + backupFilePath).delete();
     }
 
     @Override
     public int restaurarBackup(MultipartFile archivoBackup) throws IOException, InterruptedException {
         // Guardar el archivo temporalmente para la restauración
-        String backupFilePath = this.backupPath + archivoBackup.getOriginalFilename();
+        String backupFilePath = this.tmpPath + archivoBackup.getOriginalFilename();
 
         File tempFile = new File(backupFilePath);
 
