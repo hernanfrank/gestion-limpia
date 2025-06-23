@@ -3,12 +3,10 @@ package com.burbujas.gestionlimpia.models.entities;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -16,10 +14,13 @@ import java.util.Date;
 
 @Entity
 @Table(name = "reabastecimientos")
-@Getter @Setter @AllArgsConstructor
+@SQLDelete(sql = "UPDATE reabastecimientos SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @AllArgsConstructor @ToString
 public class Reabastecimiento implements Serializable {
 
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -48,6 +49,8 @@ public class Reabastecimiento implements Serializable {
     @NotNull(message = "Debe especificar la caja de donde se realiza el pago del reabastecimiento")
     @Enumerated(EnumType.STRING)
     private TipoCaja tipoCaja;
+
+    private boolean eliminado = false;
 
     public Reabastecimiento() {
         this.fecha = new Date();

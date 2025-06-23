@@ -4,19 +4,21 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
 
 @Entity
 @Table(name = "proveedores")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@SQLDelete(sql = "UPDATE proveedores SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public class Proveedor {
 
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,8 +38,9 @@ public class Proveedor {
     @Pattern(regexp = "^$|(?:(?:00)?549?)?0?(?:11|[2368]\\d)(?:(?=\\d{0,2}15)\\d{2})??\\d{8}$", message = "El número de teléfono debe seguir el formato (Código de área)(Número)")
     private String telefono;
 
-
+    @ToString.Exclude
     @OneToMany(mappedBy = "proveedor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reabastecimiento> reabastecimientos;
 
+    private boolean eliminado = false;
 }

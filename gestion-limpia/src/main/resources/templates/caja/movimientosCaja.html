@@ -4,8 +4,8 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-  <div class="row mb-1 mt-n1">
-    <div class="col">
+    <div class="row mb-1 mt-n1">
+        <div th:if="${!mostrarEliminados}" class="col">
       <span class="float-start ms-n25 bg-light p-2 border rounded">
         <label for="fechaDesde">
           Mostrar desde:
@@ -30,131 +30,213 @@
           </button>
         </a>
       </span>
+        </div>
+        <div class="col">
+            <a th:if="${mostrarEliminados}" class="float-start ms-n25" th:href="@{/caja/movimientosCaja}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i>
+                    Volver al listado
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/caja/movimientosCaja/eliminados}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-trash2"></i>
+                    Ver Eliminados
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-2" href="#" onclick="descargarReporte()">
+                <button class="btn btn-success">
+                    <i class="bi bi-file-earmark-arrow-down"></i>
+                    Descargar Reporte
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" href="/caja/movimientosCaja/nuevo" class="float-end me-2">
+                <button class="btn btn-primary">
+                    <i class="bi bi-currency-dollar"></i>
+                    Generar Movimiento
+                </button>
+            </a>
+        </div>
     </div>
-    <div class="col">
-        <a class="float-end me-n25" href="#" onclick="descargarReporte()">
-          <button class="btn btn-secondary">
-            <i class="bi bi-file-earmark-arrow-down"></i>
-            Descargar Reporte
-          </button>
-        </a>
-        <a href="/caja/movimientoCaja/nuevo" class="float-end me-2">
-          <button class="btn btn-primary">
-            <i class="bi bi-currency-dollar"></i>
-            Generar Movimiento
-          </button>
-        </a>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col dataTableWindow">
-      <table id="movimientos_table" class="table table-striped border" style="max-height: 200px;">
-        <thead>
-        <tr>
-          <th>Fecha</th>
-          <th style="width: 35%">Descripción</th>
-          <th>Caja</th>
-          <th>Tipo</th>
-          <th>Monto</th>
-          <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="movimientoCaja: ${movimientosCaja}">
-          <td th:text="${#dates.format(movimientoCaja.fecha, 'dd/MM/yyyy HH:mm')}"></td>
-          <td style="overflow-y:scroll;width: 35%" th:text="${movimientoCaja.descripcion}"></td>
-          <td th:text="${movimientoCaja.tipoCaja}"></td>
-          <td th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}" th:text="${movimientoCaja.tipoMovimientoCaja}"></td>
-          <td
-                  th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}"
-                  th:text="${
+    <div class="row">
+        <div class="col dataTableWindow">
+            <table id="movimientos_table" class="table table-striped border" style="max-height: 200px;">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th style="width: 35%">Descripción</th>
+                    <th>Caja</th>
+                    <th>Tipo</th>
+                    <th>Monto</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="movimientoCaja: ${movimientosCaja}">
+                    <td th:text="${#dates.format(movimientoCaja.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td style="overflow-y:scroll;width: 35%" th:text="${movimientoCaja.descripcion}"></td>
+                    <td th:text="${movimientoCaja.tipoCaja}"></td>
+                    <td th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}"
+                        th:text="${movimientoCaja.tipoMovimientoCaja}"></td>
+                    <td
+                            th:style="${movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? 'color: #d95252' : 'color: #1d9c1d'}"
+                            th:text="${
                   (movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).EGRESO || movimientoCaja.tipoMovimientoCaja == T(com.burbujas.gestionlimpia.models.entities.enums.TipoMovimientoCaja).NOTADEBITO ? '-':'')
                 + #numbers.formatCurrency(movimientoCaja.monto)}"></td>
-          <td>
-            <a title="Editar" class="d-inline nav-link" th:href="@{/caja/movimientoCaja/{id}(id=${movimientoCaja.id})}">
-              <button class="btn btn-sm btn-warning text-dark fs-6">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-            </a>
-            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarMovimiento('+${movimientoCaja.id}+', this.parentNode.parentNode, '+${movimientoCaja.pedido!=null}+')'">
-              <button class="btn btn-sm btn-danger text-dark fs-6">
-                <i class="bi bi-trash"></i>
-              </button>
-            </a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+                    <td>
+                        <a th:if="${!mostrarEliminados}" title="Editar" class="d-inline nav-link"
+                           th:href="@{/caja/movimientosCaja/editar/{id}(id=${movimientoCaja.id})}">
+                            <button class="btn btn-sm btn-secondary text-dark fs-6">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </a>
+                        <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link"
+                           th:onclick="'eliminarMovimiento('+${movimientoCaja.id}+', this.parentNode.parentNode, '+${movimientoCaja.pedido!=null}+')'">
+                            <button class="btn btn-sm btn-danger text-dark fs-6">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </a>
+                        <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link"
+                           th:onclick="'restaurarMovimiento('+${movimientoCaja.id}+', this.parentNode.parentNode, '+${movimientoCaja.pedido!=null}+')'">
+                            <button class="btn btn-sm btn-warning text-dark fs-6">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 </div>
 
-<table id="tablaTotales" style="float:right;margin-right:11rem;" th:title="${'Suma de totales: '+#numbers.formatCurrency(totalMovimientosCajaEfectivo + totalMovimientosCajaBanco)}">
-  <tr th:class="${totalMovimientosCajaEfectivo >= 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
-    <td style="width:150px;padding:5px;text-align:right">Total efectivo:</td>
-    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaEfectivo < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaEfectivo))}"></td>
-  </tr>
-  <tr th:class="${totalMovimientosCajaBanco >= 0 ? 'total-positivo':'total-negativo'}" style="border: 2px solid black">
-    <td style="width:150px;padding:5px;text-align:right">Total banco:</td>
-    <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"  th:text="${(totalMovimientosCajaBanco < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaBanco))}"></td>
-  </tr>
+<table th:if="${!mostrarEliminados}" id="tablaTotales" style="float:right;margin-right:11rem;"
+       th:title="${'Suma de totales: '+#numbers.formatCurrency(totalMovimientosCajaEfectivo + totalMovimientosCajaBanco)}">
+    <tr th:class="${totalMovimientosCajaEfectivo >= 0 ? 'total-positivo':'total-negativo'}"
+        style="border: 2px solid black">
+        <td style="width:150px;padding:5px;text-align:right">Total efectivo:</td>
+        <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"
+            th:text="${(totalMovimientosCajaEfectivo < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaEfectivo))}"></td>
+    </tr>
+    <tr th:class="${totalMovimientosCajaBanco >= 0 ? 'total-positivo':'total-negativo'}"
+        style="border: 2px solid black">
+        <td style="width:150px;padding:5px;text-align:right">Total banco:</td>
+        <td style="width:152px;padding:5px 10px 5px 5px;text-align:left"
+            th:text="${(totalMovimientosCajaBanco < 0 ?'-':'')+#numbers.formatCurrency(T(java.lang.Math).abs(totalMovimientosCajaBanco))}"></td>
+    </tr>
 </table>
 
 </body>
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
-  let movimientos_table = createTable('movimientos_table', pageLength=5, scrollY='47.5vh');
-  function eliminarMovimiento(movimientoId,elem,fromPedido){
-    let texto_advertencia = fromPedido ? '<b style="color:red">ATENCIÓN:<br/>Se eliminará también el pedido lo que generó</b>':'';
-    sweet_confirm("¿Desea eliminar el movimiento?", texto_advertencia, "Si, eliminar", "Volver").
-    then( (result)=>{
-      if(result.isConfirmed){
-        return new Promise((resolve, reject) => {
-          $.ajax({
-            type: "GET",
-            contentType: "application/json",
-            url: "/caja/movimientoCaja/eliminar/" + movimientoId,
-            dataType: 'json',
-            success: function(result) {
-              resolve("OK");
-            },
-            error: function(err) {
-              reject(err);
-            }
-          });
-        }).then(()=>{
-          movimientos_table.row(elem).remove().draw();
-          notyf.open({
-            type: 'success',
-            message: err.responseJSON.msg
-          });
-          let movimientos_table_body = $("#movimientos_table tbody");
-          if(movimientos_table_body.children.length <= 1){
-            movimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
-          }
-        }).catch((err)=>{
-          notyf.open({
-            type: 'error',
-            message: err.responseJSON.msg
-          });
-          console.log(err)}
-        );
-      }
-    });
-  }
-  movimientos_table.on('init',function(){
-    $('#movimientos_table_wrapper .dataTables_scroll').append($("#tablaTotales"));
-  })
-  function recargarMovimientos(){
-    let fechaDesde = $("#fechaDesde").val();
-    let fechaHasta = $("#fechaHasta").val();
-    window.location.href = window.location.origin + '/caja/movimientosCaja/'+fechaDesde+'/'+fechaHasta;
-  }
-  function descargarReporte(){
-    let fechaDesde = $("#fechaDesde").val();
-    let fechaHasta = $("#fechaHasta").val();
-    window.open(window.location.origin + '/caja/descargarReporte/' + fechaDesde + '/' + fechaHasta, '_blank');
-  }
+    let movimientos_table = createTable('movimientos_table', pageLength = 5, scrollY = '47.5vh');
+
+    function eliminarMovimiento(movimientoId, elem, fromPedido) {
+        if (fromPedido) {
+            sweet_confirm("No es posible eliminar el movimiento", "Este movimiento fue generado por el cobro de un pedido, para eliminarlo debe eliminar el pedido.", "Ir a Pedidos", "Cancelar").then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = window.location.origin + '/pedidos/listar';
+                }
+            });
+        } else {
+            sweet_confirm("¿Desea eliminar el movimiento?", "", "Si, eliminar", "Volver").then((result) => {
+                if (result.isConfirmed) {
+                    return new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "/caja/movimientosCaja/eliminar/" + movimientoId,
+                            dataType: 'json',
+                            success: function (result) {
+                                resolve("OK");
+                            },
+                            error: function (err) {
+                                reject(err);
+                            }
+                        });
+                    }).then(() => {
+                        movimientos_table.row(elem).remove().draw();
+                        notyf.open({
+                            type: 'success',
+                            message: 'Movimiento de caja eliminado correctamente.'
+                        });
+                        let movimientos_table_body = $("#movimientos_table tbody");
+                        if (movimientos_table_body.children.length <= 1) {
+                            movimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                        notyf.open({
+                            type: 'error',
+                            duration: 10000,
+                            message: err.responseJSON.msg
+                        });
+                    });
+                }
+            });
+        }
+    }
+
+    function restaurarMovimiento(movimientoId, elem, fromPedido) {
+        if (fromPedido) {
+            sweet_confirm("No es posible restaurar el movimiento", "Este movimiento fue generado por el cobro de un pedido, para restaurarlo debe restaurar el pedido.", "Ir a Pedidos", "Cancelar").then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = window.location.origin + '/pedidos/eliminados';
+                }
+            });
+        } else {
+            sweet_confirm("¿Desea restaurar el movimiento de caja?", "", "Si, restaurar", "Volver").then((result) => {
+                if (result.isConfirmed) {
+                    return new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "/caja/movimientosCaja/restaurar/" + movimientoId,
+                            dataType: 'json',
+                            success: function (result) {
+                                resolve("OK");
+                            },
+                            error: function (err) {
+                                reject(err);
+                            }
+                        });
+                    }).then(() => {
+                        movimientos_table.row(elem).remove().draw();
+                        notyf.open({
+                            type: 'success',
+                            message: 'El movimiento de caja fue restaurado correctamente.'
+                        });
+                        let movimientos_table_body = $("#movimientos_table tbody");
+                        if (movimientos_table_body.children.length <= 1) {
+                            movimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                        }
+                    }).catch((err) => {
+                        console.log(err);
+                        notyf.open({
+                            type: 'error',
+                            message: err.responseJSON.msg
+                        });
+                    });
+                }
+            });
+        }
+    }
+
+    movimientos_table.on('init', function () {
+        $('#movimientos_table_wrapper .dataTables_scroll').append($("#tablaTotales"));
+    })
+
+    function recargarMovimientos() {
+        let fechaDesde = $("#fechaDesde").val();
+        let fechaHasta = $("#fechaHasta").val();
+        window.location.href = window.location.origin + '/caja/movimientosCaja/' + fechaDesde + '/' + fechaHasta;
+    }
+
+    function descargarReporte() {
+        let fechaDesde = $("#fechaDesde").val();
+        let fechaHasta = $("#fechaHasta").val();
+        window.open(window.location.origin + '/caja/descargarReporte/' + fechaDesde + '/' + fechaHasta, '_blank');
+    }
 </script>
 <div th:replace="~{components/topmenu :: messages}"></div>
 </html>

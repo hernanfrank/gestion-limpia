@@ -41,8 +41,18 @@ public class ProductoServiceImpl implements IProductoService{
     }
 
     @Override
+    public List<Object[]> findAllProductosEliminados() {
+        return this.productoRepository.findAllProductosEliminados();
+    }
+
+    @Override
     public List<Proveedor> findAllProveedores(){
         return this.proveedorRepository.findAll();
+    }
+
+    @Override
+    public List<Object[]> findAllProveedoresEliminados(){
+        return this.proveedorRepository.findAllEliminados();
     }
 
     @Override
@@ -72,6 +82,11 @@ public class ProductoServiceImpl implements IProductoService{
         }catch(NullPointerException e){
             return null;
         }
+    }
+
+    @Override
+    public List<Object[]> findAllReabastecimientosEliminados() {
+        return this.reabastecimientoRepository.findAllEliminados();
     }
 
     @Override
@@ -127,7 +142,7 @@ public class ProductoServiceImpl implements IProductoService{
                 cantidad[0] -= tipoPedidoProductoMappings.getCantidadUsada();
             });
         }
-        producto.setCantidadActual(cantidad[0]);
+        producto.setCantidadActual(cantidad[0]<=0.d?0.d:cantidad[0]);
         this.productoRepository.save(producto);
     }
 
@@ -184,15 +199,32 @@ public class ProductoServiceImpl implements IProductoService{
     }
 
     @Override
+    public void restaurar(Long id) {
+        this.productoRepository.restaurar(id);
+    }
+
+    @Override
     public void deleteReabastecimiento(Producto producto, Reabastecimiento reabastecimiento) {
         MovimientoCaja movimientoCajaAsociado = this.cajaService.findMovimientoCajaByReabastecimiento(reabastecimiento);
-        this.cajaService.deleteMovimientoCaja(movimientoCajaAsociado);
+        if (movimientoCajaAsociado != null) {
+            this.cajaService.deleteMovimientoCaja(movimientoCajaAsociado);
+        }
         producto.getReabastecimientos().remove(reabastecimiento);
         this.reabastecimientoRepository.delete(reabastecimiento);
     }
 
     @Override
+    public void restaurarReabastecimiento(Long id){
+        this.reabastecimientoRepository.restaurar(id);
+    }
+
+    @Override
     public void deleteProveedor(Long id) {
         this.proveedorRepository.deleteById(id);
+    }
+
+    @Override
+    public void restaurarProveedor(Long id) {
+        this.proveedorRepository.restaurar(id);
     }
 }

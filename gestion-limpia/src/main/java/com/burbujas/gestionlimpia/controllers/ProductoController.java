@@ -1,8 +1,6 @@
 package com.burbujas.gestionlimpia.controllers;
 
-import com.burbujas.gestionlimpia.models.entities.Producto;
-import com.burbujas.gestionlimpia.models.entities.TipoPedido;
-import com.burbujas.gestionlimpia.models.entities.TipoPedidoProductoMapping;
+import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.services.IProductoService;
 import com.burbujas.gestionlimpia.models.services.ITipoPedidoService;
 import jakarta.validation.Valid;
@@ -15,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class ProductoController {
             model.addAttribute("titulo", model.getAttribute("titulo"));
             return "inventario/producto";
         }
-        productoService.save(producto);
+        this.productoService.save(producto);
 
         flashmsg.addFlashAttribute("messageType", "success");
         flashmsg.addFlashAttribute("message", "Listado de productos actualizado.");
@@ -79,21 +78,52 @@ public class ProductoController {
         return "redirect:/productos/inventario";
     }
 
-    @GetMapping(value = {"/inventario", "/", "" })
+    @GetMapping(value = {"/listar", "/", "" })
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de productos");
+        model.addAttribute("mostrarEliminados", false);
 
-        List<Producto> productos = productoService.findAll();
+        List<Producto> productos = this.productoService.findAll();
 
         model.addAttribute("productos", productos);
 
         return "inventario/inventario";
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = {"/eliminados"})
+    public String listarEliminados(Model model){
+        model.addAttribute("titulo", "Productos eliminados");
+        model.addAttribute("mostrarEliminados", true);
+
+        List<Object[]> result = this.productoService.findAllProductosEliminados();
+        List<Producto> productos = new ArrayList<>();
+        for(Object[] fila : result){
+            Producto producto = new Producto();
+            Reabastecimiento reabastecimiento = new Reabastecimiento();
+
+            producto.setId((Long) fila[0]);
+            producto.setTipo((String) fila[1]);
+            producto.setCantidadActual((Double) fila[2]);
+            producto.setUmbralAvisoReabastecimiento((Double) fila[3]);
+            producto.setEliminado(true);
+
+            reabastecimiento.setProducto(producto);
+            reabastecimiento.setFecha((Timestamp) fila[4]);
+
+            producto.setReabastecimientos(List.of(reabastecimiento));
+
+            productos.add(producto);
+        }
+
+        model.addAttribute("productos", productos);
+
+        return "inventario/inventario";
+    }
+
+    @GetMapping(value = "/editar/{id}")
     public String editar(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
-        Producto producto = productoService.findById(id);
+        Producto producto = this.productoService.findById(id);
 
         if (id > 0 && producto != null) {
             fillTipoPedidoProductoMappingArray(model, producto);
@@ -107,14 +137,24 @@ public class ProductoController {
 
     }
 
-    @GetMapping("/eliminar/{id}")
-    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id, RedirectAttributes flashmsg){
-        Producto producto = productoService.findById(id);
+    @PostMapping("/eliminar/{id}")
+    public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id){
+        Producto producto = this.productoService.findById(id);
         if (producto != null) {
-            productoService.delete(id);
+            this.productoService.delete(id);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El producto ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el producto.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/restaurar/{id}")
+    public ResponseEntity<Object> restaurar(@PathVariable(name = "id") Long id){
+        try{
+            this.productoService.restaurar(id);
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El producto ha sido restaurado correctamente.\"}", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al restaurar. "+e+"\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

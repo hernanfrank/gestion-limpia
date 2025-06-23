@@ -31,11 +31,15 @@ public interface ICajaService {
 
     public List<MovimientoCaja> findAllMovimientosByTipoCaja(TipoCaja tipoCaja);
 
+    public List<MovimientoCaja> findAllMovimientosCajaEliminados();
+
     public MovimientoCaja generarMovimientoPorCobranzaPedido(Pedido pedido, TipoCaja tipoCaja);
 
     public void saveMovimientoCaja(MovimientoCaja movimientoCaja);
 
     public void deleteMovimientoCaja(MovimientoCaja movimientoCaja);
+
+    public void restaurarMovimientoCaja(Long id);
 
     public MovimientoCaja findMovimientoCajaByReabastecimiento(Reabastecimiento reabastecimiento);
 

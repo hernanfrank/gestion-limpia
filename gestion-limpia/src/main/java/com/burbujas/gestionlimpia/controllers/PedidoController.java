@@ -2,6 +2,7 @@ package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.*;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
+import com.burbujas.gestionlimpia.models.entities.enums.Prioridad;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
 import com.burbujas.gestionlimpia.models.services.*;
@@ -136,12 +137,49 @@ public class PedidoController {
         }
     }
 
-    @GetMapping(value = "/pedidos/listar")
+    @GetMapping(value = {"/pedidos/listar", "/pedidos"})
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de pedidos");
+        model.addAttribute("mostrarEliminados", false);
 
         List<Pedido> pedidos = pedidoService.findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
-        // pasamos los de pedidos obtenida a la vista
+        model.addAttribute("pedidos", pedidos);
+
+        return "pedidos/pedidos";
+    }
+
+    @GetMapping(value = "/pedidos/eliminados")
+    public String listarEliminados(Model model){
+        model.addAttribute("titulo", "Pedidos eliminados");
+        model.addAttribute("mostrarEliminados", true);
+
+        List<Object[]> resultados = pedidoService.findAllEliminados();
+        List<Pedido> pedidos = new ArrayList<>();
+
+        for (Object[] fila : resultados) {
+            Pedido pedido = new Pedido();
+            Cliente cliente = new Cliente();
+            TipoPedido tipoPedido = new TipoPedido();
+
+            pedido.setId(((Number) fila[0]).longValue());
+            pedido.setFechaHoraIngreso((Timestamp) fila[1]);
+            pedido.setFechaHoraEntrega((Timestamp) fila[2]);
+            pedido.setPrecio((Double) fila[3]);
+            pedido.setPrioridad(Prioridad.valueOf(fila[4].toString()));
+            pedido.setEstadoActual(EstadoPedido.valueOf(fila[5].toString()));
+            pedido.setDescripcion((String) fila[6]);
+            pedido.setEliminado(true);
+
+            cliente.setNombreApellido((Boolean) fila[8] == true ? fila[7] + " (Eliminado)" : (String) fila[7]);
+            cliente.setEliminado((Boolean) fila[8]);
+            pedido.setCliente(cliente);
+
+            tipoPedido.setDescripcion((String) fila[9]);
+            pedido.setTipo(tipoPedido);
+
+            pedidos.add(pedido);
+        }
+
         model.addAttribute("pedidos", pedidos);
 
         return "pedidos/pedidos";
@@ -158,7 +196,7 @@ public class PedidoController {
         return "pedidos/pedidos";
     }
 
-    @GetMapping(value = "/pedidos/{id}")
+    @GetMapping(value = "/pedidos/editar/{id}")
     public String editar(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
         Pedido pedido = pedidoService.findById(id);
@@ -189,16 +227,32 @@ public class PedidoController {
 
     }
 
-    @GetMapping("/pedidos/eliminar/{id}")
+    @PostMapping("/pedidos/eliminar/{id}")
     public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id){
         Pedido pedido = pedidoService.findById(id);
         if (pedido != null) {
             pedidoService.deleteById(id);
             // actualizo la cantidad actual para cada producto, para corregir por la eliminación de este pedido
-            productoService.findAll().forEach(productoService::updateCantidadActual);
+            // productoService.findAll().forEach(productoService::updateCantidadActual);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El pedido ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el pedido.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/pedidos/restaurar/{id}")
+    public ResponseEntity<Object> restaurar(@PathVariable(name = "id") Long id) {
+        try {
+            pedidoService.restaurarPedido(id);
+            return new ResponseEntity<>(
+                    "{\"status\":\"OK\",\"msg\": \"El pedido ha sido restaurado correctamente.\"}",
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "{\"status\":\"ERROR\",\"msg\": \"" + e.getMessage() + "\"}",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 

@@ -61,6 +61,9 @@
     h5{
       color: #173331;
     }
+    .text-light{
+      color: rgb(236, 229, 226) !important;
+    }
     .dataTableWindow{
       border-radius: var(--bs-border-radius-lg) !important;
       padding: .5rem 1rem .25rem !important;
@@ -101,7 +104,6 @@
     }
     .container-pedidos{
       min-height: 132px;
-      max-height: 530px;
       border-radius: 10px;
       border-color: rgba(109, 105, 92, 0.82);
       border-style: solid;
@@ -121,7 +123,7 @@
     #pedidosList{
       overflow-y: scroll;
       overflow-x: hidden;
-      max-height: 490px;
+      max-height: 79vh;
     }
     .pedido-asignado{
       padding:0;
@@ -532,7 +534,7 @@
     };
 
     window.onload = ()=>{
-      NotificacionEventSourceManager.getInstance(window.location.origin + "/notificaciones/bajo-stock");
+      NotificacionEventSourceManager.getInstance(window.location.origin + "/notificaciones/bajoStock");
     }
     window.onbeforeunload = () =>{
       NotificacionEventSourceManager.closeConnection();

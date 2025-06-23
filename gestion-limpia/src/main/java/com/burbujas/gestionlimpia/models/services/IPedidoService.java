@@ -14,6 +14,10 @@ public interface IPedidoService {
 
     public List<Pedido> findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
 
+    public List<Object[]> findAllEliminados();
+
+    void restaurarPedido(Long id) throws Exception;
+
     public List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual);
 
     public List<Pedido> findAllByEstadoActualOrderByPrioridadDescFechaHoraIngresoAsc(EstadoPedido estadoActual);

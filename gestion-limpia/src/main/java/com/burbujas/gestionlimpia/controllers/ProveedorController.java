@@ -12,7 +12,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/productos/proveedores")
@@ -28,11 +31,37 @@ public class ProveedorController {
 
     @GetMapping(value = {"/listar", "/", ""})
     public String listarProveedores(Model model){
-        model.addAttribute("titulo", "Proveedores");
+        model.addAttribute("titulo", "Listado de proveedores");
+        model.addAttribute("mostrarEliminados", false);
 
-        List<Proveedor> proveedores = productoService.findAllProveedores();
+        List<Proveedor> proveedores = this.productoService.findAllProveedores();
 
         model.addAttribute("proveedores", proveedores);
+
+        return "inventario/proveedores/proveedores";
+    }
+
+    @GetMapping(value = {"/eliminados"})
+    public String listarProveedoresEliminados(Model model){
+        model.addAttribute("titulo", "Listado de proveedores");
+        model.addAttribute("mostrarEliminados", true);
+
+        List<Object[]> result = this.productoService.findAllProveedoresEliminados();
+        List<Proveedor> proveedores = new ArrayList<>();
+        Map<Long, String> reabastecimientosMap = new HashMap<>();
+        for(Object[] fila : result){
+            Proveedor proveedor = new Proveedor();
+            proveedor.setId((Long) fila[0]);
+            proveedor.setNombre((String) fila[1]);
+            proveedor.setTelefono((String) fila[2]);
+            proveedor.setDireccion((String) fila[3]);
+
+            proveedores.add(proveedor);
+            reabastecimientosMap.put((Long) fila[0], (String) fila[4]);
+        }
+
+        model.addAttribute("proveedores", proveedores);
+        model.addAttribute("reabastecimientosMap", reabastecimientosMap);
 
         return "inventario/proveedores/proveedores";
     }
@@ -51,7 +80,7 @@ public class ProveedorController {
     @GetMapping(value = "/editar/{id}")
     public String editarProveedores(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
-        Proveedor proveedor = productoService.findProveedorById(id);
+        Proveedor proveedor = this.productoService.findProveedorById(id);
         if (id > 0 && proveedor != null) {
 
             model.addAttribute("proveedor", proveedor);
@@ -74,7 +103,7 @@ public class ProveedorController {
             return "inventario/proveedores/proveedor";
         }
 
-        productoService.saveProveedor(proveedor);
+        this.productoService.saveProveedor(proveedor);
 
         flashmsg.addFlashAttribute("messageType","success");
         flashmsg.addFlashAttribute("message","Listado de proveedores actualizado.");
@@ -82,18 +111,38 @@ public class ProveedorController {
         return "redirect:/productos/proveedores/listar";
     }
 
-    @GetMapping("/eliminar/{id}")
+    @PostMapping("/eliminar/{id}")
     public ResponseEntity<Object> eliminarProveedor(@PathVariable(name = "id") Long id){
-        Proveedor proveedor = productoService.findProveedorById(id);
+        Proveedor proveedor = this.productoService.findProveedorById(id);
         if (proveedor != null) {
-            if(proveedor.getReabastecimientos().size() > 0){
+            if(!proveedor.getReabastecimientos().isEmpty()){
                 // antes de borrar el proveedor, borro todos sus reabastecimientos si tiene
-                proveedor.getReabastecimientos().forEach(reabastecimiento -> productoService.deleteReabastecimiento(reabastecimiento.getProducto(),reabastecimiento));
+                proveedor.getReabastecimientos().forEach(
+                        reabastecimiento ->{
+                        this.productoService.deleteReabastecimiento(reabastecimiento.getProducto(),reabastecimiento);
+                        this.productoService.updateCantidadActual(reabastecimiento.getProducto());
+                });
             }
-            productoService.deleteProveedor(id);
+            this.productoService.deleteProveedor(id);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El proveedor ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el proveedor.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/restaurar/{id}")
+    public ResponseEntity<Object> restaurarProveedor(@PathVariable(name = "id") Long id){
+        try{
+            this.productoService.restaurarProveedor(id);
+
+            Proveedor proveedor = this.productoService.findProveedorById(id);
+            proveedor.getReabastecimientos().forEach(
+                reabastecimiento -> this.productoService.updateCantidadActual(reabastecimiento.getProducto()
+            ));
+
+            return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El proveedor ha sido restaurado correctamente.\"}", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al restaurar. "+e+"\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

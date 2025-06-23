@@ -10,7 +10,11 @@ import java.util.List;
 public interface IProductoService {
     public List<Producto> findAll();
 
+    public List<Object[]> findAllProductosEliminados();
+
     public List<Proveedor> findAllProveedores();
+
+    public List<Object[]> findAllProveedoresEliminados();
 
     public Producto findById(Long id);
 
@@ -21,6 +25,8 @@ public interface IProductoService {
     public Producto findByTipo(String tipo);
 
     public List<Reabastecimiento> findAllReabastecimientosByProductoId(Long id);
+
+    public List<Object[]> findAllReabastecimientosEliminados();
 
     public List<HistorialProductoPedido> getHistorialProductoPedidoByProductoId(Long id);
 
@@ -46,9 +52,15 @@ public interface IProductoService {
 
     public void delete(Long id);
 
+    public void restaurar(Long id);
+
     public void deleteReabastecimiento(Producto producto, Reabastecimiento reabastecimiento);
 
+    public void restaurarReabastecimiento(Long id);
+
     public void deleteProveedor(Long id);
+
+    public void restaurarProveedor(Long id);
 
     boolean setUso(Long idPedido, Integer maquinaNumero);
 }

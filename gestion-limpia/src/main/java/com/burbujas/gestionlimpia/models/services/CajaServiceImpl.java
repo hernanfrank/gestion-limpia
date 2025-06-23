@@ -90,13 +90,27 @@ public class CajaServiceImpl implements ICajaService{
     }
 
     @Override
+    public List<MovimientoCaja> findAllMovimientosCajaEliminados() {
+        return this.movimientoCajaRepository.findAllMovimientosCajaEliminados();
+    }
+
+    @Override
     public void saveMovimientoCaja(MovimientoCaja movimientoCaja) {
         this.movimientoCajaRepository.save(movimientoCaja);
     }
 
     @Override
     public void deleteMovimientoCaja(MovimientoCaja movimientoCaja) {
-        this.movimientoCajaRepository.delete(movimientoCaja);
+        if(movimientoCaja.getPedido() != null){
+            throw new IllegalArgumentException("No se puede eliminar un movimiento de caja generado por el cobro pedido.");
+        }else{
+            this.movimientoCajaRepository.delete(movimientoCaja);
+        }
+    }
+
+    @Override
+    public void restaurarMovimientoCaja(Long id){
+        this.movimientoCajaRepository.restaurarMovimientoCaja(id);
     }
 
     @Override

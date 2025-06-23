@@ -1,7 +1,9 @@
 package com.burbujas.gestionlimpia.models.entities.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 
 public enum EstadoPedido {
@@ -16,10 +18,6 @@ public enum EstadoPedido {
 
     private final String displayValue;
 
-
-    public String getDisplayValue() {
-        return displayValue;
-    }
 
     public int obtenerPrioridad() {
         if (this.equals(EstadoPedido.FINALIZADO)) return 1;

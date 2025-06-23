@@ -10,6 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -17,10 +20,13 @@ import java.util.Date;
 
 @Entity
 @Table(name = "movimientos_caja")
-@Getter @Setter @AllArgsConstructor
+@SQLDelete(sql = "UPDATE movimientos_caja SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @AllArgsConstructor @ToString
 public class MovimientoCaja implements Serializable {
 
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -39,19 +45,26 @@ public class MovimientoCaja implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Pedido pedido;// el movimiento puede ser un ingreso asociado a un pedido,
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Cliente cliente;// una nota de cŕedito/débito a un cliente
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Proveedor proveedor;// una nota de cŕedito/débito a un proveedor
+
     //o un movimiento suelto (un gasto de reparación por ejemplo)
     @ManyToOne(fetch = FetchType.LAZY)
     private Reabastecimiento reabastecimiento; // para poder hacer consultas del tipo "Cuanta plata se gastó en reabastecimientos de jabón liquido"
+
     @NotNull(message = "Debe especificar un tipo para el movimiento de caja")
     @Enumerated(EnumType.STRING)
     private TipoMovimientoCaja tipoMovimientoCaja;
+
     @NotNull(message = "Debe especificar la caja para el movimiento")
     @Enumerated(EnumType.STRING)
     private TipoCaja tipoCaja;
+
+    private boolean eliminado = false;
 
     public MovimientoCaja() {
         this.fecha = new Date();

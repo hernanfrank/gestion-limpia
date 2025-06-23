@@ -1,23 +1,24 @@
 package com.burbujas.gestionlimpia.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "tipos_pedido")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@SQLDelete(sql = "UPDATE tipos_pedido SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public class TipoPedido implements Serializable {
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -33,4 +34,6 @@ public class TipoPedido implements Serializable {
     @OneToMany(mappedBy = "tipoPedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<TipoPedidoProductoMapping> tipoPedidoProductoMapping;
+
+    private boolean eliminado = false;
 }

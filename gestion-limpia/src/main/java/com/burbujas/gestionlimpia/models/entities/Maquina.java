@@ -4,19 +4,21 @@ import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoMaquina;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "maquinas")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@SQLDelete(sql = "UPDATE maquinas SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public class Maquina implements Serializable {
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -29,6 +31,8 @@ public class Maquina implements Serializable {
 
     @OneToMany(mappedBy = "maquinaNueva", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialMaquinaPedido> historialMaquinaPedido;
+
+    private boolean eliminado = false;
 
     public EstadoPedido getEstadoAsociado(){
         switch (this.tipo){

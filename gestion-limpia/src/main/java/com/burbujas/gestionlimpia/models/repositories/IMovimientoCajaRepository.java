@@ -4,9 +4,11 @@ import com.burbujas.gestionlimpia.models.entities.MovimientoCaja;
 import com.burbujas.gestionlimpia.models.entities.Reabastecimiento;
 import com.burbujas.gestionlimpia.models.entities.enums.TipoCaja;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -18,6 +20,10 @@ public interface IMovimientoCajaRepository extends JpaRepository<MovimientoCaja,
     List<MovimientoCaja> findAllByOrderByFechaDesc();
 
     List<MovimientoCaja> findAllByFechaAfterAndFechaBeforeOrderByFechaDesc(Date fechaDesde, Date fechaHasta);
+
+    // usamos una nativeQuery para que ignore la restricción de eliminado <> true
+    @Query(value = "SELECT * FROM movimientos_caja mc WHERE mc.eliminado = TRUE ORDER BY mc.id DESC", nativeQuery = true)
+    List<MovimientoCaja> findAllMovimientosCajaEliminados();
 
     @Query("SELECT SUM(movimiento.monto) FROM MovimientoCaja movimiento WHERE movimiento.fecha BETWEEN :fechaDesde AND :fechaHasta")
     Double sumAllByFechaAfterAndFechaBefore(@Param("fechaDesde") Timestamp fechaDesde, @Param("fechaHasta") Timestamp fechaHasta);
@@ -35,5 +41,15 @@ public interface IMovimientoCajaRepository extends JpaRepository<MovimientoCaja,
     List<Object[]> sumAllGroupByTipoPedido(@Param("fechaBusqueda") Timestamp fechaBusqueda);
 
     List<MovimientoCaja> findAllByTipoCaja(TipoCaja tipoCaja);
+
     MovimientoCaja findMovimientoCajaByReabastecimiento(Reabastecimiento reabastecimiento);
+
+    @Modifying
+    @Transactional
+    @Query(value ="""
+            UPDATE movimientos_caja mc
+            SET mc.eliminado = false
+            WHERE mc.pedido_id = :id
+       """, nativeQuery = true)
+    void restaurarMovimientoCaja(@Param("id") Long id);
 }

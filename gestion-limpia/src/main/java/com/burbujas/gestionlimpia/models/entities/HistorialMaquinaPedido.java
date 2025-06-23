@@ -1,12 +1,10 @@
 package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -14,6 +12,8 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "historial_maquinas_pedidos")
+@SQLDelete(sql = "UPDATE historial_maquinas_pedidos SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HistorialMaquinaPedido implements Serializable {
 
@@ -37,6 +37,8 @@ public class HistorialMaquinaPedido implements Serializable {
     @NotNull
     @Column(name = "fecha_hora_asignacion")
     private Timestamp fechaHoraAsignacion;
+
+    private boolean eliminado = false;
 
     public HistorialMaquinaPedido(Pedido pedido, Maquina maquinaAnterior, Maquina maquinaNueva, Timestamp fechaHoraAsignacion) {
         this.pedido = pedido;

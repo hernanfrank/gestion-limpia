@@ -1,7 +1,9 @@
 package com.burbujas.gestionlimpia.models.entities.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 
 public enum TipoMaquina {
@@ -9,9 +11,5 @@ public enum TipoMaquina {
     LAVADORA("Lavadora"),
     SECADORA("Secadora");
     private final String displayValue;
-
-    public String getDisplayValue() {
-        return displayValue;
-    }
 
 }

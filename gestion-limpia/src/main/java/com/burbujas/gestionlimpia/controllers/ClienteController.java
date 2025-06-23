@@ -1,6 +1,7 @@
 package com.burbujas.gestionlimpia.controllers;
 
 import com.burbujas.gestionlimpia.models.entities.Cliente;
+import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.services.IClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class ClienteController {
         }
 
         // recibimos el objeto cliente del formulario y lo persistimos
-        clienteService.save(cliente);
+        this.clienteService.save(cliente);
 
         flashmsg.addFlashAttribute("messageType", "success");
         flashmsg.addFlashAttribute("message", "Listado de clientes actualizado");
@@ -58,8 +59,9 @@ public class ClienteController {
     @GetMapping(value = {"/listar", "/", "" })
     public String listar(Model model){
         model.addAttribute("titulo", "Listado de clientes");
+        model.addAttribute("mostrarEliminados", false);
 
-        List<Cliente> clientes = clienteService.findAll();
+        List<Cliente> clientes = this.clienteService.findAll();
 
         // pasamos los clientes obtenida a la vista
         model.addAttribute("clientes", clientes);
@@ -67,10 +69,21 @@ public class ClienteController {
         return "clientes/clientes";
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/eliminados")
+    public String listarEliminados(Model model){
+        model.addAttribute("titulo", "Clientes eliminados");
+        model.addAttribute("mostrarEliminados", true);
+
+        List<Cliente> clientes = this.clienteService.findAllEliminados();
+        model.addAttribute("clientes", clientes);
+
+        return "clientes/clientes";
+    }
+
+    @GetMapping(value = "/editar/{id}")
     public String editar(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
-        Cliente cliente = clienteService.findById(id);
+        Cliente cliente = this.clienteService.findById(id);
 
         // chequeamos que se pase un id valido
         if (id > 0 && cliente != null) {
@@ -86,15 +99,32 @@ public class ClienteController {
 
     }
 
-    @GetMapping("/eliminar/{id}")
+    @PostMapping("/eliminar/{id}")
     public ResponseEntity<Object> eliminar(@PathVariable(name = "id") Long id){
         Cliente cliente = clienteService.findById(id);
         if (cliente != null) {
-            clienteService.delete(id);
+            this.clienteService.delete(id);
             return new ResponseEntity<Object>("{\"status\":\"OK\",\"msg\": \"El cliente ha sido eliminado correctamente.\"}", HttpStatus.OK);
         }else{
             return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el cliente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
+
+    @PostMapping("/restaurar/{id}")
+    public ResponseEntity<Object> restaurar(@PathVariable(name = "id") Long id) {
+        try {
+            this.clienteService.restaurarCliente(id);
+            return new ResponseEntity<>(
+                    "{\"status\":\"OK\",\"msg\": \"El cliente ha sido restaurado correctamente.\"}",
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "{\"status\":\"ERROR\",\"msg\": \"Error al restaurar el cliente. " + e.getMessage() + "\"}",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.burbujas.gestionlimpia.models.entities.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 
 public enum TipoMovimientoCaja {
@@ -12,7 +14,4 @@ public enum TipoMovimientoCaja {
 
     private final String displayValue;
 
-    public String getDisplayValue() {
-        return displayValue;
-    }
 }

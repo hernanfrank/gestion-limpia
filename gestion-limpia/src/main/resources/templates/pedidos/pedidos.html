@@ -4,9 +4,21 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-   <div class="row mb-2">
+    <div class="row mb-2">
         <div class="col">
-            <a class="float-end me-n25" th:href="@{/pedidos/nuevo/listado}">
+            <a th:if="${mostrarEliminados}" class="float-start ms-n25" th:href="@{/pedidos/listar}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i>
+                    Volver al listado
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/pedidos/eliminados}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-trash2"></i>
+                    Ver Eliminados
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/pedidos/nuevo/listado}">
                 <button class="btn btn-primary">
                     <i class="bi bi-box2"></i>
                     Nuevo Pedido
@@ -16,39 +28,39 @@
     </div>
     <div class="row">
         <div class="col dataTableWindow">
-        <table id="pedidos_table" class="table table-striped border">
-            <thead>
-            <tr>
-                <th>Número</th>
-                <th>Tipo</th>
-                <th>Ingreso</th>
-                <th>Entrega</th>
-                <th>Cliente</th>
-                <th>Descripción</th>
-                <th>Prioridad</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="pedido: ${pedidos}">
-                <td id="pedidoId" th:text="${pedido.id}"></td>
-                <td th:text="${pedido.tipo.descripcion}"></td>
-                <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>
-                <td th:text="${pedido.cliente.nombreApellido}"></td>
-                <td th:text="${pedido.descripcion != null ? pedido.descripcion : 'Sin descripción'}"></td>
-                <td><span th:text="${pedido.prioridad}"
-                    th:class="${
+            <table id="pedidos_table" class="table table-striped border">
+                <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Tipo</th>
+                    <th>Ingreso</th>
+                    <th>Entrega</th>
+                    <th>Cliente</th>
+                    <th>Descripción</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pedido: ${pedidos}">
+                    <td id="pedidoId" th:text="${pedido.id}"></td>
+                    <td th:text="${pedido.tipo.descripcion}"></td>
+                    <td th:text="${#dates.format(pedido.fechaHoraIngreso, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${pedido.fechaHoraEntrega != null ? #dates.format(pedido.fechaHoraEntrega, 'dd/MM/yyyy HH:mm:ss') : 'No entregado'}"></td>
+                    <td th:text="${pedido.cliente.nombreApellido}"></td>
+                    <td th:text="${pedido.descripcion != null ? pedido.descripcion : 'Sin descripción'}"></td>
+                    <td><span th:text="${pedido.prioridad}"
+                              th:class="${
                     pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).BAJA ? 'text-black-50' :
                     (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).NORMAL ? 'text-dark' :
                     (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'text-danger' :
                     (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'text-danger fw-bold' :''
                     )))}"></span>
-                </td>
-                <td>
-                    <h4 th:text="${pedido.estadoActual.displayValue}"
-                        th:class="'estado text-light p-2 badge '+ ${
+                    </td>
+                    <td>
+                        <h4 th:text="${pedido.estadoActual.displayValue}"
+                            th:class="'estado text-light p-2 badge '+ ${
                         pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).PENDIENTE ? 'bg-warning' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).LAVADO ? 'bg-primary' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).SECADO ? 'bg-secondary' :
@@ -57,34 +69,57 @@
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO ? 'bg-success' :
                         (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO ? 'bg-dark' : ''
                         ))))))}"
-                    ></h4>
-                </td>
-                <td>
-                    <button title="Marcar como cobrado" th:if="${pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO}" type="button" class="btn btn-sm btn-success text-dark fs-6" data-bs-toggle="modal" data-bs-target="#modalCobranza" th:data-pedidoid="${pedido.id}" onclick="$('#modalCobranza #btn-cobro').on('click',()=>{cobrarPedido()});setPedidoACobrar(this)">
-                        <i class="bi bi-coin"></i>
-                    </button>
-                    <button title="Marcar como entregado" th:if="${pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO}" type="button" class="btn btn-sm btn-dark text-light fs-6" th:data-pedidoid="${pedido.id}" onclick="setPedidoEntregado(this)">
-                        <i class="bi bi-handbag"></i>
-                    </button>
-                    <a th:if="${   pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO
-                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO
-                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO
-                                && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO
+                        ></h4>
+                    </td>
+                    <td>
+                        <button title="Marcar como cobrado"
+                                th:if="${!mostrarEliminados && pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO}"
+                                type="button" class="btn btn-sm btn-success text-dark fs-6" data-bs-toggle="modal"
+                                data-bs-target="#modalCobranza" th:data-pedidoid="${pedido.id}"
+                                onclick="$('#modalCobranza #btn-cobro').on('click',()=>{cobrarPedido()});setPedidoACobrar(this)">
+                            <i class="bi bi-coin"></i>
+                        </button>
+                        <button title="Marcar como pendiente"
+                                th:if="${!mostrarEliminados && (pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO || pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO || pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO)}"
+                                type="button" class="btn btn-sm btn-warning text-dark fs-6" data-bs-toggle="modal"
+                                th:data-pedidoid="${pedido.id}"
+                                onclick="setPedidoPendiente(this)">
+                            <i class="bi bi-arrow-90deg-left"></i>
+                        </button>
+                        <button title="Marcar como entregado"
+                                th:if="${!mostrarEliminados && pedido.estadoActual == T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO}"
+                                type="button" class="btn btn-sm btn-dark text-light fs-6"
+                                th:data-pedidoid="${pedido.id}" onclick="setPedidoEntregado(this)">
+                            <i class="bi bi-handbag"></i>
+                        </button>
+                        <a th:if="${ !mostrarEliminados && (
+                                    pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).CANCELADO
+                                    && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).FINALIZADO
+                                    && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).COBRADO
+                                    && pedido.estadoActual != T(com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido).ENTREGADO
+                                )
                                }"
-                       title="Editar" class="d-inline nav-link" th:href="@{/pedidos/{id}(id=${pedido.id})}">
-                        <button class="btn btn-sm btn-warning text-dark fs-6">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                    </a>
-                    <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarPedido('+${pedido.id}+',this.parentNode.parentNode)'">
-                        <button class="btn btn-sm btn-danger text-dark fs-6">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                           title="Editar" class="d-inline nav-link" th:href="@{/pedidos/editar/{id}(id=${pedido.id})}">
+                            <button class="btn btn-sm btn-secondary text-dark fs-6">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </a>
+                        <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link"
+                           th:onclick="'eliminarPedido('+${pedido.id}+',this.parentNode.parentNode)'">
+                            <button class="btn btn-sm btn-danger text-dark fs-6">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </a>
+                        <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link"
+                           th:onclick="'restaurarPedido('+${pedido.id}+','+${pedido.cliente.eliminado}+',this.parentNode.parentNode)'">
+                            <button class="btn btn-sm btn-warning text-dark fs-6">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -94,47 +129,54 @@
 <script>
     var pedidoACobrar = null;
     var pedidos_table = createTable('pedidos_table');
-    function eliminarPedido(pedidoId, elem){
-        sweet_confirm("¿Desea eliminar el pedido?", "<b style='color:red'>ATENCIÓN:<br/>Se eliminará también el movimiento de caja asociado su cobro.</b>", "Si, eliminar", "Volver").
-        then( (result)=>{
-            if(result.isConfirmed){
+
+    function eliminarPedido(pedidoId, elem) {
+        sweet_confirm("¿Desea eliminar el pedido?", "<b style='color:red'>ATENCIÓN:<br/>Se eliminará también el movimiento de caja asociado su cobro.</b>", "Si, eliminar", "Volver").then((result) => {
+            if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         contentType: "application/json",
                         url: "/pedidos/eliminar/" + pedidoId,
                         dataType: 'json',
-                        success: function(result) {
+                        success: function (result) {
                             resolve("OK");
                         },
-                        error: function(err) {
+                        error: function (err) {
                             reject(err);
                         }
                     });
-                }).then(()=>{
+                }).then(() => {
                     pedidos_table.row(elem).remove().draw();
                     notyf.open({
                         type: 'success',
                         message: 'El pedido fue eliminado correctamente.'
                     });
                     let tabla_pedidos_body = $("#pedidos_table tbody");
-                    if(tabla_pedidos_body.children.length <= 1){
+                    if (tabla_pedidos_body.children.length <= 1) {
                         tabla_pedidos_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
                     }
-                }).catch((err)=>{
-                    notyf.open({
-                        type: 'error',
-                        message: err.msg
-                    });
-                    console.log(err)}
+                }).catch((err) => {
+                        notyf.open({
+                            type: 'error',
+                            message: err.msg
+                        });
+                        console.log(err)
+                    }
                 );
             }
         });
     }
-    const setPedidoACobrar = (pedidoRow) =>{pedidoACobrar = pedidoRow;}
-    const unsetPedidoACobrar = ()=>{pedidoACobrar = null}
-    function cobrarPedido(){
-        if(pedidoACobrar === null){
+
+    const setPedidoACobrar = (pedidoRow) => {
+        pedidoACobrar = pedidoRow;
+    }
+    const unsetPedidoACobrar = () => {
+        pedidoACobrar = null
+    }
+
+    function cobrarPedido() {
+        if (pedidoACobrar === null) {
             notyf.open({
                 type: 'error',
                 message: 'Error: no se encontró el pedido.'
@@ -143,39 +185,38 @@
         }
         let tipoCaja = $("#inputGroupCaja").val();
         let pedidoId = pedidoACobrar.dataset.pedidoid;
-        if(tipoCaja !== 'EFECTIVO' && tipoCaja !== 'BANCO'){
+        if (tipoCaja !== 'EFECTIVO' && tipoCaja !== 'BANCO') {
             notyf.open({
                 type: 'error',
                 message: 'Error: debe seleccionar una caja para registrar la cobranza.'
             });
             return;
         }
-        const entregarText = entregaPedidosAutomatica ? "<br/><br/><b class='text-warning'>Recuerde que también se marcará como entregado.</b> <small>Puede desactivarlo en <a href='/administracion'>Administración</a></small>":'';
-        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?"+entregarText, "Si, cobrar", "Volver").
-        then( (result)=>{
-            if(result.isConfirmed){
+        const entregarText = entregaPedidosAutomatica ? "<br/><br/><b class='text-warning'>Recuerde que también se marcará como entregado.</b> <small>Puede desactivarlo en <a href='/administracion'>Administración</a></small>" : '';
+        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?" + entregarText, "Si, cobrar", "Volver").then((result) => {
+            if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: "POST",
                         contentType: "application/json",
-                        url: "/cobrar/" + pedidoId + "/caja/"+tipoCaja,
+                        url: "/cobrar/" + pedidoId + "/caja/" + tipoCaja,
                         dataType: 'json',
-                        success: function(result) {
+                        success: function (result) {
                             resolve("OK");
                         },
-                        error: function(err) {
+                        error: function (err) {
                             reject(err);
                         }
                     });
-                }).then(()=>{
+                }).then(() => {
                     notyf.open({
                         type: 'success',
                         message: 'Se registró correctamente la cobranza del pedido.'
                     })
                     let estadoBadge = $(pedidoACobrar.parentNode.parentNode).find(".estado");
-                    if(entregaPedidosAutomatica){
+                    if (entregaPedidosAutomatica) {
                         estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-dark").text('Entregado');
-                    }else{
+                    } else {
                         estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-success").text('Cobrado');
 
                         //cambio el boton de cobrar a entregar
@@ -184,7 +225,9 @@
                         entregarBtn.setAttribute('type', 'button');
                         entregarBtn.classList.add('btn', 'btn-sm', 'btn-dark', 'text-light', 'fs-6');
                         entregarBtn.setAttribute('data-pedidoid', pedidoACobrar.dataset.pedidoid);
-                        entregarBtn.onclick = function() { setPedidoEntregado(this); };
+                        entregarBtn.onclick = function () {
+                            setPedidoEntregado(this);
+                        };
                         const icono = document.createElement('i');
                         icono.classList.add('bi', 'bi-handbag');
                         entregarBtn.appendChild(icono);
@@ -193,26 +236,25 @@
                     }
                     $(pedidoACobrar).remove();
 
-                }).catch((err)=>{
+                }).catch((err) => {
                     notyf.open({
                         type: 'error',
                         message: err
                     });
                     console.log(err)
-                }).finally(()=>{
+                }).finally(() => {
                     $('#modalCobranza').modal('hide');
                 });
             }
         });
     }
 
-    function setPedidoEntregado(elem){
+    function setPedidoEntregado(elem) {
         let pedidoId = elem.dataset.pedidoid;
-        sweet_confirm("Entrega de pedido", "¿Desea marcar el pedido como entregado?", "Si, entregar", "Volver").
-        then( (result)=>{
-            if(result.isConfirmed){
+        sweet_confirm("Entrega de pedido", "¿Desea marcar el pedido como entregado?", "Si, entregar", "Volver").then((result) => {
+            if (result.isConfirmed) {
                 cambiarEstadoPedido(pedidoId, "ENTREGADO")
-                    .then(()=>{
+                    .then(() => {
                         notyf.open({
                             type: 'success',
                             message: 'Pedido entregado correctamente.'
@@ -220,18 +262,89 @@
                         let estadoBadge = $(elem.parentNode.parentNode).find(".estado");
                         estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-dark").text('Entregado');
                         $(elem).remove();
-                    }).catch((err)=>{
-                        notyf.open({
-                            type: 'error',
-                            message: err
-                        });
-                        console.log(err)
-                    })
+                    }).catch((err) => {
+                    notyf.open({
+                        type: 'error',
+                        message: err
+                    });
+                    console.log(err)
+                })
             }
         });
     }
 
-    $(document).ready(()=>{
+    function setPedidoPendiente(elem) {
+        let pedidoId = elem.dataset.pedidoid;
+        sweet_confirm("Cambio de estado", "¿Desea cambiar el estado del pedido a PENDIENTE nuevamente?", "Si, cambiar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                cambiarEstadoPedido(pedidoId, "PENDIENTE")
+                    .then(() => {
+                        notyf.open({
+                            type: 'success',
+                            message: 'Estado del pedido cambiado correctamente.'
+                        });
+                        let estadoBadge = $(elem.parentNode.parentNode).find(".estado");
+                        estadoBadge.removeClass().addClass("estado text-light p-2 badge bg-warning").text('Pendiente');
+                        $(elem).remove();
+                    }).catch((err) => {
+                    notyf.open({
+                        type: 'error',
+                        message: err
+                    });
+                    console.log(err)
+                })
+            }
+        });
+    }
+
+    function restaurarPedido(pedidoId, clienteEliminado, elem) {
+        if (clienteEliminado) {
+            sweet_confirm("No es posible restaurar el pedido", "Este pedido fue generado por un cliente eliminado, para restaurarlo primero debe restaurar el cliente.", "Ir a Clientes", "Cancelar").then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = window.location.origin + '/clientes/eliminados';
+                }
+            });
+        } else {
+            sweet_confirm("¿Desea restaurar el pedido?", "", "Si, restaurar", "Volver").then((result) => {
+                if (result.isConfirmed) {
+                    return new Promise((resolve, reject) => {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "/pedidos/restaurar/" + pedidoId,
+                            dataType: 'json',
+                            success: function (result) {
+                                resolve("OK");
+                            },
+                            error: function (err) {
+                                reject(err);
+                            }
+                        });
+                    }).then(() => {
+                        pedidos_table.row(elem).remove().draw();
+                        notyf.open({
+                            type: 'success',
+                            message: 'El pedido fue restaurado correctamente.'
+                        });
+                        let tabla_pedidos_body = $("#pedidos_table tbody");
+                        if (tabla_pedidos_body.children.length <= 1) {
+                            tabla_pedidos_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                        }
+                    }).catch((err) => {
+                            console.log(err)
+                            notyf.open({
+                                type: 'error',
+                                duration: 10000,
+                                message: err.responseJSON.msg
+                            });
+                        }
+                    );
+                }
+            });
+        }
+    }
+
+    $(document).ready(() => {
         $('#modalCobranza').on('hidden.bs.modal', function () {
             unsetPedidoACobrar()
         });

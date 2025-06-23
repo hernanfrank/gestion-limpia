@@ -4,9 +4,21 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid">
-   <div class="row mb-2">
+    <div class="row mb-2">
         <div class="col">
-            <a class="float-end me-n25" th:href="@{/clientes/nuevo}">
+            <a th:if="${mostrarEliminados}" class="float-start ms-n25" th:href="@{/clientes/listar}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i>
+                    Volver al listado
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/clientes/eliminados}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-trash2"></i>
+                    Ver Eliminados
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/clientes/nuevo}">
                 <button class="btn btn-primary">
                     <i class="bi bi-person-plus-fill"></i>
                     Nuevo Cliente
@@ -16,37 +28,45 @@
     </div>
     <div class="row">
         <div class="col dataTableWindow">
-        <table id="clientes_table" class="table table-striped border">
-            <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Dirección</th>
-                <th>Teléfono</th>
-                <th>Cantidad de pedidos</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="cliente: ${clientes}">
-                <td th:text="${cliente.nombreApellido}"></td>
-                <td th:text="${cliente.direccion}"></td>
-                <td th:text="${cliente.telefono}"></td>
-                <td th:text="${cliente.pedidos.size() > 0 ? cliente.pedidos.size() : 'Sin pedidos aún'}"></td>
-                <td>
-                    <a title="Editar" class="d-inline nav-link" th:href="@{/clientes/{id}(id=${cliente.id})}">
-                        <button class="btn btn-sm btn-warning text-dark fs-6">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                    </a>
-                    <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarCliente('+${cliente.id}+', this.parentNode.parentNode)'">
-                        <button class="btn btn-sm btn-danger text-dark fs-6">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            <table id="clientes_table" class="table table-striped border">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Cantidad de pedidos</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cliente: ${clientes}">
+                    <td th:text="${cliente.nombreApellido}"></td>
+                    <td th:text="${cliente.direccion}"></td>
+                    <td th:text="${cliente.telefono}"></td>
+                    <td th:text="${cliente.pedidos.size() > 0 ? cliente.pedidos.size() : 'Sin pedidos aún'}"></td>
+                    <td>
+                        <a th:if="${!mostrarEliminados}" title="Editar" class="d-inline nav-link"
+                           th:href="@{/clientes/editar/{id}(id=${cliente.id})}">
+                            <button class="btn btn-sm btn-secondary text-dark fs-6">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </a>
+                        <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link"
+                           th:onclick="'eliminarCliente('+${cliente.id}+', this.parentNode.parentNode)'">
+                            <button class="btn btn-sm btn-danger text-dark fs-6">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </a>
+                        <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link"
+                           th:onclick="'restaurarCliente('+${cliente.id}+', this.parentNode.parentNode)'">
+                            <button class="btn btn-sm btn-warning text-dark fs-6">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -54,40 +74,77 @@
 <footer th:replace="~{components/imports :: footer}"></footer>
 <script>
     var clientes_table = createTable('clientes_table');
-    function eliminarCliente(clienteId,elem){
-        sweet_confirm("Eliminar cliente", "¿Desea eliminar el cliente?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los pedidos asociados</b>.", "Si, eliminar", "Volver").
-        then( (result)=>{
-            if(result.isConfirmed){
+
+    function eliminarCliente(clienteId, elem) {
+        sweet_confirm("Eliminar cliente", "¿Desea eliminar el cliente?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los pedidos asociados</b>.", "Si, eliminar", "Volver").then((result) => {
+            if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         contentType: "application/json",
                         url: "/clientes/eliminar/" + clienteId,
                         dataType: 'json',
-                        success: function(result) {
+                        success: function (result) {
                             resolve("OK");
                         },
-                        error: function(err) {
+                        error: function (err) {
                             reject(err);
                         }
                     });
-                }).then(()=>{
+                }).then(() => {
                     clientes_table.row(elem).remove().draw();
                     notyf.open({
                         type: 'success',
                         message: 'El cliente fue eliminado correctamente.'
                     });
                     let tabla_clientes_body = $("#clientes_table tbody");
-                    if(tabla_clientes_body.children.length <= 1){
+                    if (tabla_clientes_body.children.length <= 1) {
                         tabla_clientes_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
                     }
-                }).catch((err)=>{
+                }).catch((err) => {
+                    console.log(err)
                     notyf.open({
                         type: 'error',
                         message: err.responseJSON.msg
                     });
-                    console.log(err)}
-                );
+                });
+            }
+        });
+    }
+
+    function restaurarCliente(clienteId, elem) {
+        sweet_confirm("¿Desea restaurar el cliente?", "", "Si, restaurar", "Volver").then((result) => {
+            if (result.isConfirmed) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: "/clientes/restaurar/" + clienteId,
+                        dataType: 'json',
+                        success: function (result) {
+                            resolve("OK");
+                        },
+                        error: function (err) {
+                            reject(err);
+                        }
+                    });
+                }).then(() => {
+                    clientes_table.row(elem).remove().draw();
+                    notyf.open({
+                        type: 'success',
+                        message: 'El cliente fue restaurado correctamente.'
+                    });
+                    let tabla_clientes_body = $("#clientes_table tbody");
+                    if (tabla_clientes_body.children.length <= 1) {
+                        tabla_clientes_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                    notyf.open({
+                        type: 'error',
+                        message: err.msg
+                    });
+                });
             }
         });
     }

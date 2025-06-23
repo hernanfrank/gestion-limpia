@@ -7,12 +7,24 @@
 <div class="container-fluid">
   <div class="row mb-2">
     <div class="col">
-      <a class="float-start ms-n25" th:href="@{/productos/reabastecimientos/listar}">
+      <a th:if="${mostrarEliminados}" class="float-start ms-n2" th:href="@{/productos/proveedores/listar}">
         <button class="btn btn-secondary">
-          Volver
+          <i class="bi bi-list-ul"></i>
+          Volver al listado
         </button>
       </a>
-      <a class="float-end me-n25" th:href="@{/productos/proveedores/nuevo}">
+      <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/productos/proveedores/eliminados}">
+        <button class="btn btn-secondary">
+          <i class="bi bi-trash2"></i>
+          Ver Eliminados
+        </button>
+      </a>
+      <a th:if="${!mostrarEliminados}" class="float-start ms-n25" th:href="@{/productos/reabastecimientos/listar}">
+        <button class="btn btn-dark">
+          Volver a Reabastecimientos
+        </button>
+      </a>
+      <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/productos/proveedores/nuevo}">
         <button class="btn btn-primary">
           <i class="bi bi-plus-circle"></i>
           Nuevo Proveedor
@@ -37,21 +49,27 @@
           <td th:text="${proveedor.nombre}"></td>
           <td th:text="${proveedor.telefono}"></td>
           <td th:text="${proveedor.direccion}"></td>
-          <td class="d-flex justify-content-center" th:if="${proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }" style="max-height:115px;overflow-y: scroll">
+          <td class="d-flex justify-content-center" th:if="${!mostrarEliminados && proveedor.reabastecimientos != null && proveedor.reabastecimientos.size() > 0 }" style="max-height:115px;overflow-y: scroll">
             <ul>
               <li th:each="reabastecimiento : ${proveedor.reabastecimientos}" th:text="${#dates.format(reabastecimiento.fecha, 'yyyy/MM/dd')} +  ' - ' + ${reabastecimiento.producto.tipo}"></li>
             </ul>
           </td>
-          <td th:if="${proveedor.reabastecimientos == null || proveedor.reabastecimientos.size() <= 0 }">Sin reabastecimientos aún</td>
+          <td th:if="${!mostrarEliminados && (proveedor.reabastecimientos == null || proveedor.reabastecimientos.size() <= 0)}">Sin reabastecimientos aún</td>
+          <td th:if="${mostrarEliminados}" th:utext="${reabastecimientosMap.get(proveedor.id)}"></td>
           <td>
-            <a title="Editar" class="d-inline nav-link" th:href="@{/productos/proveedores/editar/{id}(id=${proveedor.id})}">
-              <button class="btn btn-sm btn-warning text-dark fs-6">
+            <a th:if="${!mostrarEliminados}" title="Editar" class="d-inline nav-link" th:href="@{/productos/proveedores/editar/{id}(id=${proveedor.id})}">
+              <button class="btn btn-sm btn-secondary text-dark fs-6">
                 <i class="bi bi-pencil-square"></i>
               </button>
             </a>
-            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarProveedor('+${proveedor.id}+', this.parentNode.parentNode)'">
+            <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarProveedor('+${proveedor.id}+', this.parentNode.parentNode)'">
               <button class="btn btn-sm btn-danger text-dark fs-6">
                 <i class="bi bi-trash"></i>
+              </button>
+            </a>
+            <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link" th:onclick="'restaurarProveedor('+${proveedor.id}+', this.parentNode.parentNode)'">
+              <button class="btn btn-sm btn-warning text-dark fs-6">
+                <i class="bi bi-arrow-counterclockwise"></i>
               </button>
             </a>
           </td>
@@ -66,12 +84,12 @@
 <script>
   var proveedores_table = createTable('proveedores_table', pageLength = 7);
   function eliminarProveedor(proveedorId, elem){
-    sweet_confirm("Eliminar proveedor", "¿Desea eliminar el proveedor?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los reabastecimientos asociados</b>.", "Si, eliminar", "Volver").
+    sweet_confirm("Eliminar proveedor", "¿Desea eliminar el proveedor?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los reabastecimientos asociados.<br>Esto puede generar inconsistencias en la cantidad actual del producto.</b>", "Si, eliminar", "Volver").
     then( (result)=>{
       if(result.isConfirmed){
         return new Promise((resolve, reject) => {
           $.ajax({
-            type: "GET",
+            type: "POST",
             contentType: "application/json",
             url: "/productos/proveedores/eliminar/" + proveedorId,
             dataType: 'json',
@@ -87,6 +105,43 @@
           notyf.open({
             type: 'success',
             message: 'El proveedor fue eliminado correctamente.'
+          });
+          let proveedores_table_body = $("#proveedores_table tbody");
+          if(proveedores_table_body.children.length <= 1){
+            proveedores_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+          }
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.responseJSON.msg
+          });
+          console.log(err)}
+        );
+      }
+    });
+  }
+  function restaurarProveedor(proveedorId, elem){
+    sweet_confirm("Restaurar proveedor", "¿Desea restaurar el proveedor?<br/><br/><b style='color:red'>Esto puede generar inconsistencias en la cantidad actual del producto.</b>", "Si, restaurar", "Volver").
+    then( (result)=>{
+      if(result.isConfirmed){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/productos/proveedores/restaurar/" + proveedorId,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          proveedores_table.row(elem).remove().draw();
+          notyf.open({
+            type: 'success',
+            message: 'El proveedor fue restaurado correctamente.'
           });
           let proveedores_table_body = $("#proveedores_table tbody");
           if(proveedores_table_body.children.length <= 1){

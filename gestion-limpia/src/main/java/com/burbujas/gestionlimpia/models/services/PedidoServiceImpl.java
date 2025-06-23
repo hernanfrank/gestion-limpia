@@ -47,6 +47,26 @@ public class PedidoServiceImpl implements IPedidoService{
     }
 
     @Override
+    public List<Object[]> findAllEliminados() {
+        return this.pedidoRepository.findAllEliminados();
+    }
+
+    @Override
+    @Transactional
+    public void restaurarPedido(Long id) throws Exception {
+        try {
+            Object[] cliente = this.pedidoRepository.checkClienteIsEliminadoByPedidoId(id);
+            if ((boolean) cliente[0]) {
+                throw new Exception("No se puede restaurar un pedido que ha sido generado por un cliente eliminado.");
+            }
+            this.pedidoRepository.restaurarPedido(id);
+        } catch (Exception e) {
+            throw new Exception("Error al restaurar el pedido N° "+id+": " + e.getMessage());
+        }
+    }
+
+
+    @Override
     public List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual) {
         return this.pedidoRepository.findAllByEstadoActual(estadoActual);
     }

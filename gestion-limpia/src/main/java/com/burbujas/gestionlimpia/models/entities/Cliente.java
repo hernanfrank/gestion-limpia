@@ -2,21 +2,22 @@ package com.burbujas.gestionlimpia.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "clientes")
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@SQLDelete(sql = "UPDATE clientes SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor @ToString
 public class Cliente implements Serializable {
 
     @Id
+    @ToString.Exclude
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,8 +37,11 @@ public class Cliente implements Serializable {
     @Pattern(regexp = "^$|(?:(?:00)?549?)?0?(?:11|[2368]\\d)(?:(?=\\d{0,2}15)\\d{2})??\\d{8}$", message = "El número de teléfono debe seguir el formato (Código de área)(Número)")
     private String telefono;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pedido> pedidos;
+
+    private boolean eliminado = false;
 
     public void addPedido(Pedido pedido){
         this.pedidos.add(pedido);

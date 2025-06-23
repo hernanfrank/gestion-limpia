@@ -7,7 +7,7 @@
   <div th:replace="~{components/topmenu :: messages}"></div>
   <div class="row mb-2">
     <div class="col">
-      <a class="float-start" th:href="@{/productos/inventario}">
+      <a class="float-start" th:href="@{/productos/listar}">
         <button class="btn btn-secondary">
           Volver
         </button>
@@ -50,8 +50,7 @@
             <td><i style="color:red;font-weight: bold">* </i>Cantidad actual</td>
             <td>
               <input class="form-control w-15" th:errorclass="'border border-danger'" th:field="*{cantidadActual}"
-                     type="number" step="0.01" min="0.00" th:readonly="${(producto.reabastecimientos != null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}"/>
-              <span class="text-warning" th:if="${(producto.reabastecimientos != null && producto.reabastecimientos.size() > 0) || (producto.historialProductoPedidos != null && producto.historialProductoPedidos.size() > 0)}">No es posible editar la cantidad actual de un producto que ya haya sido reabastecido o ya haya sido usado en pedidos</span>
+                     type="number" step="0.01" min="0.00" />
               <small class="text-danger" th:errors="*{cantidadActual}"
                      th:if="${#fields.hasErrors('cantidadActual')}"></small>
             </td>

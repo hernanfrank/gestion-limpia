@@ -51,7 +51,7 @@ public class CajaController {
         this.pedidoService = pedidoService;
     }
 
-    @GetMapping(value = "/movimientoCaja/nuevo")
+    @GetMapping(value = "/movimientosCaja/nuevo")
     public String crearMovimientoCaja(Model model) {
         MovimientoCaja movimientoCaja = new MovimientoCaja();
 
@@ -68,7 +68,7 @@ public class CajaController {
         return "caja/movimientoCaja";
     }
 
-    @PostMapping(value = "/movimientoCaja/guardar")
+    @PostMapping(value = "/movimientosCaja/guardar")
     public String guardarMovimientoCaja(@Valid MovimientoCaja movimientoCaja, BindingResult result, Model model, RedirectAttributes flashmsg) {
 
         if (result.hasErrors()) { // si tiene algún error en la validación lo mostramos en los msg del formulario
@@ -118,7 +118,9 @@ public class CajaController {
     }
 
     @GetMapping(value = {"/movimientosCaja/{fechaDesde}/{fechaHasta}"})
-    public String listarMovimientosCaja(@PathVariable(value = "fechaDesde") String fechaDesde, @PathVariable(value = "fechaHasta") String fechaHasta, RedirectAttributes flashmsg, Model model) throws ParseException {
+    public String listarMovimientosCaja(@PathVariable(value = "fechaDesde") String fechaDesde, @PathVariable(value = "fechaHasta") String fechaHasta, RedirectAttributes flashmsg, Model model) {
+        model.addAttribute("titulo", "Movimientos de caja");
+        model.addAttribute("mostrarEliminados", false);
         try{
             Date fechaDesdeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(fechaDesde+" 00:00:00");
             Date fechaHastaDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(fechaHasta+" 23:59:59");
@@ -136,8 +138,10 @@ public class CajaController {
 
     }
 
-    @GetMapping(value = {"/movimientosCaja"})
+    @GetMapping(value = {"/movimientosCaja/listar", "/movimientosCaja"})
     public String listarMovimientosCaja(Model model){
+        model.addAttribute("titulo", "Movimientos de caja");
+        model.addAttribute("mostrarEliminados", false);
 
         List<MovimientoCaja> movimientosCaja = cajaService.findAllMovimientosCajaOrderByFechaDesc();
 
@@ -149,7 +153,19 @@ public class CajaController {
         return "caja/movimientosCaja";
     }
 
-    @GetMapping(value = "/movimientoCaja/{id}")
+    @GetMapping(value = {"/movimientosCaja/eliminados"})
+    public String listarMovimientosCajaEliminados(Model model){
+        model.addAttribute("titulo", "Movimientos eliminados");
+        model.addAttribute("mostrarEliminados", true);
+
+        List<MovimientoCaja> movimientosCaja = cajaService.findAllMovimientosCajaEliminados();
+
+        model.addAttribute("movimientosCaja", movimientosCaja);
+
+        return "caja/movimientosCaja";
+    }
+
+    @GetMapping(value = "/movimientosCaja/editar/{id}")
     public String editarMovimientoCaja(@PathVariable(value = "id") Long id, RedirectAttributes flashmsg, Model model) {
 
         MovimientoCaja movimientoCaja = cajaService.findMovimientoCajaById(id);
@@ -173,7 +189,7 @@ public class CajaController {
 
     }
 
-    @GetMapping("/movimientoCaja/eliminar/{id}")
+    @PostMapping("/movimientosCaja/eliminar/{id}")
     public ResponseEntity<Object> eliminarMovimientoCaja(@PathVariable(name = "id") Long id){
         try{
             MovimientoCaja movimientoCaja = cajaService.findMovimientoCajaById(id);
@@ -192,7 +208,23 @@ public class CajaController {
                 return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar. No se encontró el movimiento de caja.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }catch (Exception e){
-            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar el movimiento. Intente nuevamente.\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Object>("{\"status\":\"ERROR\",\"msg\": \"Error al eliminar el movimiento. "+e+" \"}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/movimientosCaja/restaurar/{id}")
+    public ResponseEntity<Object> restaurarMovimientoCaja(@PathVariable(name = "id") Long id) {
+        try {
+            this.cajaService.restaurarMovimientoCaja(id);
+            return new ResponseEntity<>(
+                    "{\"status\":\"OK\",\"msg\": \"El movimiento de caja ha sido restaurado correctamente.\"}",
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    "{\"status\":\"ERROR\",\"msg\": \"Error al restaurar el movimiento de caja. " + e.getMessage() + "\"}",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 

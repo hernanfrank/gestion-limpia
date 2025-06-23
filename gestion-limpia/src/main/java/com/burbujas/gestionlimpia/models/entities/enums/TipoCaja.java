@@ -1,7 +1,9 @@
 package com.burbujas.gestionlimpia.models.entities.enums;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum TipoCaja {
     EFECTIVO("Efectivo"),
@@ -9,7 +11,4 @@ public enum TipoCaja {
 
     private final String displayValue;
 
-    public String getDisplayValue() {
-        return displayValue;
-    }
 }

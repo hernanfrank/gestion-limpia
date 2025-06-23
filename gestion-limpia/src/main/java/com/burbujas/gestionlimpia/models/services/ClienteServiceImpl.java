@@ -31,6 +31,11 @@ public class ClienteServiceImpl implements IClienteService{
     }
 
     @Override
+    public List<Cliente> findAllEliminados() {
+        return this.clienteRepository.findAllEliminados();
+    }
+
+    @Override
     @Transactional(readOnly = false)
     public void save(Cliente cliente) {
         this.clienteRepository.save(cliente);
@@ -60,6 +65,12 @@ public class ClienteServiceImpl implements IClienteService{
     @Transactional(readOnly = false)
     public void delete(Long id) {
         this.clienteRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void restaurarCliente(Long id) {
+        this.clienteRepository.restaurarCliente(id);
     }
 
     @Override

@@ -41,29 +41,38 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/index").setViewName("index");
 
-        registry.addViewController("/caja/movimientoCaja").setViewName("caja/movimientoCaja");
-        registry.addViewController("/caja/movimientosCaja").setViewName("caja/movimientosCaja");
+        registry.addViewController("/caja/movimientoCaja/editar/*").setViewName("caja/movimientoCaja");
+        registry.addViewController("/caja/movimientosCaja/listar").setViewName("caja/movimientosCaja");
+        registry.addViewController("/caja/movimientosCaja/eliminados").setViewName("caja/movimientosCaja");
 
-        registry.addViewController("/clientes/clientes").setViewName("clientes/clientes");
-        registry.addViewController("/clientes/cliente").setViewName("clientes/cliente");
+        registry.addViewController("/clientes/listar").setViewName("clientes/clientes");
+        registry.addViewController("/clientes/eliminados").setViewName("clientes/clientes");
+        registry.addViewController("/clientes/editar/*").setViewName("clientes/cliente");
+        registry.addViewController("/clientes/nuevo").setViewName("clientes/cliente");
 
-        registry.addViewController("/inventario/inventario").setViewName("inventario/inventario");
+        registry.addViewController("/productos/listar").setViewName("inventario/inventario");
+        registry.addViewController("/productos/eliminados").setViewName("inventario/inventario");
         registry.addViewController("/inventario/producto").setViewName("inventario/producto");
-        registry.addViewController("/inventario/proveedores/proveedor").setViewName("inventario/proveedores/proveedor");
-        registry.addViewController("/inventario/proveedores/proveedores").setViewName("inventario/proveedores/proveedores");
-        registry.addViewController("/inventario/reabastecimientos/reabastecimiento").setViewName("inventario/reabastecimientos/reabastecimiento");
-        registry.addViewController("/inventario/reabastecimientos/reabastecimientos").setViewName("inventario/reabastecimientos/reabastecimientos");
 
-        registry.addViewController("/maquinas").setViewName("maquinas/maquinas");
+        registry.addViewController("/productos/proveedores/editar/*").setViewName("inventario/proveedores/proveedor");
+        registry.addViewController("/productos/proveedores/listar").setViewName("inventario/proveedores/proveedores");
+        registry.addViewController("/productos/proveedores/eliminados").setViewName("inventario/proveedores/proveedores");
 
-        registry.addViewController("/pedido").setViewName("pedidos/pedido");
-        registry.addViewController("/pedidos").setViewName("pedidos/pedidos");
+        registry.addViewController("/productos/reabastecimientos/editar/*").setViewName("inventario/reabastecimientos/reabastecimiento");
+        registry.addViewController("/productos/reabastecimientos/listar").setViewName("inventario/reabastecimientos/reabastecimientos");
+        registry.addViewController("/productos/reabastecimientos/eliminados").setViewName("inventario/reabastecimientos/reabastecimientos");
+
+        registry.addViewController("/pedido/editar/*").setViewName("pedidos/pedido");
+        registry.addViewController("/pedidos/listar").setViewName("pedidos/pedidos");
+        registry.addViewController("/pedidos/eliminados").setViewName("pedidos/pedidos");
+        registry.addViewController("/pedidos/nuevo/listado").setViewName("pedidos/pedidos");
+        registry.addViewController("/pedidos/nuevo/index").setViewName("pedidos/pedidos");
 
         registry.addViewController("/estadisticas").setViewName("estadisticas");
 
         registry.addViewController("/administracion").setViewName("administracion");
 
-        registry.addViewController("/notificaciones/bajo-stock").setViewName(null);
+        registry.addViewController("/notificaciones/bajoStock").setViewName(null);
 
         registry.addViewController("/login").setViewName("login");
         registry.addViewController("/cambiarClave").setViewName("cambiarClave");

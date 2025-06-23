@@ -6,19 +6,31 @@
 <div class="container-fluid">
   <div class="row mb-2">
     <div class="col">
-      <a class="float-start ms-n25" th:href="@{/productos/inventario}">
+      <a th:if="${mostrarEliminados}" class="float-start ms-n2" th:href="@{/productos/reabastecimientos/listar}">
         <button class="btn btn-secondary">
-          Volver
+          <i class="bi bi-list-ul"></i>
+          Volver al listado
         </button>
       </a>
-      <a class="float-end me-n25" th:href="@{/productos/reabastecimientos/nuevo}">
+      <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/productos/reabastecimientos/eliminados}">
+        <button class="btn btn-secondary">
+          <i class="bi bi-trash2"></i>
+          Ver Eliminados
+        </button>
+      </a>
+      <a th:if="${!mostrarEliminados}" class="float-start ms-n25" th:href="@{/productos/inventario}">
+        <button class="btn btn-dark">
+          Volver a Inventario
+        </button>
+      </a>
+      <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/productos/reabastecimientos/nuevo}">
         <button class="btn btn-primary">
           <i class="bi bi-node-plus"></i>
           Nuevo Reabastecimiento
         </button>
       </a>
-      <a class="float-end me-3" th:href="@{/productos/proveedores/listar}">
-        <button class="btn btn-secondary">
+      <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/productos/proveedores/listar}">
+        <button class="btn btn-dark">
           <i class="bi bi-person-vcard"></i>
           Ver Proveedores
         </button>
@@ -46,14 +58,19 @@
           <td th:text="${#numbers.formatCurrency(reabastecimiento.precio)}"></td>
           <td th:text="${reabastecimiento.proveedor.nombre}"></td>
           <td>
-            <a title="Editar" class="d-inline nav-link" th:href="@{/productos/reabastecimientos/editar/{id}(id=${reabastecimiento.id})}">
-              <button class="btn btn-sm btn-warning text-dark fs-6">
+            <a th:if="${!mostrarEliminados}" title="Editar" class="d-inline nav-link" th:href="@{/productos/reabastecimientos/editar/{id}(id=${reabastecimiento.id})}">
+              <button class="btn btn-sm btn-secondary text-dark fs-6">
                 <i class="bi bi-pencil-square"></i>
               </button>
             </a>
-            <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarReabastecimiento('+${reabastecimiento.id}+', this.parentNode.parentNode)'">
+            <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarReabastecimiento('+${reabastecimiento.id}+', this.parentNode.parentNode)'">
               <button class="btn btn-sm btn-danger text-dark fs-6">
                 <i class="bi bi-trash"></i>
+              </button>
+            </a>
+            <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link" th:onclick="'restaurarReabastecimiento('+${reabastecimiento.id}+', this.parentNode.parentNode)'">
+              <button class="btn btn-sm btn-warning text-dark fs-6">
+                <i class="bi bi-arrow-counterclockwise"></i>
               </button>
             </a>
           </td>
@@ -68,12 +85,12 @@
 <script>
   var reabastecimientos_table = createTable('reabastecimientos_table');
   function eliminarReabastecimiento(reabastecimientoId, elem){
-    sweet_confirm("Eliminar reabastecimiento", "¿Desea eliminar el reabastecimiento?", "Si, eliminar", "Volver").
+    sweet_confirm("Eliminar reabastecimiento", "¿Desea eliminar el reabastecimiento?<br/><br/><b style='color:red'>Esto puede generar inconsistencias en la cantidad actual del producto.</b>", "Si, eliminar", "Volver").
     then( (result)=>{
       if(result.isConfirmed){
         return new Promise((resolve, reject) => {
           $.ajax({
-            type: "GET",
+            type: "POST",
             contentType: "application/json",
             url: "/productos/reabastecimientos/eliminar/" + reabastecimientoId,
             dataType: 'json',
@@ -89,6 +106,43 @@
           notyf.open({
             type: 'success',
             message: 'El reabastecimiento fue eliminado correctamente.'
+          });
+          let reabastecimientos_table_body = $("#reabastecimientos_table tbody");
+          if(reabastecimientos_table_body.children.length <= 1){
+            reabastecimientos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+          }
+        }).catch((err)=>{
+          notyf.open({
+            type: 'error',
+            message: err.responseJSON.msg
+          });
+          console.log(err)}
+        );
+      }
+    });
+  }
+  function restaurarReabastecimiento(reabastecimientoId, elem){
+    sweet_confirm("Restaurar reabastecimiento", "¿Desea restaurar el reabastecimiento?<br/><br/><b style='color:red'>Esto puede generar inconsistencias en la cantidad actual del producto.</b>", "Si, restaurar", "Volver").
+    then( (result)=>{
+      if(result.isConfirmed){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/productos/reabastecimientos/restaurar/" + reabastecimientoId,
+            dataType: 'json',
+            success: function(result) {
+              resolve("OK");
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        }).then(()=>{
+          reabastecimientos_table.row(elem).remove().draw();
+          notyf.open({
+            type: 'success',
+            message: 'El reabastecimiento fue restaurado correctamente.'
           });
           let reabastecimientos_table_body = $("#reabastecimientos_table tbody");
           if(reabastecimientos_table_body.children.length <= 1){

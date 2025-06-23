@@ -6,14 +6,26 @@
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col">
-            <a class="float-end me-n25" th:href="@{/productos/nuevo}">
+            <a th:if="${mostrarEliminados}" class="float-start ms-n2" th:href="@{/productos/inventario}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i>
+                    Volver al listado
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-n25" th:href="@{/productos/eliminados}">
+                <button class="btn btn-secondary">
+                    <i class="bi bi-trash2"></i>
+                    Ver Eliminados
+                </button>
+            </a>
+            <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/productos/nuevo}">
                 <button class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i>
                     Nuevo Producto
                 </button>
             </a>
-            <a class="float-end me-3" th:href="@{/productos/reabastecimientos/listar}">
-                <button class="btn btn-secondary">
+            <a th:if="${!mostrarEliminados}" class="float-end me-2" th:href="@{/productos/reabastecimientos/listar}">
+                <button class="btn btn-dark">
                     <i class="bi bi-diagram-2"></i>
                     Ver Reabastecimientos
                 </button>
@@ -34,25 +46,30 @@
                 </thead>
                 <tbody>
                 <tr th:each="producto: ${productos}">
-                    <td th:text="${producto.tipo}" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
-                    <td th:text="${producto.cantidadActual == null ? '0.00' : #numbers.formatDecimal(producto.cantidadActual, 1, 2)} + ' litro/s'" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
-                    <td th:text="${producto.umbralAvisoReabastecimiento == null ? 'Sin aviso' : #numbers.formatDecimal(producto.umbralAvisoReabastecimiento, 1, 2)} + ' litro/s'" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
-                    <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}" th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
-                    <td th:class="${producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}">
-                        <a class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
+                    <td th:text="${producto.tipo}" th:class="${!mostrarEliminados && producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
+                    <td th:text="${producto.cantidadActual == null ? '0.00' : #numbers.formatDecimal(producto.cantidadActual, 1, 2)} + ' litro/s'" th:class="${!mostrarEliminados && producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
+                    <td th:text="${producto.umbralAvisoReabastecimiento == null ? 'Sin aviso' : #numbers.formatDecimal(producto.umbralAvisoReabastecimiento, 1, 2)} + ' litro/s'" th:class="${!mostrarEliminados && producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
+                    <td th:text="${producto.reabastecimientos != null && producto.reabastecimientos.size() > 0 ? #dates.format(producto.reabastecimientos.get(producto.reabastecimientos.size() - 1).fecha, 'dd/MM/yyyy') : 'Nunca'}" th:class="${!mostrarEliminados && producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}"></td>
+                    <td th:class="${!mostrarEliminados && producto.cantidadActual <= producto.umbralAvisoReabastecimiento ? 'bg-warning' : ''}">
+                        <a th:if="${!mostrarEliminados}" class="d-inline nav-link" th:href="@{/productos/reabastecimientos/nuevo/{id}(id=${producto.id})}">
                             <button class="btn btn-sm btn-primary">
                                 <i class="bi bi-node-plus"></i>
                                 Cargar Reabastecimiento
                             </button>
                         </a>
-                        <a title="Editar" class="d-inline nav-link" th:href="@{/productos/{id}(id=${producto.id})}">
-                            <button class="btn btn-sm btn-warning text-dark fs-6">
+                        <a th:if="${!mostrarEliminados}" title="Editar" class="d-inline nav-link" th:href="@{/productos/editar/{id}(id=${producto.id})}">
+                            <button class="btn btn-sm btn-secondary text-dark fs-6">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                         </a>
-                        <a title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarProducto('+${producto.id}+', this.parentNode.parentNode)'">
+                        <a th:if="${!mostrarEliminados}" title="Eliminar" class="d-inline nav-link" th:onclick="'eliminarProducto('+${producto.id}+', this.parentNode.parentNode)'">
                             <button class="btn btn-sm btn-danger text-dark fs-6">
                                 <i class="bi bi-trash"></i>
+                            </button>
+                        </a>
+                        <a th:if="${mostrarEliminados}" title="Restaurar" class="d-inline nav-link" th:onclick="'restaurarProducto('+${producto.id}+', this.parentNode.parentNode)'">
+                            <button class="btn btn-sm btn-warning text-dark fs-6">
+                                <i class="bi bi-arrow-counterclockwise"></i>
                             </button>
                         </a>
                     </td>
@@ -72,7 +89,7 @@
             if(result.isConfirmed){
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         contentType: "application/json",
                         url: "/productos/eliminar/" + productoId,
                         dataType: 'json',
@@ -100,6 +117,43 @@
                     });
                     console.log(err)}
                 );
+            }
+        });
+    }
+    function restaurarProducto(productoId, elem){
+        sweet_confirm("Restaurar producto", "¿Desea restaurar el producto?", "Si, restaurar", "Volver").
+        then( (result)=>{
+            if(result.isConfirmed){
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: "/productos/restaurar/" + productoId,
+                        dataType: 'json',
+                        success: function(result) {
+                            resolve("OK");
+                        },
+                        error: function(err) {
+                            reject(err);
+                        }
+                    });
+                }).then(()=>{
+                    productos_table.row(elem).remove().draw();
+                    notyf.open({
+                        type: 'success',
+                        message: 'El producto fue restaurado correctamente.'
+                    });
+                    let productos_table_body = $("#productos_table tbody");
+                    if(productos_table_body.children.length <= 1){
+                        productos_table_body.append('<tr class="odd"><td valign="top" colspan="9" class="dataTables_empty">Ningún dato disponible en esta tabla</td></tr>');
+                    }
+                }).catch((err)=> {
+                    console.log(err)
+                    notyf.open({
+                        type: 'error',
+                        message: err.responseJSON.msg
+                    });
+                });
             }
         });
     }

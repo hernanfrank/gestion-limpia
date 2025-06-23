@@ -1,21 +1,19 @@
 package com.burbujas.gestionlimpia.models.repositories;
 
+import com.burbujas.gestionlimpia.models.entities.Cliente;
 import com.burbujas.gestionlimpia.models.entities.Pedido;
 import com.burbujas.gestionlimpia.models.entities.TipoPedido;
 import com.burbujas.gestionlimpia.models.entities.enums.EstadoPedido;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
@@ -23,6 +21,56 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
     Pedido findByMaquinaActualId(Long maquinaId);
 
     List<Pedido> findAllByOrderByEstadoActualDescPrioridadDescFechaHoraIngresoAsc();
+
+    @Query(value = """
+        SELECT 
+            p.id AS pedido_id,
+            p.fecha_hora_ingreso AS pedido_fecha_hora_ingreso,
+            p.fecha_hora_entrega AS pedido_fecha_hora_entrega,
+            p.precio AS pedido_precio,
+            p.prioridad AS pedido_prioridad,
+            p.estado_actual AS pedido_estado_actual,
+            p.descripcion AS pedido_descripcion,
+            c.nombre_apellido AS cliente_nombre_apellido,
+            c.eliminado AS cliente_eliminado,
+            tp.descripcion AS tipo_pedido_descripcion
+        FROM pedidos p 
+        JOIN tipos_pedido tp ON p.tipo_id = tp.id
+        LEFT JOIN clientes c ON p.cliente_id = c.id
+        WHERE p.eliminado = TRUE
+        ORDER BY pedido_id DESC
+    """, nativeQuery = true)
+    List<Object[]> findAllEliminados();
+
+    @Query(value = """
+        SELECT
+            c.eliminado
+        FROM clientes c
+        JOIN pedidos p ON p.cliente_id = c.id
+        WHERE p.id = :id
+    """, nativeQuery = true)
+    Object[] checkClienteIsEliminadoByPedidoId(@Param("id") Long id);
+
+    @Modifying
+    @Transactional // vuelve a poner eliminado = false el pedido y los registros que referencian a este pedido en otras tablas
+    @Query(value ="""
+            UPDATE pedidos p,
+                   historial_estados_pedidos hep,
+                   historial_maquinas_pedidos hmp,
+                   historial_productos_pedidos hpp,
+                   movimientos_caja mc
+            SET p.eliminado = false,
+                hep.eliminado = false,
+                hmp.eliminado = false,
+                hpp.eliminado = false,
+                mc.eliminado = false
+            WHERE p.id = :id
+                AND hep.pedido_id = p.id
+                AND hmp.pedido_id = p.id
+                AND hpp.pedido_id = p.id
+                AND mc.pedido_id = p.id
+       """, nativeQuery = true)
+    void restaurarPedido(@Param("id") Long id);
 
     List<Pedido> findAllByEstadoActual(EstadoPedido estadoActual);
 

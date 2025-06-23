@@ -9,6 +9,9 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -18,7 +21,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "pedidos")
-@Getter @Setter @AllArgsConstructor
+@SQLDelete(sql = "UPDATE pedidos SET eliminado = true WHERE id = ?")
+@SQLRestriction("eliminado <> true")
+@Getter @Setter @AllArgsConstructor @ToString
 public class Pedido implements Serializable {
 
     @Id
@@ -62,17 +67,23 @@ public class Pedido implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Maquina maquinaActual;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialEstadoPedido> historialEstadoPedido;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialMaquinaPedido> historialMaquinaPedido;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<HistorialProductoPedido> historialProductoPedido;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<MovimientoCaja> movimientosCaja;
+
+    private boolean eliminado = false;
 
     public Pedido() {
         this.fechaHoraIngreso = new Timestamp(System.currentTimeMillis());
