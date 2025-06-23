@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{components/imports :: head}"></head>
+<style>
+  #stack-trace{
+    color:#b30e0e;
+    background: #f4f4f4;
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ddd;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-width: 80%;
+    margin-left: 10%;
+    max-height: 55vh;
+  }
+</style>
+<body>
+<div th:replace="~{components/topmenu :: navbar}"></div>
+<div class="d-flex justify-content-center align-items-center">
+  <div class="col-md-12 text-center">
+    <h1 class="mt-5 mb-3 h2">Ha ocurrido un error desconocido</h1>
+    <p style="font-size: 1.2em;">
+      Por favor, contáctese con soporte y proporciónele el siguiente texto:
+    </p>
+    <pre id="stack-trace">
+      <span th:utext="${stackTrace}"></span>
+    </pre>
+    <button class="btn btn-primary" onclick="copyToClipboard()">Copiar al portapapeles</button>  </div>
+</div>
+<script>
+  function copyToClipboard() {
+    const stackTrace = document.getElementById('stack-trace');
+    navigator.clipboard.writeText(stackTrace.innerText).then(() => {
+      notyf.open({
+        type: 'success',
+        message: 'El texto se copió al portapapeles',
+        duration: 15000
+      });
+    });
+  }
+</script>
+</body>
+<footer th:replace="~{components/imports :: footer}"></footer>
+<div th:replace="~{components/topmenu :: messages}"></div>
+</html>

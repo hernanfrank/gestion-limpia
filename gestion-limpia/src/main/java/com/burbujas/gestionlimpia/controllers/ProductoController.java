@@ -75,7 +75,7 @@ public class ProductoController {
         flashmsg.addFlashAttribute("messageType", "success");
         flashmsg.addFlashAttribute("message", "Listado de productos actualizado.");
 
-        return "redirect:/productos/inventario";
+        return "redirect:/productos/listar";
     }
 
     @GetMapping(value = {"/listar", "/", "" })
@@ -132,7 +132,7 @@ public class ProductoController {
         } else {
             flashmsg.addFlashAttribute("messageType", "error");
             flashmsg.addFlashAttribute("message", "No se encontró el producto.");
-            return "redirect:/productos/inventario";
+            return "redirect:/productos/listar";
         }
 
     }

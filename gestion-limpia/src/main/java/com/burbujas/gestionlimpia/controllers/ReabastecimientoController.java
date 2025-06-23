@@ -130,7 +130,7 @@ public class ReabastecimientoController {
         }else{
             flashmsg.addFlashAttribute("messageType","error");
             flashmsg.addFlashAttribute("message","Error al crear Reabastecimiento. No se encontró el producto.");
-            return "redirect:/productos/inventario";
+            return "redirect:/productos/listar";
         }
     }
 

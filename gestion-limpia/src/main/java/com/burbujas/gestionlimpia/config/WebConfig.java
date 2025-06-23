@@ -42,31 +42,35 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/index").setViewName("index");
 
         registry.addViewController("/caja/movimientoCaja/editar/*").setViewName("caja/movimientoCaja");
+        registry.addViewController("/caja/movimientoCaja/nuevo").setViewName("caja/movimientoCaja");
         registry.addViewController("/caja/movimientosCaja/listar").setViewName("caja/movimientosCaja");
         registry.addViewController("/caja/movimientosCaja/eliminados").setViewName("caja/movimientosCaja");
 
-        registry.addViewController("/clientes/listar").setViewName("clientes/clientes");
-        registry.addViewController("/clientes/eliminados").setViewName("clientes/clientes");
         registry.addViewController("/clientes/editar/*").setViewName("clientes/cliente");
         registry.addViewController("/clientes/nuevo").setViewName("clientes/cliente");
+        registry.addViewController("/clientes/listar").setViewName("clientes/clientes");
+        registry.addViewController("/clientes/eliminados").setViewName("clientes/clientes");
 
+        registry.addViewController("/productos/editar/*").setViewName("inventario/producto");
+        registry.addViewController("/productos/nuevo").setViewName("inventario/producto");
         registry.addViewController("/productos/listar").setViewName("inventario/inventario");
         registry.addViewController("/productos/eliminados").setViewName("inventario/inventario");
-        registry.addViewController("/inventario/producto").setViewName("inventario/producto");
 
         registry.addViewController("/productos/proveedores/editar/*").setViewName("inventario/proveedores/proveedor");
+        registry.addViewController("/productos/proveedores/nuevo").setViewName("inventario/proveedores/proveedor");
         registry.addViewController("/productos/proveedores/listar").setViewName("inventario/proveedores/proveedores");
         registry.addViewController("/productos/proveedores/eliminados").setViewName("inventario/proveedores/proveedores");
 
         registry.addViewController("/productos/reabastecimientos/editar/*").setViewName("inventario/reabastecimientos/reabastecimiento");
+        registry.addViewController("/productos/reabastecimientos/nuevo").setViewName("inventario/reabastecimientos/reabastecimiento");
         registry.addViewController("/productos/reabastecimientos/listar").setViewName("inventario/reabastecimientos/reabastecimientos");
         registry.addViewController("/productos/reabastecimientos/eliminados").setViewName("inventario/reabastecimientos/reabastecimientos");
 
         registry.addViewController("/pedido/editar/*").setViewName("pedidos/pedido");
-        registry.addViewController("/pedidos/listar").setViewName("pedidos/pedidos");
-        registry.addViewController("/pedidos/eliminados").setViewName("pedidos/pedidos");
         registry.addViewController("/pedidos/nuevo/listado").setViewName("pedidos/pedidos");
         registry.addViewController("/pedidos/nuevo/index").setViewName("pedidos/pedidos");
+        registry.addViewController("/pedidos/listar").setViewName("pedidos/pedidos");
+        registry.addViewController("/pedidos/eliminados").setViewName("pedidos/pedidos");
 
         registry.addViewController("/estadisticas").setViewName("estadisticas");
 
@@ -77,5 +81,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/login").setViewName("login");
         registry.addViewController("/cambiarClave").setViewName("cambiarClave");
         registry.addViewController("/logout").setViewName("redirect:/login?logout");
+
+        registry.addViewController("/error/404").setViewName("error/404");
+        registry.addViewController("/error/default").setViewName("error/default");
     }
 }
