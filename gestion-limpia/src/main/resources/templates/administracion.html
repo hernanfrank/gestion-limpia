@@ -254,7 +254,7 @@
     }
 
     function crearTipoPedido() {
-        sweet_confirm("¿Desea crear el tipo de pedido?", "", "Si, crear", "Volver").then((result) => {
+        sweet_confirm("¿Desea crear el tipo de pedido?", "", "Si, crear", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 const tipoPedidoData = {
                     "id": null,
@@ -351,7 +351,7 @@
     }
 
     function editarTipoPedido() {
-        sweet_confirm("¿Desea editar el tipo de pedido?", "", "Si, editar", "Volver").then((result) => {
+        sweet_confirm("¿Desea editar el tipo de pedido?", "", "Si, editar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 const tipoPedidoData = {
                     "id": $("#tipoPedidoModal #idTipoPedido").val(),
@@ -397,7 +397,7 @@
 
     function eliminarTipoPedido(elem) {
         let tipoPedidoId = elem.dataset.tipopedidoid;
-        sweet_confirm("¿Desea eliminar el tipo de pedido?", "", "Si, eliminar", "Volver").then((result) => {
+        sweet_confirm("¿Desea eliminar el tipo de pedido?", "", "Si, eliminar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -445,7 +445,7 @@
         const formData = new FormData();
         formData.append("archivoBackup", archivo);
 
-        sweet_confirm("Restaurar base de datos", "<b style='color:red'>Atención: esta acción es irreversible.</b><br/><br/><br/><div class='d-inline-block' style='width:38%'>*Clave de acceso:</div><input type='password' class='form-control m-auto my-1 d-inline-block' style='width:50%' id='claveAccesoRestaurar' placeholder='Ingrese su clave' required/>", "Restaurar", "Volver").then((result) => {
+        sweet_confirm("Restaurar base de datos", "<b style='color:red'>Atención: esta acción es irreversible.</b><br/><br/><br/><div class='d-inline-block' style='width:38%'>*Clave de acceso:</div><input type='password' class='form-control m-auto my-1 d-inline-block' style='width:50%' id='claveAccesoRestaurar' placeholder='Ingrese su clave' required/>", "Restaurar", "Cerrar").then((result) => {
             if ($("#claveAccesoRestaurar").val() === "") {
                 notyf.open({
                     type: 'warning',
@@ -519,7 +519,7 @@
         const formData = new FormData();
         formData.append("claveActual", $("#claveActual").val());
         formData.append("claveNueva", $("#claveNueva").val());
-        sweet_confirm("Cambiar clave de acceso", "¿Está seguro que desea cambiar su clave de acceso al sistema?", "Cambiar", "Volver").then((result) => {
+        sweet_confirm("Cambiar clave de acceso", "¿Está seguro que desea cambiar su clave de acceso al sistema?", "Cambiar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -592,7 +592,7 @@
         const formData = new FormData();
         formData.append("emailActual", $("#emailActual").val());
         formData.append("emailNuevo", $("#emailNuevo").val());
-        sweet_confirm("Cambiar email de acceso", "¿Está seguro que desea cambiar su email de acceso al sistema?", "Cambiar", "Volver").then((result) => {
+        sweet_confirm("Cambiar email de acceso", "¿Está seguro que desea cambiar su email de acceso al sistema?", "Cambiar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({

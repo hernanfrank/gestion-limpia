@@ -119,14 +119,14 @@ public class PedidoController {
             }
 
             // cuando se edita un pedido la descripción queda como string vacío en vez de null, asi que lo evitamos acá
-            if (pedido.getDescripcion().equals("")) {
+            if (pedido.getDescripcion().isEmpty()) {
                 pedido.setDescripcion(null);
             }
 
             // recibimos el objeto pedido del formulario y lo persistimos
             pedidoService.save(pedido);
             flashmsg.addFlashAttribute("messageType", "success");
-            flashmsg.addFlashAttribute("message", "Listado de pedidos actualizado");
+            flashmsg.addFlashAttribute("message", "Se creó correctamente el pedido N°" + pedido.getId() + ".");
 
             // redirigimos al listado
             return "redirect:/";

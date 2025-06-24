@@ -97,7 +97,7 @@
                         <div class="col-3">
                             <div class="card stat-card-border">
                                 <div class="card-body py-2">
-                                    <p class="card-text mb-2">Costos de Inventario</p>
+                                    <p class="card-text mb-2">Gastos en Productos</p>
                                     <h3 class="card-title d-inline-block" th:text="${#numbers.formatCurrency(costosInventario.valor)}"></h3>
                                     <span th:class="'fw-bold mb-0 '+${costosInventario.porcentaje < 0 ? 'text-success': (costosInventario.porcentaje > 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(costosInventario.porcentaje,1,2)}"></span>
                                 </div>

@@ -76,7 +76,7 @@
     var clientes_table = createTable('clientes_table');
 
     function eliminarCliente(clienteId, elem) {
-        sweet_confirm("Eliminar cliente", "¿Desea eliminar el cliente?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los pedidos asociados</b>.", "Si, eliminar", "Volver").then((result) => {
+        sweet_confirm("Eliminar cliente", "¿Desea eliminar el cliente?<br/><br/><b style='color:red'>Al hacerlo también se eliminarán todos los pedidos asociados</b>.", "Si, eliminar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -113,7 +113,7 @@
     }
 
     function restaurarCliente(clienteId, elem) {
-        sweet_confirm("¿Desea restaurar el cliente?", "", "Si, restaurar", "Volver").then((result) => {
+        sweet_confirm("¿Desea restaurar el cliente?", "", "Si, restaurar", "Cerrar").then((result) => {
             if (result.isConfirmed) {
                 return new Promise((resolve, reject) => {
                     $.ajax({

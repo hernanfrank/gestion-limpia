@@ -14,12 +14,12 @@
               <i class="material-icons">
                 local_laundry_service
               </i>
-              <span style="vertical-align: super" th:text="${'Lavadora '+ maquinaLavadora.key}"></span>
+              <span style="vertical-align: super">Lavadora</span>
             </div>
             <div class="card-body d-flex justify-content-center">
               <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
               <ul class="pedido-asignado" data-tipo="lavadora">
-                <li th:if="${maquinaLavadora.value != null}" th:with="pedido = ${maquinaLavadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
+                <li th:if="${maquinaLavadora.value != null}" th:with="pedido = ${maquinaLavadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).BAJA ? 'prioridad-baja':'')}">
                   <div  th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-urgente' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
                     <i class="material-icons" style="font-size:21px;margin-left:-1rem">
                       receipt_long
@@ -54,12 +54,12 @@
                   <i class="material-icons">
                     dry_cleaning
                   </i>
-                  <span style="vertical-align: super" th:text="${'Secadora '+ maquinaSecadora.key}"></span>
+                  <span style="vertical-align: super">Secadora</span>
                 </div>
                 <div class="card-body d-flex justify-content-center">
                   <p class="sin-pedido-text card-text h6 text-muted text-center m-0 p-0 mt-5 position-absolute">Sin pedido asignado</p>
                   <ul class="pedido-asignado" data-tipo="secadora">
-                    <li th:if="${maquinaSecadora.value != null}" th:with="pedido = ${maquinaSecadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : ''}">
+                    <li th:if="${maquinaSecadora.value != null}" th:with="pedido = ${maquinaSecadora.value}" role="button" th:class="'pedido card my-2 border-2 user-select-none  ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE || pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'border-danger rounded-3' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).BAJA ? 'prioridad-baja':'')}">
                       <div  th:class="'p-0 card-header text-center ' + ${pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).URGENTE ? 'bg-urgente' : (pedido.prioridad == T(com.burbujas.gestionlimpia.models.entities.enums.Prioridad).PRIORITARIO ? 'bg-danger-subtle':'')}">
                         <i class="material-icons" style="font-size:21px;margin-left:-1rem">
                           receipt_long
@@ -420,6 +420,7 @@
                   // cambiamos a finalizado y luego a cobrado
                   cambiarEstadoPedido(pedidoId, "FINALIZADO")
                     .then(()=>{
+                      duplicate_pedido.remove();
                       notyf.open({
                         type: 'success',
                         message: 'Pedido finalizado correctamente. Proceda con la cobranza.'
@@ -429,13 +430,12 @@
                       $('#modalCobranza').modal('show');
                       $('#modalCobranza #btn-cobro').on('click',()=>{
                         const entregarText = entregaPedidosAutomatica ? "<br/><br/><b class='text-warning'>Recuerde que también se marcará como entregado.</b> <small>Puede desactivarlo en <a href='/administracion'>Administración</a></small>":'';
-                        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?"+entregarText, "Si, cobrar", "Volver").
+                        sweet_confirm("Cobranza de pedido", "¿Desea cobrar el pedido?"+entregarText, "Si, cobrar", "Cerrar").
                         then( (result)=>{
                           if(result.isConfirmed){
                             cobrarPedido()
                           }
                         });
-
                       });
                     }).catch(
                     (error)=>{
@@ -492,7 +492,7 @@
           event.target.classList.remove('drop-target');
         },
         ondrop: function (event) {
-          sweet_confirm("Cancelar Pedido", "¿Desea cancelar el pedido?", "Si, cancelar", "Volver").
+          sweet_confirm("Cancelar Pedido", "¿Desea cancelar el pedido?", "Si, cancelar", "Cerrar").
           then( (result)=>{
             dragging = false;
 
@@ -553,7 +553,7 @@
             }else if(result.status === "REPETIDO"){
               // si HttpStatus es OK pero result.status es REPETIDO,
               // es pq ya pasó por este estado... pregunto si quiere repetirlo
-              sweet_confirm("Atención", result.msg, "Si, asignar", "Volver").
+              sweet_confirm("Atención", result.msg, "Si, asignar", "Cerrar").
               then( (result)=>{
                 if(result.isConfirmed){
                   asignarPedidoAMaquina(pedidoId, maquinaNumero, true)

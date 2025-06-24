@@ -139,7 +139,7 @@
                 }
             });
         } else {
-            sweet_confirm("¿Desea eliminar el movimiento?", "", "Si, eliminar", "Volver").then((result) => {
+            sweet_confirm("¿Desea eliminar el movimiento?", "", "Si, eliminar", "Cerra").then((result) => {
                 if (result.isConfirmed) {
                     return new Promise((resolve, reject) => {
                         $.ajax({
@@ -185,7 +185,7 @@
                 }
             });
         } else {
-            sweet_confirm("¿Desea restaurar el movimiento de caja?", "", "Si, restaurar", "Volver").then((result) => {
+            sweet_confirm("¿Desea restaurar el movimiento de caja?", "", "Si, restaurar", "Cerrar").then((result) => {
                 if (result.isConfirmed) {
                     return new Promise((resolve, reject) => {
                         $.ajax({
