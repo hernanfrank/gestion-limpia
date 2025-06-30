@@ -144,10 +144,12 @@ public class CajaController {
         model.addAttribute("mostrarEliminados", false);
 
         List<MovimientoCaja> movimientosCaja = cajaService.findAllMovimientosCajaOrderByFechaDesc();
-
-        Date fechaDesdeDate = movimientosCaja.get(movimientosCaja.size()-1).getFecha();// fecha del movimiento más antigüo
-        Date fechaHastaDate = movimientosCaja.get(0).getFecha(); // fecha del movimiento más nuevo
-
+        Date fechaDesdeDate = new Date();
+        Date fechaHastaDate = new Date();
+        if(!movimientosCaja.isEmpty()) {
+            fechaDesdeDate = movimientosCaja.get(movimientosCaja.size() - 1).getFecha();// fecha del movimiento más antigüo
+            fechaHastaDate = movimientosCaja.get(0).getFecha(); // fecha del movimiento más nuevo
+        }
         setModelAttributesListadoMovimientosCaja(model, movimientosCaja, fechaDesdeDate, fechaHastaDate);
 
         return "caja/movimientosCaja";

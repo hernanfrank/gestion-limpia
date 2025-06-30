@@ -41,6 +41,13 @@ public class EstadisticasController {
         List<Date> mesesConDatos = pedidoService.findAllMonthsWithPedidosEntregados();
         model.addAttribute("mesesConDatos", mesesConDatos);
 
+        if(mesesConDatos.isEmpty()){
+            model.addAttribute("sinDatos",true);
+            return "estadisticas";
+        }else{
+            model.addAttribute("sinDatos",false);
+        }
+
         if (fechaBusqueda == null) {
             fechaBusqueda = mesesConDatos.get(0).toString();
         }

@@ -27,6 +27,8 @@
 <body>
 <div th:replace="~{components/topmenu :: navbar}"></div>
 <div class="container-fluid p-1 pb-0">
+    <div th:if="${sinDatos}"><h1 style="font-size: 1.5rem;display:flex;justify-content:center;margin-top:30vh">Aún no se registran pedidos completados en el sistema.</h1></div>
+    <div th:if="${!sinDatos}">
     <div id="menu-superior" class="row pb-2">
         <div class="col-1"></div>
         <div class="col">
@@ -327,6 +329,7 @@
         </div>
         </div>
         <div class="col-1"></div>
+    </div>
     </div>
 </div>
 </body>
