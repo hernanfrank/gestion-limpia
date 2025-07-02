@@ -109,7 +109,7 @@
                             <div class="card stat-card-border">
                                 <div class="card-body py-2">
                                     <p class="card-text mb-2">Tiempo por Pedido</p>
-                                    <h3 class="card-title d-inline-block" th:text="${tiempoPorPedido.valor+' días'}"></h3>
+                                    <h3 class="card-title d-inline-block" th:text="${#numbers.formatDecimal(tiempoPorPedido.valor, 0, 2)}"></h3><span class="me-2">días</span>
                                     <span th:class="'fw-bold mb-0 '+${tiempoPorPedido.porcentaje > 0 ? 'text-success': (tiempoPorPedido.porcentaje < 0 ? 'text-danger' : 'text-secondary')}" th:text="${#numbers.formatPercent(tiempoPorPedido.porcentaje,1,2)}"></span>
                                 </div>
                             </div>
